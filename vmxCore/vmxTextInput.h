@@ -102,29 +102,29 @@ public:
 
 
 
-class vmxTextInput_API vmxTextInputInteractorLeftButtonDownCallback : public vtkCommand
-{
-    
-public:
-    
-    /// Pointer to text input that uses this callback.
-    vmxTextInput *m_text_input;
-    
-    /// Constructor.
-    vmxTextInputInteractorLeftButtonDownCallback();
-    
-    /// Destructor.
-    ~vmxTextInputInteractorLeftButtonDownCallback();
-    
-    /// Initialize the text input linked to this callback
-    void SetTextInput(vmxTextInput *text_input);
-    
-    /// Create new object instance.
-    static vmxTextInputInteractorLeftButtonDownCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
+//class vmxTextInput_API vmxTextInputInteractorLeftButtonDownCallback : public vtkCommand
+//{
+//    
+//public:
+//    
+//    /// Pointer to text input that uses this callback.
+//    vmxTextInput *m_text_input;
+//    
+//    /// Constructor.
+//    vmxTextInputInteractorLeftButtonDownCallback();
+//    
+//    /// Destructor.
+//    ~vmxTextInputInteractorLeftButtonDownCallback();
+//    
+//    /// Initialize the text input linked to this callback
+//    void SetTextInput(vmxTextInput *text_input);
+//    
+//    /// Create new object instance.
+//    static vmxTextInputInteractorLeftButtonDownCallback* New();
+//    
+//    /// Method that executes when the callback is called.
+//    virtual void Execute(vtkObject *caller, unsigned long, void *);
+//};
 
 
 
@@ -225,10 +225,11 @@ public:
     unsigned int m_placement_relative_percentages[2];
     
     /// Assigned VTK Render Window Interactor.
+    //vtkSmartPointer<vtkRenderWindowInteractor> m_interactor;
     vtkRenderWindowInteractor *m_interactor;
     
-    /// Indicates if the text input was picked with the last left click and is therefore currently active.
-    int m_is_active;
+//    /// Indicates if the text input was picked with the last left click and is therefore currently active.
+//    int m_is_active;
     
     /// Font size of the used chacaters.
     int m_font_size;
@@ -239,8 +240,8 @@ public:
     /// Callback regulating the positioning of the object when the render window is resized.
     vtkSmartPointer<vmxTextInputRenderWindowModifiedCallback> m_window_modified_callback;
     
-    /// Callback executed when the left button is pressed.
-    vtkSmartPointer<vmxTextInputInteractorLeftButtonDownCallback> m_left_button_down_callback;
+//    /// Callback executed when the left button is pressed.
+//    vtkSmartPointer<vmxTextInputInteractorLeftButtonDownCallback> m_left_button_down_callback;
     
     /// Callback executed when the left button is released.
     vtkSmartPointer<vmxTextInputInteractorLeftButtonUpCallback> m_left_button_up_callback;
@@ -275,8 +276,8 @@ public:
     /// To be used in case window changes size.
     void RedoPlacement();
     
-    /// Set activity indicator.
-    void SetActive(int is_active) { m_is_active = is_active; };
+//    /// Set activity indicator.
+//    void SetActive(int is_active) { m_is_active = is_active; };
     
     /// Set the description text that precedes the input
     void SetDescriptionText(const char *description) { m_description.Assign(description); };

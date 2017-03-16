@@ -73,51 +73,52 @@ void vmxTextInputRenderWindowModifiedCallback::Execute(vtkObject *caller, unsign
 
 
 
-vmxTextInputInteractorLeftButtonDownCallback::vmxTextInputInteractorLeftButtonDownCallback()
-{
-    m_text_input = NULL;
-}
-
-
-vmxTextInputInteractorLeftButtonDownCallback::~vmxTextInputInteractorLeftButtonDownCallback()
-{
-    m_text_input = NULL;
-}
-
-
-void vmxTextInputInteractorLeftButtonDownCallback::SetTextInput(vmxTextInput *text_input)
-{
-    m_text_input = text_input;
-}
-
-
-vmxTextInputInteractorLeftButtonDownCallback* vmxTextInputInteractorLeftButtonDownCallback::New()
-{
-    return new vmxTextInputInteractorLeftButtonDownCallback;
-}
-
-
-void vmxTextInputInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_text_input)
-    {
-        if(m_text_input->m_interactor)
-        {
-            int pick_pos[2];
-            m_text_input->m_interactor->GetEventPosition(pick_pos);
-            
-            if(m_text_input->IsPicked(pick_pos[0], pick_pos[1]))
-            {
-                m_text_input->SetActive(1);
-            }
-            else
-            {
-                m_text_input->SetActive(0);
-            }
-        }
-    }
-}
-
+//vmxTextInputInteractorLeftButtonDownCallback::vmxTextInputInteractorLeftButtonDownCallback()
+//{
+//    m_text_input = NULL;
+//}
+//
+//
+//vmxTextInputInteractorLeftButtonDownCallback::~vmxTextInputInteractorLeftButtonDownCallback()
+//{
+//    m_text_input = NULL;
+//}
+//
+//
+//void vmxTextInputInteractorLeftButtonDownCallback::SetTextInput(vmxTextInput *text_input)
+//{
+//    m_text_input = text_input;
+//}
+//
+//
+//vmxTextInputInteractorLeftButtonDownCallback* vmxTextInputInteractorLeftButtonDownCallback::New()
+//{
+//    return new vmxTextInputInteractorLeftButtonDownCallback;
+//}
+//
+//
+//void vmxTextInputInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigned long, void *)
+//{
+//    cout<<" down ";
+//    if(m_text_input)
+//    {
+//        if(m_text_input->m_interactor)
+//        {
+//            int pick_pos[2];
+//            m_text_input->m_interactor->GetEventPosition(pick_pos);
+//            
+//            if(m_text_input->IsPicked(pick_pos[0], pick_pos[1]))
+//            {
+//                m_text_input->SetActive(1);
+//            }
+//            else
+//            {
+//                m_text_input->SetActive(0);
+//            }
+//        }
+//    }
+//}
+//
 
 
 //-----------------------------------------------------------------------------------------------------
@@ -150,6 +151,7 @@ vmxTextInputInteractorLeftButtonUpCallback* vmxTextInputInteractorLeftButtonUpCa
 
 void vmxTextInputInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned long, void *)
 {
+//    cout<<" up ";
     if(m_text_input)
     {
         if(m_text_input->m_interactor)
@@ -164,12 +166,17 @@ void vmxTextInputInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsi
                     m_text_input->m_text_actor->SetInput(m_text_input->m_clip_board->m_data_text.Get_C_String());
                     m_text_input->m_interactor->Render();
                 }
-                m_text_input->SetActive(1);
+                m_text_input->m_interactor->AddObserver(vtkCommand::CharEvent, m_text_input->m_key_press_callback);
+
+                //m_text_input->SetActive(1);
             }
             else
             {
-                m_text_input->SetActive(0);
+                m_text_input->m_interactor->RemoveObservers(vtkCommand::CharEvent, m_text_input->m_key_press_callback);
+                //m_text_input->SetActive(0);
             }
+            
+            //m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
         }
     }
 }
@@ -208,11 +215,12 @@ vmxTextInputInteractorKeyPressCallback* vmxTextInputInteractorKeyPressCallback::
 
 void vmxTextInputInteractorKeyPressCallback::Execute(vtkObject *caller, unsigned long, void *)
 {
+//    cout<<" key ";
     if(m_text_input)
     {
         if(m_text_input->m_interactor)
         {
-            if(m_text_input->m_is_active)
+            //if(m_text_input->m_is_active)
             {
             
                 //char *key = m_text_input->m_interactor->GetKeySym();
@@ -264,10 +272,11 @@ vmxTextInput::vmxTextInput()
     
     m_placement = FREE;
     m_placement_relative_percentages[0] = m_placement_relative_percentages[1] = 0;
+    
     m_window_modified_callback = vtkSmartPointer<vmxTextInputRenderWindowModifiedCallback>::New();
     m_window_modified_callback->SetTextInput(this);
-    m_left_button_down_callback = vtkSmartPointer<vmxTextInputInteractorLeftButtonDownCallback>::New();
-    m_left_button_down_callback->SetTextInput(this);
+//    m_left_button_down_callback = vtkSmartPointer<vmxTextInputInteractorLeftButtonDownCallback>::New();
+//    m_left_button_down_callback->SetTextInput(this);
     m_key_press_callback = vtkSmartPointer<vmxTextInputInteractorKeyPressCallback>::New();
     m_key_press_callback->SetTextInput(this);
     m_left_button_up_callback = vtkSmartPointer<vmxTextInputInteractorLeftButtonUpCallback>::New();
@@ -276,7 +285,7 @@ vmxTextInput::vmxTextInput()
     
     m_number_of_entered_characters = 0;
     
-    m_is_active = 0;
+//    m_is_active = 0;
     m_interactor = NULL;
     m_font_size = 18;
 
@@ -413,10 +422,10 @@ void vmxTextInput::SetInteractor(vtkRenderWindowInteractor *interactor)
     m_interactor = interactor;
     
     m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
-    m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
+//    m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
     m_interactor->AddObserver(vtkCommand::EndInteractionEvent, m_left_button_up_callback);
     
-    m_interactor->AddObserver(vtkCommand::CharEvent, m_key_press_callback);
+//    m_interactor->AddObserver(vtkCommand::CharEvent, m_key_press_callback);
 
     
     m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_text_actor);
