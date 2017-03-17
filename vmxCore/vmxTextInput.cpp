@@ -151,7 +151,7 @@ vmxTextInputInteractorLeftButtonUpCallback* vmxTextInputInteractorLeftButtonUpCa
 
 void vmxTextInputInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned long, void *)
 {
-//    cout<<" up ";
+    //cout<<" up ";
     if(m_text_input)
     {
         if(m_text_input->m_interactor)
@@ -161,22 +161,26 @@ void vmxTextInputInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsi
             
             if(m_text_input->IsPicked(pick_pos[0], pick_pos[1]))
             {
+                // if the data on the clipboard is valid, copy it to the text input
                 if(m_text_input->m_clip_board->m_is_valid)
                 {
-                    m_text_input->m_text_actor->SetInput(m_text_input->m_clip_board->m_data_text.Get_C_String());
-                    m_text_input->m_interactor->Render();
+                    //m_text_input->m_text_actor->SetInput(m_text_input->m_clip_board->m_data_text.Get_C_String());
+                    m_text_input->SetInputText(m_text_input->m_clip_board->m_data_text.Get_C_String());
                 }
-                m_text_input->m_interactor->AddObserver(vtkCommand::CharEvent, m_text_input->m_key_press_callback);
-
-                //m_text_input->SetActive(1);
+                else
+                {
+                    // if the data on clipboard is not valid, reset text input and activate key press event (allow user to enter ext from keyboard).
+                    m_text_input->m_input.Clear();
+                    m_text_input->m_interactor->AddObserver(vtkCommand::CharEvent, m_text_input->m_key_press_callback);
+                }
+                m_text_input->ShowInputText();
+                m_text_input->m_interactor->Render();
             }
             else
             {
+                // if the object is not picked, turn off key press event (stop user from entring text from keyboard).
                 m_text_input->m_interactor->RemoveObservers(vtkCommand::CharEvent, m_text_input->m_key_press_callback);
-                //m_text_input->SetActive(0);
             }
-            
-            //m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
         }
     }
 }
@@ -184,8 +188,6 @@ void vmxTextInputInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsi
 
 
 //-----------------------------------------------------------------------------------------------------
-
-
 
 
 
@@ -215,44 +217,29 @@ vmxTextInputInteractorKeyPressCallback* vmxTextInputInteractorKeyPressCallback::
 
 void vmxTextInputInteractorKeyPressCallback::Execute(vtkObject *caller, unsigned long, void *)
 {
-//    cout<<" key ";
+    //cout<<" key ";
     if(m_text_input)
     {
         if(m_text_input->m_interactor)
         {
-            //if(m_text_input->m_is_active)
-            {
+            mxString key;
+            key.Assign(m_text_input->m_interactor->GetKeySym());
+            char c = key[0];
             
-                //char *key = m_text_input->m_interactor->GetKeySym();
-                mxString key;
-                key.Assign(m_text_input->m_interactor->GetKeySym());
-                //cout<<key;
-                char c = key[0];
-                
-                
-                //if(c==8 || c==127)//value 8 is backspace
-                if(key=="Backspace")
+            if(key=="Backspace")
+            {
+                if(m_text_input->m_input.GetNumberOfCharacters()>0)
                 {
-                    if(m_text_input->m_number_of_entered_characters>0)
-                    {
-                        m_text_input->m_number_of_entered_characters--;
-                        m_text_input->ShowInputText();
-                        m_text_input->m_interactor->Render();
-                    }
+                    m_text_input->m_input.GetStdString().pop_back();
+                    m_text_input->ShowInputText();
+                    m_text_input->m_interactor->Render();
                 }
-                else
-                {
-                    if(m_text_input->m_number_of_entered_characters<99)
-                    {
-                        m_text_input->m_input[m_text_input->m_number_of_entered_characters] = c;
-                        m_text_input->m_number_of_entered_characters++;
-                        m_text_input->ShowInputText();
-                        m_text_input->m_interactor->Render();
-
-                    }
-                }
-                
-                //cout<<c;
+            }
+            else
+            {
+                m_text_input->m_input.Append(c);
+                m_text_input->ShowInputText();
+                m_text_input->m_interactor->Render();
             }
         }
     }
@@ -261,8 +248,6 @@ void vmxTextInputInteractorKeyPressCallback::Execute(vtkObject *caller, unsigned
 
 
 //-----------------------------------------------------------------------------------------------------
-
-
 
 
 
@@ -283,9 +268,6 @@ vmxTextInput::vmxTextInput()
     m_left_button_up_callback->SetTextInput(this);
     
     
-    m_number_of_entered_characters = 0;
-    
-//    m_is_active = 0;
     m_interactor = NULL;
     m_font_size = 18;
 
@@ -422,11 +404,7 @@ void vmxTextInput::SetInteractor(vtkRenderWindowInteractor *interactor)
     m_interactor = interactor;
     
     m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
-//    m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
     m_interactor->AddObserver(vtkCommand::EndInteractionEvent, m_left_button_up_callback);
-    
-//    m_interactor->AddObserver(vtkCommand::CharEvent, m_key_press_callback);
-
     
     m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_text_actor);
 }
@@ -552,22 +530,18 @@ void vmxTextInput::SetOrigin(int origin1, int origin2)
 
 void vmxTextInput::SetVisibility(int is_visible)
 {
+    this->ShowInputText();
     this->m_text_actor->SetVisibility(is_visible);
 }
 
 
 int vmxTextInput::ShowInputText()
 {
-    //cout<<"#";
-    
     mxString input_text;
     input_text.Assign(m_description);
-    for(unsigned int i=0; i<m_number_of_entered_characters; i++)
-    {
-        input_text.Append(m_input[i]);
-    }
+    input_text.Append(m_input);
     
-    m_text_actor->SetInput(input_text.Get_C_String());//"Input: ");
+    m_text_actor->SetInput(input_text.Get_C_String());
     
     return 1;
 }

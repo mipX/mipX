@@ -197,10 +197,10 @@ public:
     mxString m_description;
     
     /// Input string.
-    char m_input[100];
+    mxString m_input;//char m_input[100];
     
-    /// Number of entered characters (indicates how many characters are valid in m_input array).
-    unsigned int m_number_of_entered_characters;
+//    /// Number of entered characters (indicates how many characters are valid in m_input array).
+//    unsigned int m_number_of_entered_characters;
     
     /// Predefined placement positions for menu.
     enum vmxTextInputPlacement
@@ -290,6 +290,9 @@ public:
     
     /// Set color of text in the object.
     void SetColor(double r, double g, double b);
+    
+    /// Set input text.
+    void SetInputText(const char *text) { m_input.Assign(text); };
     
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
