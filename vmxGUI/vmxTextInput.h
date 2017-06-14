@@ -52,6 +52,7 @@
 #include "mxArray.h"
 #include "mxString.h"
 #include "vmxClipBoard.h"
+#include "vmxGUIObject.h"
 
 
 #include <vtkCallbackCommand.h>
@@ -72,33 +73,6 @@
 
 // Pre-declaration.
 class vmxTextInput;
-
-
-class vmxTextInput_API vmxTextInputRenderWindowModifiedCallback : public vtkCommand
-{
-    
-public:
-    
-    /// Pointer to text input that uses this callback.
-    vmxTextInput *m_text_input;
-    
-    int m_previous_window_size[2];
-    
-    /// Constructor.
-    vmxTextInputRenderWindowModifiedCallback();
-    
-    /// Destructor.
-    ~vmxTextInputRenderWindowModifiedCallback();
-    
-    /// Initialize the text input linked to this callback
-    void SetTextInput(vmxTextInput *text_input);
-    
-    /// Create new object instance.
-    static vmxTextInputRenderWindowModifiedCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
 
 
 
@@ -126,6 +100,56 @@ public:
 //    virtual void Execute(vtkObject *caller, unsigned long, void *);
 //};
 
+
+
+class vmxTextInput_API vmxIntInputInteractorKeyPressCallback : public vtkCommand
+{
+    
+public:
+    
+    /// Pointer to text input that uses this callback.
+    vmxTextInput *m_text_input;
+    
+    /// Constructor.
+    vmxIntInputInteractorKeyPressCallback();
+    
+    /// Destructor.
+    ~vmxIntInputInteractorKeyPressCallback();
+    
+    /// Initialize the text input linked to this callback
+    void SetTextInput(vmxTextInput *text_input);
+    
+    /// Create new object instance.
+    static vmxIntInputInteractorKeyPressCallback* New();
+    
+    /// Method that executes when the callback is called.
+    virtual void Execute(vtkObject *caller, unsigned long, void *);
+};
+
+
+class vmxTextInput_API vmxDoubleInputInteractorKeyPressCallback : public vtkCommand
+{
+    
+public:
+    
+    /// Pointer to text input that uses this callback.
+    vmxTextInput *m_text_input;
+    
+    /// Constructor.
+    vmxDoubleInputInteractorKeyPressCallback();
+    
+    /// Destructor.
+    ~vmxDoubleInputInteractorKeyPressCallback();
+    
+    /// Initialize the text input linked to this callback
+    void SetTextInput(vmxTextInput *text_input);
+    
+    /// Create new object instance.
+    static vmxDoubleInputInteractorKeyPressCallback* New();
+    
+    /// Method that executes when the callback is called.
+    virtual void Execute(vtkObject *caller, unsigned long, void *);
+};
 
 
 class vmxTextInput_API vmxTextInputInteractorKeyPressCallback : public vtkCommand
@@ -185,10 +209,22 @@ public:
 
 
 
-class vmxTextInput_API vmxTextInput
+class vmxTextInput_API vmxTextInput : public vmxGUIObject
 {
     
 public:
+    
+    /// Types of inputs.
+    enum vmxInputType
+    {
+        INTEGER,
+        DOUBLE,
+        ITEM,
+        TEXT //default it text.
+    };
+    
+    /// Input type of this object.
+    vmxInputType m_input_type;
     
     /// Pointer to clipboard this object uses.
     vmxClipBoard *m_clip_board;
@@ -197,48 +233,19 @@ public:
     mxString m_description;
     
     /// Input string.
-    mxString m_input;//char m_input[100];
-    
-//    /// Number of entered characters (indicates how many characters are valid in m_input array).
-//    unsigned int m_number_of_entered_characters;
-    
-    /// Predefined placement positions for menu.
-    enum vmxTextInputPlacement
-    {
-        RELATIVE,//'relative' means relative to window size in percentages.
-        FREE,//'free' means no fixed placement.
-        LOWER_LEFT,
-        LOWER_CENTER,
-        LOWER_RIGHT,
-        CENTER_LEFT,
-        //CENTER_CENTER,
-        CENTER_RIGHT,
-        UPPER_LEFT,
-        UPPER_CENTER,
-        UPPER_RIGHT,
-    };
-    
-    /// Position (placement) of the menu. FREE is default.
-    vmxTextInputPlacement m_placement;
-    
-    /// For relative placement, the percentages are stored here.
-    unsigned int m_placement_relative_percentages[2];
+    mxString m_input;
     
     /// Assigned VTK Render Window Interactor.
-    //vtkSmartPointer<vtkRenderWindowInteractor> m_interactor;
     vtkRenderWindowInteractor *m_interactor;
     
-//    /// Indicates if the text input was picked with the last left click and is therefore currently active.
-//    int m_is_active;
+    /// Indicates if the text input was picked for key text input (i.e. if it is observing the key press events).
+    int m_is_keypress_active;
     
     /// Font size of the used chacaters.
     int m_font_size;
     
     /// Actor containing the text.
     vtkSmartPointer<vtkTextActor> m_text_actor;
-    
-    /// Callback regulating the positioning of the object when the render window is resized.
-    vtkSmartPointer<vmxTextInputRenderWindowModifiedCallback> m_window_modified_callback;
     
 //    /// Callback executed when the left button is pressed.
 //    vtkSmartPointer<vmxTextInputInteractorLeftButtonDownCallback> m_left_button_down_callback;
@@ -247,8 +254,14 @@ public:
     vtkSmartPointer<vmxTextInputInteractorLeftButtonUpCallback> m_left_button_up_callback;
     
     /// Callback executed when the key is pressed.
-    vtkSmartPointer<vmxTextInputInteractorKeyPressCallback> m_key_press_callback;
-    
+    vtkSmartPointer<vmxTextInputInteractorKeyPressCallback> m_key_press_callback_input_text;
+
+    /// Callback executed when the key is pressed.
+    vtkSmartPointer<vmxDoubleInputInteractorKeyPressCallback> m_key_press_callback_input_double;
+
+    /// Callback executed when the key is pressed.
+    vtkSmartPointer<vmxIntInputInteractorKeyPressCallback> m_key_press_callback_input_integer;
+
     
     
     /// Constructor.
@@ -261,20 +274,22 @@ public:
     static vmxTextInput* New();
     
     /// Get origin (position) of the whole object.
-    int GetOrigin(int &origin1, int &origin2);
+    void GetOrigin(int &origin1, int &origin2);
     
     /// Get the size of the whole object (all actors together).
-    int GetSize(int &output_size1, int &output_size2);
+    void GetSize(int &output_size1, int &output_size2);
     
     /// Get the size of the menu text actor.
     int GetSizeOfTextActor(int &output_size1, int &output_size2);
     
-    /// Given the input positions, check if the object is picked (if the position falls within the menu).
-    int IsPicked(int pos1, int pos2);
+    /// Check if the user entered a dot '.' into the input string. To be used for input of real numbers.
+    int IsDotEntered();
     
-    /// Based on existing placement preference, repositions the object.
-    /// To be used in case window changes size.
-    void RedoPlacement();
+//    /// Given the input positions, check if the object is picked (if the position falls within the menu).
+//    int IsPicked(int pos1, int pos2);
+    
+    /// Get visibility of the object.
+    int IsVisible();
     
 //    /// Set activity indicator.
 //    void SetActive(int is_active) { m_is_active = is_active; };
@@ -294,6 +309,18 @@ public:
     /// Set input text.
     void SetInputText(const char *text) { m_input.Assign(text); };
     
+    /// Set the widget to input double numbers.
+    void SetInputTypeToDoubleNumber(double default_value);
+
+    /// Set the widget to input integer numbers.
+    void SetInputTypeToIntegerNumber(int default_value);
+    
+    /// Set the widget to input dragged items.
+    void SetInputTypeToItem();
+
+    /// Set the widget to input any text.
+    void SetInputTypeToText(const char *default_text);
+
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
     

@@ -52,6 +52,7 @@
 #include "mxArray.h"
 #include "mxString.h"
 #include "vmxClipBoard.h"
+#include "vmxGUIObject.h"
 
 
 #include <vtkCallbackCommand.h>
@@ -70,32 +71,35 @@
 // Pre-declaration.
 class vmxMenu;
 
+//typedef void (vmxMenu::*vmxMenuSlotMethod)(); // Declare a type of a pointer to a slot method of a menu.
 
-class vmxMenu_API vmxMenuRenderWindowModifiedCallback : public vtkCommand
-{
-    
-public:
-    
-    /// Pointer to menu that uses this callback.
-    vmxMenu *m_menu;
-    
-    int m_previous_window_size[2];
-    
-    /// Constructor.
-    vmxMenuRenderWindowModifiedCallback();
-    
-    /// Destructor.
-    ~vmxMenuRenderWindowModifiedCallback();
-    
-    /// Initialize the menu linked to this callback
-    void SetMenu(vmxMenu *menu);
-    
-    /// Create new object instance.
-    static vmxMenuRenderWindowModifiedCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
+
+
+//class vmxMenu_API vmxMenuRenderWindowModifiedCallback : public vtkCommand
+//{
+//    
+//public:
+//    
+//    /// Pointer to menu that uses this callback.
+//    vmxMenu *m_menu;
+//    
+//    int m_previous_window_size[2];
+//    
+//    /// Constructor.
+//    vmxMenuRenderWindowModifiedCallback();
+//    
+//    /// Destructor.
+//    ~vmxMenuRenderWindowModifiedCallback();
+//    
+//    /// Initialize the menu linked to this callback
+//    void SetMenu(vmxMenu *menu);
+//    
+//    /// Create new object instance.
+//    static vmxMenuRenderWindowModifiedCallback* New();
+//    
+//    /// Method that executes when the callback is called.
+//    virtual void Execute(vtkObject *caller, unsigned long, void *);
+//};
 
 
 
@@ -158,35 +162,45 @@ public:
 };
 
 
-class vmxMenu_API vmxMenuInteractorMouseMoveCallback : public vtkCommand
+//class vmxMenu_API vmxMenuInteractorMouseMoveCallback : public vtkCommand
+//{
+//    
+//public:
+//    
+//    /// Position of the last left button down event.
+//    int m_previous_left_button_down_position[2];
+//    
+//    /// Pointer to menu that uses this callback.
+//    vmxMenu *m_menu;
+//    
+//    /// Constructor.
+//    vmxMenuInteractorMouseMoveCallback();
+//    
+//    /// Destructor.
+//    ~vmxMenuInteractorMouseMoveCallback();
+//    
+//    /// Initialize the menu linked to this callback
+//    void SetMenu(vmxMenu *menu);
+//    
+//    /// Set the position of the last left button down event.
+//    void SetPreviousLeftButtonDownPosition(int p0, int p1) { m_previous_left_button_down_position[0] = p0; m_previous_left_button_down_position[1] = p1; };
+//    
+//    /// Create new object instance.
+//    static vmxMenuInteractorMouseMoveCallback* New();
+//    
+//    /// Method that executes when the callback is called.
+//    virtual void Execute(vtkObject *caller, unsigned long, void *);
+//};
+
+
+
+class vmxMenuSlot
 {
-    
 public:
-    
-    /// Position of the last left button down event.
-    int m_previous_left_button_down_position[2];
-    
-    /// Pointer to menu that uses this callback.
-    vmxMenu *m_menu;
-    
-    /// Constructor.
-    vmxMenuInteractorMouseMoveCallback();
-    
-    /// Destructor.
-    ~vmxMenuInteractorMouseMoveCallback();
-    
-    /// Initialize the menu linked to this callback
-    void SetMenu(vmxMenu *menu);
-    
-    /// Set the position of the last left button down event.
-    void SetPreviousLeftButtonDownPosition(int p0, int p1) { m_previous_left_button_down_position[0] = p0; m_previous_left_button_down_position[1] = p1; };
-    
-    /// Create new object instance.
-    static vmxMenuInteractorMouseMoveCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
+    virtual int Execute(vmxMenu *menu) {cout<<" reimplement this "; return 0;};
+    virtual ~vmxMenuSlot() {};
 };
+//inline vmxMenuSlot::~vmxMenuSlot() { };  // defined even though it's pure virtual; it's faster this way; trust me
 
 
 
@@ -194,6 +208,15 @@ class vmxMenu_API vmxMenuItem
 {
     
 public:
+    
+    /// Pointer to the menu slot method that is executed when this item is clicked.
+    vmxMenuSlot *m_slot;
+    
+    /// Pointer to the menu this item belongs to.
+    vmxMenu *m_menu;
+    
+    /// Pointer to submenu called from this item. If none pointer is NULL.
+    vmxMenu *m_sub_menu;
     
     /// Indicators for checked check boxes. Preset size, member m_number_of_check_boxes controlls how many check boxes there really are.
     int m_checkboxes[10];
@@ -211,12 +234,23 @@ public:
     vmxMenuItem();
     
     /// Destructor.
-    ~vmxMenuItem(){};
+    ~vmxMenuItem();
+    
+    /// Attach a slot to this item. Takes possession of the slot object and will release it on destruction.
+    /// Should be called as: item->AttachSlot(new MySlot);
+    void AttachSlot(vmxMenuSlot *slot);
+    
+    /// Get the slot attached to this item.
+    vmxMenuSlot* GetSlot();
+    
+    /// Get the submenu attached to this item.
+    vmxMenu* GetSubMenu();
+
 };
 
 
 
-class vmxMenu_API vmxMenu
+class vmxMenu_API vmxMenu : public vmxGUIObject
 {
     
 public:
@@ -224,21 +258,10 @@ public:
     /// Pointer to clipboard this object uses.
     vmxClipBoard *m_clip_board;
     
-    /// Predefined placement positions for menu.
-    enum vmxMenuPlacement
-    {
-        RELATIVE,//'relative' means relative to window size in percentages.
-        FREE,//'free' means no fixed placement.
-        LOWER_LEFT,
-        LOWER_CENTER,
-        LOWER_RIGHT,
-        CENTER_LEFT,
-        //CENTER_CENTER,
-        CENTER_RIGHT,
-        UPPER_LEFT,
-        UPPER_CENTER,
-        UPPER_RIGHT,
-    };
+    /// Menu that contains this menu (in case this menu is a sub-menu). If this menu is a root menu
+    /// the pointer will contain 'this' address (points to itself).
+    vmxMenu *m_menu;
+
     
     /// List of items in the menu.
     mxList<vmxMenuItem> m_items;
@@ -250,16 +273,6 @@ public:
     /// Maintin the maximum number of checkboxes contained in an item - this is needed for checking/picking check boxes.
     /// This value gets updated when adding and removing items.
     unsigned int m_max_number_of_check_boxes;
-    
-    /// Position (placement) of the menu. FREE is default.
-    vmxMenuPlacement m_placement;
-    
-    /// For relative placement, the percentages are stored here.
-    unsigned int m_placement_relative_percentages[2];
-    
-    
-//    /// Indicates if the marked item needs to be shown (providing the m_index_of_marked_item is valid).
-//    int m_is_marked_item_visible;
     
     
     /// Assigned VTK Render Window Interactor.
@@ -280,8 +293,8 @@ public:
     /// Actor shown to indicate drag event (drag item from menu).
     vtkSmartPointer<vtkTextActor> m_drag_actor;
 
-    /// Callback regulating the positioning of the menu when the render window is resized.
-    vtkSmartPointer<vmxMenuRenderWindowModifiedCallback> m_window_modified_callback;
+//    /// Callback regulating the positioning of the menu when the render window is resized.
+//    vtkSmartPointer<vmxMenuRenderWindowModifiedCallback> m_window_modified_callback;
     
     /// Callback executed when the left button is pressed.
     vtkSmartPointer<vmxMenuInteractorLeftButtonDownCallback> m_left_button_down_callback;
@@ -289,8 +302,8 @@ public:
     /// Callback executed when the left button is released.
     vtkSmartPointer<vmxMenuInteractorLeftButtonUpCallback> m_left_button_up_callback;
 
-    /// Callback executed when the mouse is moved.
-    vtkSmartPointer<vmxMenuInteractorMouseMoveCallback> m_mouse_move_callback;
+//    /// Callback executed when the mouse is moved.
+//    vtkSmartPointer<vmxMenuInteractorMouseMoveCallback> m_mouse_move_callback;
     
     /// This is the character used to mark items as selected (by default it is underscore '_').
     char m_selection_text_character;
@@ -299,20 +312,23 @@ public:
     mxString m_selection_text_line;
     
     
-    //mxDataObjectTree *m_tree;
-    
+   
     
     /// Constructor.
     vmxMenu();
     
     /// Destructor.
-    ~vmxMenu();
+    virtual ~vmxMenu();
     
     /// Create new object instance.
     static vmxMenu* New();
     
     /// Add a new item to the item list.
     vmxMenuItem* AddItem(const char *item_text, unsigned int number_of_check_boxes=0);
+    
+    /// Add a submenu to this menu. Returns the item to which the submenu belongs.
+    /// Access the submenu through item GetSubMenu() method.
+    vmxMenuItem* AddSubMenu(const char *item_text);
     
     /// Update the VTK actors of the menu based on the changes of (added/removed) items.
     void BuildMenu();
@@ -324,8 +340,11 @@ public:
     /// Copy data of selected items to clipboard.
     int CopySelectedItemsToClipBoard();
     
+    /// Get color of the menu text.
+    void GetColor(double &r, double &g, double &b);
+    
     /// Get item by index.
-    vmxMenuItem* GetItem(unsigned int item_index) { return m_item_pointers[item_index]; };
+    vmxMenuItem* GetItem(int item_index) { if(item_index<0 || item_index>=this->GetNumberOfItems()) return NULL; return m_item_pointers[item_index]; };
     
     /// Get number of items in the menu.
     int GetNumberOfItems() { return m_items.GetNumberOfElements(); };
@@ -334,7 +353,7 @@ public:
     int GetMaxNumberOfCheckBoxes() { return m_max_number_of_check_boxes; };
 
     /// Get origin (position) of the whole menu.
-    int GetOriginOfMenu(int &origin1, int &origin2);
+    void GetOrigin(int &origin1, int &origin2);
 
     /// Get origin (position) of the text actor.
     int GetOriginOfTextActor(int &origin1, int &origin2);
@@ -352,12 +371,16 @@ public:
     int GetSizeOfCheckBoxActor(int &output_size1, int &output_size2);
     
     /// Get the size of the whole menu (all actors together).
-    int GetSizeOfMenu(int &output_size1, int &output_size2);
-    
-    //int GetSizeOfSelectionCharacter()
-    
+    void GetSize(int &output_size1, int &output_size2);
+        
     /// Get the size of the menu text actor.
     int GetSizeOfTextActor(int &output_size1, int &output_size2);
+    
+    /// Get visibility of the menu (check if the menu is visible).
+    int GetVisibility();
+    
+    /// Sets visibility of all submenus to 0 (none of the submenus will be visible) .
+    void HideAllSubMenus();
 
     /// Given the input positions, check if the check box actor is picked (if the position falls within the check box actor).
     int IsCheckBoxActorPicked(int pos1, int pos2);
@@ -371,25 +394,24 @@ public:
     /// Given the input positions, check if the text actor is picked (if the position falls within the text actor).
     int IsTextActorPicked(int pos1, int pos2);
     
+    /// Check if the obejct is visible.
+    int IsVisible();
+    
     /// Turn on/off listening for left button up event.
     void ListenForLeftButtonUpEvent(int is_listening);
-
-    /// Turn on/off listening for mouse move event.
-    void ListenForMouseMoveEvent(int is_listening);
     
-    /// Based on existing placement preference, repositions the menu.
-    /// To be used in case window changes size.
-    void RedoPlacement();
+    /// Turn on/off listening for left button down event.
+    void ListenForLeftButtonDownEvent(int is_listening);
+
+//    /// Turn on/off listening for mouse move event.
+//    void ListenForMouseMoveEvent(int is_listening);
     
     /// Set selection indicator of item with given index to 1, all others will be 0 (not selected).
     void SelectSingleItem(unsigned int item_index);
     
     /// Set size of font in the menu.
     void SetFontSize(double font_size);
-    
-//    /// Set the data object tree.
-//    void SetDataObjectTree(mxDataObjectTree *tree);
-    
+        
     /// Set pointer to clipboard.
     void SetClipBoard(vmxClipBoard *clip_board) { m_clip_board = clip_board; };
     
@@ -399,45 +421,9 @@ public:
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
  
-//    /// Set visibility of the marked item.
-//    void SetMarkedItemVisibility(int is_showing_marked_item);
-//    
-//    /// Mark the item with given input index.
-//    void SetMarkedItemIndex(int index_of_marked_item);
-
     /// Set the origin (position) of the menu.
     void SetOrigin(int origin1, int origin2);
-    
-    /// Place the menu in the cernter left side of the render window.
-    void SetPlacementToCenterLeft();
-    
-    /// Place the menu in the cernter right side of the render window.
-    void SetPlacementToCenterRight();
-    
-    /// Place the menu in the lower center of the render window.
-    void SetPlacementToLowerCenter();
-    
-    /// Place the menu in the lower left corner of the render window.
-    void SetPlacementToLowerLeft();
-    
-    /// Place the menu in the lower right corner of the render window.
-    void SetPlacementToLowerRight();
-    
-    /// Place the menu relative to the size of the render window.
-    void SetPlacementToRelative(unsigned int x_percent, unsigned int y_percent);
-    
-    /// Place the menu in the upper center of the render window.
-    void SetPlacementToUpperCenter();
-    
-    /// Place the menu in the upper left corner of the render window.
-    void SetPlacementToUpperLeft();
-    
-    /// Place the menu in the upper right corner of the render window.
-    void SetPlacementToUpperRight();
-    
-//    /// Set text of the menu. Each item is a new line, hence separated with '\n' in input text.
-//    void SetText(const char *text);
-    
+        
     /// Set visibility of the menu.
     void SetVisibility(int is_visible);
     
@@ -446,6 +432,10 @@ public:
     
     /// Shows selected items.
     int ShowSelectedItems();
+    
+    /// Shows text actor items. Offset is a number that indicates if we need to start the text with an offset
+    /// (e.g. offset=3 means that we start display of text from the third elemet).
+    int ShowTextItems();
 
 };
 

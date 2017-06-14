@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    vmxInteractorStyleTrackballCamera.h
+ Module:    vmxInteractorStyleImage.h
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
@@ -19,28 +19,28 @@
 
 
 
-#if defined(vmxInteractorStyleTrackballCamera_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
-    #define vmxInteractorStyleTrackballCamera_API
+#if defined(vmxInteractorStyleImage_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
+    #define vmxInteractorStyleImage_API
 #else
     #if defined(_MSC_VER)
-        #ifdef vmxInteractorStyleTrackballCamera_EXPORTS
-            #define vmxInteractorStyleTrackballCamera_API __declspec(dllexport)
+        #ifdef vmxInteractorStyleImage_EXPORTS
+            #define vmxInteractorStyleImage_API __declspec(dllexport)
         #else
-            #define vmxInteractorStyleTrackballCamera_API __declspec(dllimport)
+            #define vmxInteractorStyleImage_API __declspec(dllimport)
         #endif
     #else
-        #ifdef vmxInteractorStyleTrackballCamera_EXPORTS
-            #define vmxInteractorStyleTrackballCamera_API __attribute__((visibility("default")))
+        #ifdef vmxInteractorStyleImage_EXPORTS
+            #define vmxInteractorStyleImage_API __attribute__((visibility("default")))
         #else
-            #define vmxInteractorStyleTrackballCamera_API
+            #define vmxInteractorStyleImage_API
         #endif
     #endif
 #endif
 
 
 
-#ifndef vmxInteractorStyleTrackballCamera_H
-	#define vmxInteractorStyleTrackballCamera_H
+#ifndef vmxInteractorStyleImage_H
+	#define vmxInteractorStyleImage_H
 
 
 
@@ -52,14 +52,15 @@
 #include "mxString.h"
 
 #include <chrono>
-#include <stdint.h>
+//#include <stdint.h>
 
 #include <vtkActor.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCellPicker.h>
 #include <vtkCommand.h>
-#include <vtkGenericDataObjectReader.h>
+//#include <vtkGenericDataObjectReader.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkInteractorStyleImage.h>
 //#include <vtkGenericDataObjectReader.h>
 //#include <vtkImageData.h>
 //#include <vtkImageCast.h>
@@ -84,19 +85,31 @@
 
 
 
-class vmxInteractorStyleTrackballCamera : public vtkInteractorStyleTrackballCamera
+class vmxInteractorStyleImage : public vtkInteractorStyleImage
 {
     
 public:
+    
+    vtkRenderer *m_registered_renderer_3D;
+    
+    vtkRenderer *m_left_button_down_picked_renderer;
     
     // for detecting double click.
     int m_number_of_clicks;
     
     // for detecting double click.
-    int m_previous_position[2];
+    int m_left_button_down_previous_position[2];
     
     /// Indicator that will be set when the double click is detected.
     int m_is_double_clicked;
+    
+    /// This int value will be used to signal that double click has happened.
+    static int EventDoubleClick;
+    
+    /// Indicates if the left button is down (used in move event to detect drag).
+    int m_is_left_button_down;
+    
+    vtkActor2D *m_picked_2D_actor_on_left_button_down;
     
     //vmxImage *m_v_img;
     //vmxMenu *m_menu;
@@ -105,20 +118,20 @@ public:
     using clock             = std::chrono::system_clock;
     using time_point_type   = std::chrono::time_point < clock, std::chrono::milliseconds > ;
     
-    time_point_type m_time_of_left_click_in_ms,m_time_of_left_click_in_ms2;
+    time_point_type m_time_of_left_click_in_ms, m_time_of_left_click_in_ms2;
     
     
     /// Constructor.
-    vmxInteractorStyleTrackballCamera();
+    vmxInteractorStyleImage();
 
     /// Destructor.
-    ~vmxInteractorStyleTrackballCamera();
+    virtual ~vmxInteractorStyleImage();
     
     /// Check if double click was performed.
     int IsDoubleClicked(){ return m_is_double_clicked; };
     
     /// Create new object instance.
-    static vmxInteractorStyleTrackballCamera* New();
+    static vmxInteractorStyleImage* New();
     
     
     //void SetDataObjectTree(mxDataObjectTree *tree) { m_tree = tree; };
@@ -128,6 +141,11 @@ public:
     
     /// Re-implemented to override the existing keypress char functionality.
     virtual void OnChar() { };//do nothing here.
+    
+    virtual void OnMouseMove();
+
+    /// Executes when left button is released.
+    virtual void OnLeftButtonUp();
     
     /// Re-implemented to detect double-click.
     virtual void OnLeftButtonDown();

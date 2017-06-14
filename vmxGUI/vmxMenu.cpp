@@ -22,49 +22,49 @@
 
 
 
-vmxMenuRenderWindowModifiedCallback::vmxMenuRenderWindowModifiedCallback()
-{
-    m_menu = NULL;
-    m_previous_window_size[0] = m_previous_window_size[1] = 0;
-}
-
-
-vmxMenuRenderWindowModifiedCallback::~vmxMenuRenderWindowModifiedCallback()
-{
-    m_menu = NULL;
-}
-
-
-void vmxMenuRenderWindowModifiedCallback::SetMenu(vmxMenu *menu)
-{
-    m_menu = menu;
-}
-
-
-vmxMenuRenderWindowModifiedCallback* vmxMenuRenderWindowModifiedCallback::New()
-{
-    return new vmxMenuRenderWindowModifiedCallback;
-}
-
-
-void vmxMenuRenderWindowModifiedCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_menu)
-    {
-        if(m_menu->m_interactor)
-        {
-            //cout<<"*";
-            int *size = m_menu->m_interactor->GetRenderWindow()->GetSize();
-            if(size[0]!=m_previous_window_size[0] || size[1]!=m_previous_window_size[1])
-            {
-                //cout<<"-";
-                m_previous_window_size[0] = size[0];
-                m_previous_window_size[1] = size[1];
-                m_menu->RedoPlacement();
-            }
-        }
-    }
-}
+//vmxMenuRenderWindowModifiedCallback::vmxMenuRenderWindowModifiedCallback()
+//{
+//    m_menu = NULL;
+//    m_previous_window_size[0] = m_previous_window_size[1] = 0;
+//}
+//
+//
+//vmxMenuRenderWindowModifiedCallback::~vmxMenuRenderWindowModifiedCallback()
+//{
+//    m_menu = NULL;
+//}
+//
+//
+//void vmxMenuRenderWindowModifiedCallback::SetMenu(vmxMenu *menu)
+//{
+//    m_menu = menu;
+//}
+//
+//
+//vmxMenuRenderWindowModifiedCallback* vmxMenuRenderWindowModifiedCallback::New()
+//{
+//    return new vmxMenuRenderWindowModifiedCallback;
+//}
+//
+//
+//void vmxMenuRenderWindowModifiedCallback::Execute(vtkObject *caller, unsigned long, void *)
+//{
+//    if(m_menu)
+//    {
+//        if(m_menu->m_interactor)
+//        {
+//            //cout<<"*";
+//            int *size = m_menu->m_interactor->GetRenderWindow()->GetSize();
+//            if(size[0]!=m_previous_window_size[0] || size[1]!=m_previous_window_size[1])
+//            {
+//                //cout<<"-";
+//                m_previous_window_size[0] = size[0];
+//                m_previous_window_size[1] = size[1];
+//                m_menu->RedoPlacement();
+//            }
+//        }
+//    }
+//}
 
 
 
@@ -103,7 +103,7 @@ void vmxMenuInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigne
     {
         if(m_menu->m_interactor)
         {
-            //cout<<" down ";
+            cout<<" down ";
             
             if(m_menu->m_clip_board) m_menu->m_clip_board->m_is_valid = 0;
             
@@ -139,8 +139,8 @@ void vmxMenuInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigne
                 }
             }
             
-            m_menu->ListenForMouseMoveEvent(1);
-            m_menu->m_mouse_move_callback->SetPreviousLeftButtonDownPosition(pick_pos[0], pick_pos[1]);
+            //m_menu->ListenForMouseMoveEvent(1);
+            //m_menu->m_mouse_move_callback->SetPreviousLeftButtonDownPosition(pick_pos[0], pick_pos[1]);
             m_menu->ListenForLeftButtonUpEvent(1);
             
             m_menu->ShowSelectedItems();
@@ -199,30 +199,87 @@ void vmxMenuInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned 
     {
         if(m_menu->m_interactor)
         {
-            //cout<<" up ";
+            cout<<" up ";
             
-            // if the button down event set the is_selecting indicator, it means tht is was suspecting a drag event
+            int pick_pos[2];
+            m_menu->m_interactor->GetEventPosition(pick_pos);
+            
+            int index = m_menu->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
+//            if(index<0)
+//            {
+//                // reset the indicator.
+//                //m_is_selecting = 0;
+//                return;
+//            }
+            
+            // if the button down event set the is_selecting indicator, it means that is was suspecting a drag event
             // but was not sure until mouse move event plays out.
             if(m_is_selecting)
             {
                 // if is_selecting is set, this means that mouse move event did not reset it, so we perform single
                 // item selection.
-                int pick_pos[2];
-                m_menu->m_interactor->GetEventPosition(pick_pos);
-                
-                int index = m_menu->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
+//                int pick_pos[2];
+//                m_menu->m_interactor->GetEventPosition(pick_pos);
+//                
+//                int index = m_menu->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
                 if(index<0) return;
                 
                 m_menu->SelectSingleItem(index);
                 m_menu->ShowSelectedItems();
                 
+                
                 // reset the indicator.
                 m_is_selecting = 0;
             }
             
+            
+            
+            
+            
+            vmxMenuItem *item = m_menu->GetItem(index);
+            if(item)
+            {
+                m_menu->HideAllSubMenus();
+                if(item->m_sub_menu)
+                {
+                    int *window_size = m_menu->m_interactor->GetRenderWindow()->GetSize();
+                    
+                    int origin[2];
+                    m_menu->GetOrigin(origin[0], origin[1]);
+                    int menu_size[2];
+                    m_menu->GetSize(menu_size[0],menu_size[1]);
+                    item->m_sub_menu->SetVisibility(1);
+                    int new_origin[2];
+                    new_origin[0] = origin[0]+menu_size[0];
+                    new_origin[1] = origin[1] + (menu_size[1]*index)/m_menu->GetNumberOfItems();
+                    
+                    int sub_menu_size[2];
+                    item->m_sub_menu->GetSize(sub_menu_size[0],sub_menu_size[1]);
+                    if(new_origin[1]+sub_menu_size[1]>window_size[1])
+                    {
+                        new_origin[1] = window_size[1] - sub_menu_size[1];
+                    }
+                    
+                    
+                    item->m_sub_menu->SetOrigin(new_origin[0], new_origin[1]);
+                }
+                else
+                {
+                    if(item->m_slot)
+                    {
+                        item->m_slot->Execute(m_menu);
+                    }
+                }
+            }
+            else
+            {
+                m_menu->HideAllSubMenus();
+            }
+            
+            
             // Turn off listening for mouse move and button up events. They will be turned on in button down
             // event (as soon as left button is pressed).
-            m_menu->ListenForMouseMoveEvent(0);
+            //m_menu->ListenForMouseMoveEvent(0);
             m_menu->ListenForLeftButtonUpEvent(0);
             m_menu->SetVisibilityOfDragEventActor(0);
             m_menu->m_interactor->Render();
@@ -236,67 +293,67 @@ void vmxMenuInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned 
 
 
 
-vmxMenuInteractorMouseMoveCallback::vmxMenuInteractorMouseMoveCallback()
-{
-    m_menu = NULL;
-    m_previous_left_button_down_position[0] = m_previous_left_button_down_position[1] = 0;
-}
-
-
-vmxMenuInteractorMouseMoveCallback::~vmxMenuInteractorMouseMoveCallback()
-{
-    m_menu = NULL;
-}
-
-
-void vmxMenuInteractorMouseMoveCallback::SetMenu(vmxMenu *menu)
-{
-    m_menu = menu;
-}
-
-
-vmxMenuInteractorMouseMoveCallback* vmxMenuInteractorMouseMoveCallback::New()
-{
-    return new vmxMenuInteractorMouseMoveCallback;
-}
-
-
-void vmxMenuInteractorMouseMoveCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_menu)
-    {
-        if(m_menu->m_interactor)
-        {
-            //cout<<" move ";
-            
-            int pick_pos[2];
-            m_menu->m_interactor->GetEventPosition(pick_pos);
-            
-            // Get the distance between the last left button down evenr and current position of the mouse.
-            int d0 = pick_pos[0] - m_previous_left_button_down_position[0];
-            if(d0<0) d0 = -d0;
-            int d1 = pick_pos[1] - m_previous_left_button_down_position[1];
-            if(d1<0) d1 = -d1;
-            
-            // if the distance is larger than the bellow predefined value, we have detected a drag. We know that at
-            // this moment the left button is still down because the left button up would stop this interaction observation.
-            if(d0>10 || d1>10)//If drag is detected
-            {
-                //cout<<" drag ";
-                
-                // tell left button up cllback not to perform any selection by reseting m_left_button_up_callback->m_is_selecting.
-                m_menu->m_left_button_up_callback->m_is_selecting = 0;
-                
-                // perform copying to clipboard of selected data.
-                m_menu->CopySelectedItemsToClipBoard();
-                m_menu->SetVisibilityOfDragEventActor(1);
-                m_menu->m_drag_actor->SetPosition(pick_pos[0],pick_pos[1]);
-                m_menu->m_interactor->Render();
-                
-            }
-        }
-    }
-}
+//vmxMenuInteractorMouseMoveCallback::vmxMenuInteractorMouseMoveCallback()
+//{
+//    m_menu = NULL;
+//    m_previous_left_button_down_position[0] = m_previous_left_button_down_position[1] = 0;
+//}
+//
+//
+//vmxMenuInteractorMouseMoveCallback::~vmxMenuInteractorMouseMoveCallback()
+//{
+//    m_menu = NULL;
+//}
+//
+//
+//void vmxMenuInteractorMouseMoveCallback::SetMenu(vmxMenu *menu)
+//{
+//    m_menu = menu;
+//}
+//
+//
+//vmxMenuInteractorMouseMoveCallback* vmxMenuInteractorMouseMoveCallback::New()
+//{
+//    return new vmxMenuInteractorMouseMoveCallback;
+//}
+//
+//
+//void vmxMenuInteractorMouseMoveCallback::Execute(vtkObject *caller, unsigned long, void *)
+//{
+//    if(m_menu)
+//    {
+//        if(m_menu->m_interactor)
+//        {
+//            cout<<" move ";
+//            
+//            int pick_pos[2];
+//            m_menu->m_interactor->GetEventPosition(pick_pos);
+//            
+//            // Get the distance between the last left button down evenr and current position of the mouse.
+//            int d0 = pick_pos[0] - m_previous_left_button_down_position[0];
+//            if(d0<0) d0 = -d0;
+//            int d1 = pick_pos[1] - m_previous_left_button_down_position[1];
+//            if(d1<0) d1 = -d1;
+//            
+//            // if the distance is larger than the bellow predefined value, we have detected a drag. We know that at
+//            // this moment the left button is still down because the left button up would stop this interaction observation.
+//            if(d0>10 || d1>10)//If drag is detected
+//            {
+//                //cout<<" drag ";
+//                
+//                // tell left button up cllback not to perform any selection by reseting m_left_button_up_callback->m_is_selecting.
+//                m_menu->m_left_button_up_callback->m_is_selecting = 0;
+//                
+//                // perform copying to clipboard of selected data.
+//                m_menu->CopySelectedItemsToClipBoard();
+//                m_menu->SetVisibilityOfDragEventActor(1);
+//                m_menu->m_drag_actor->SetPosition(pick_pos[0],pick_pos[1]);
+//                m_menu->m_interactor->Render();
+//                
+//            }
+//        }
+//    }
+//}
 
 
 
@@ -304,11 +361,12 @@ void vmxMenuInteractorMouseMoveCallback::Execute(vtkObject *caller, unsigned lon
 
 
 
-
-
 vmxMenuItem::vmxMenuItem()
 {
     m_is_selected = 0;
+    m_slot = NULL;
+    m_menu = NULL;
+    m_sub_menu = NULL;
     
     m_number_of_check_boxes = 0;
     for(unsigned int i=0; i<m_number_of_check_boxes; i++)
@@ -318,6 +376,31 @@ vmxMenuItem::vmxMenuItem()
 }
 
 
+vmxMenuItem::~vmxMenuItem()
+{
+    delete m_slot;
+}
+
+
+void vmxMenuItem::AttachSlot(vmxMenuSlot *slot)
+{
+    m_slot = slot;
+}
+
+
+vmxMenuSlot* vmxMenuItem::GetSlot()
+{
+    return m_slot;
+}
+
+
+vmxMenu* vmxMenuItem::GetSubMenu()
+{
+    return m_sub_menu;
+}
+
+
+
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -325,19 +408,23 @@ vmxMenuItem::vmxMenuItem()
 
 vmxMenu::vmxMenu()
 {
+    m_class_name.Assign("vmxMenu");
+    
     m_clip_board = NULL;
     
-    m_placement = FREE;
+    m_menu = this;
+    
+    //m_placement = FREE;
     m_placement_relative_percentages[0] = m_placement_relative_percentages[1] = 0;
 
-    m_window_modified_callback = vtkSmartPointer<vmxMenuRenderWindowModifiedCallback>::New();
-    m_window_modified_callback->SetMenu(this);
+//    m_window_modified_callback = vtkSmartPointer<vmxMenuRenderWindowModifiedCallback>::New();
+//    m_window_modified_callback->SetMenu(this);
     m_left_button_down_callback = vtkSmartPointer<vmxMenuInteractorLeftButtonDownCallback>::New();
     m_left_button_down_callback->SetMenu(this);
     m_left_button_up_callback = vtkSmartPointer<vmxMenuInteractorLeftButtonUpCallback>::New();
     m_left_button_up_callback->SetMenu(this);
-    m_mouse_move_callback = vtkSmartPointer<vmxMenuInteractorMouseMoveCallback>::New();
-    m_mouse_move_callback->SetMenu(this);
+//    m_mouse_move_callback = vtkSmartPointer<vmxMenuInteractorMouseMoveCallback>::New();
+//    m_mouse_move_callback->SetMenu(this);
 
     
     m_max_number_of_check_boxes = 0;
@@ -368,9 +455,35 @@ vmxMenuItem* vmxMenu::AddItem(const char *item_text, unsigned int number_of_chec
     if(!item_text) return NULL;
     if(number_of_check_boxes>10) return NULL;
     vmxMenuItem *item = this->m_items.AddNewToEnd();
+    item->m_menu = this;
     item->m_text.Assign(item_text);
     item->m_number_of_check_boxes = number_of_check_boxes;
     if(number_of_check_boxes>m_max_number_of_check_boxes) m_max_number_of_check_boxes = number_of_check_boxes;
+    return item;
+}
+
+
+vmxMenuItem* vmxMenu::AddSubMenu(const char *item_text)
+{
+    if(!item_text) return NULL;
+    
+    vmxMenuItem *item = this->m_items.AddNewToEnd();
+    item->m_menu = this;
+    item->m_text.Assign(item_text);
+    
+    item->m_sub_menu = new vmxMenu;
+    
+    item->m_sub_menu->m_menu = this;
+    item->m_sub_menu->SetClipBoard(m_clip_board);
+    item->m_sub_menu->SetMainWidget(m_main_widget);
+
+    
+    double r,g,b;
+    this->GetColor(r,g,b);
+    item->m_sub_menu->SetColor(r,g,b);
+    
+    item->m_sub_menu->SetFontSize(this->m_font_size);
+    
     return item;
 }
 
@@ -388,31 +501,35 @@ void vmxMenu::BuildMenu()
     for(it.SetToEnd(this->m_items), i = m_item_pointers.GetNumberOfElements()-1; it.IsValid() && i>=0; it.MoveToPrevious(), i--)
     {
         m_item_pointers[i] = it.GetElementAddress();
-        text.Append("_");
-        text.Append(it.GetElement().m_text);
-        for(unsigned int i=0; i<it.GetElement().m_number_of_check_boxes; i++)
-        {
-            if(it.GetElement().m_checkboxes[i]==0)
-            {
-                checkbox_text.Append("[_]");
-            }
-            else
-            {
-                checkbox_text.Append("[x]");
-            }
-        }
-        
-        if(it.GetNode()!=m_items.GetBeginNodeAddress())
-        {
-            text.Append("\n");
-            checkbox_text.Append("\n");
-        }
+//        text.Append(" ");
+//        text.Append(it.GetElement().m_text);
+//
+//        if(it.GetElement().GetSubMenu())
+//        {
+//             checkbox_text.Append(">>");
+//        }
+//        
+//        if(it.GetNode()!=m_items.GetBeginNodeAddress())
+//        {
+//            text.Append("\n");
+//            checkbox_text.Append("\n");
+//        }
     }
     
-    m_text_actor->SetInput(text.Get_C_String());
-    m_checkboxes_actor->SetInput(checkbox_text.Get_C_String());
+//    m_text_actor->SetInput(text.Get_C_String());
+//    m_checkboxes_actor->SetInput(checkbox_text.Get_C_String());
     
+    this->ShowTextItems();
     this->ComputeSelectionTextLine();
+    
+    // Now that this menu is built, call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->BuildMenu();
+        }
+    }
 }
 
 
@@ -464,10 +581,17 @@ int vmxMenu::CopySelectedItemsToClipBoard()
 }
 
 
-int vmxMenu::GetOriginOfMenu(int &origin1, int &origin2)
+
+void vmxMenu::GetColor(double &r, double &g, double &b)
+{
+    m_text_actor->GetTextProperty()->GetColor(r,g,b);
+}
+
+
+void vmxMenu::GetOrigin(int &origin1, int &origin2)
 {
     //currently the text actor is the first one in the menu
-    return this->GetOriginOfTextActor(origin1, origin2);
+    this->GetOriginOfTextActor(origin1, origin2);
 }
 
 
@@ -519,10 +643,10 @@ int vmxMenu::GetPickedItemIndex(int pos1, int pos2)
     if(!this->IsMenuPicked(pos1,pos2)) return -1;
     
     int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0], menu_size[1]);
+    this->GetSize(menu_size[0], menu_size[1]);
     
     int menu_origin[2];
-    this->GetOriginOfMenu(menu_origin[0],menu_origin[1]);
+    this->GetOrigin(menu_origin[0],menu_origin[1]);
     
     int item_index;
     double a1 = (pos2-menu_origin[1]);
@@ -563,15 +687,22 @@ int vmxMenu::GetSizeOfCheckBoxActor(int &output_size1, int &output_size2)
 }
 
 
-int vmxMenu::GetSizeOfMenu(int &output_size1, int &output_size2)
+void vmxMenu::GetSize(int &output_size1, int &output_size2)
 {
     int size_of_text_actor[2];
     int size_of_checkbox_actor[2];
-    if(!this->GetSizeOfTextActor(size_of_text_actor[0], size_of_text_actor[1])) return 0;
-    if(!this->GetSizeOfCheckBoxActor(size_of_checkbox_actor[0], size_of_checkbox_actor[1])) return 0;
+    if(!this->GetSizeOfTextActor(size_of_text_actor[0], size_of_text_actor[1]))
+    {
+        output_size1 = output_size2 = 0;
+        return ;
+    }
+    if(!this->GetSizeOfCheckBoxActor(size_of_checkbox_actor[0], size_of_checkbox_actor[1]))
+    {
+        output_size1 = output_size2 = 0;
+        return ;
+    }
     output_size1 = size_of_text_actor[0] + size_of_checkbox_actor[0];
     output_size2 = size_of_text_actor[1];
-    return 1;
 }
 
 
@@ -585,6 +716,26 @@ int vmxMenu::GetSizeOfTextActor(int &output_size1, int &output_size2)
     output_size2 = size[1];
     
     return 1;
+}
+
+
+int vmxMenu::GetVisibility()
+{
+    return m_text_actor->GetVisibility();
+}
+
+
+void vmxMenu::HideAllSubMenus()
+{
+    // Call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->SetVisibility(0);
+            m_item_pointers[i]->GetSubMenu()->HideAllSubMenus();
+        }
+    }
 }
 
 
@@ -610,10 +761,10 @@ int vmxMenu::IsCheckBoxActorPicked(int pos1, int pos2)
 int vmxMenu::IsMenuPicked(int pos1, int pos2)
 {
     int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0],menu_size[1]);
+    this->GetSize(menu_size[0],menu_size[1]);
     
     int menu_origin[2];
-    this->GetOriginOfMenu(menu_origin[0],menu_origin[1]);
+    this->GetOrigin(menu_origin[0],menu_origin[1]);
     
     
     int end_pos1 = menu_origin[0] + menu_size[0];
@@ -660,6 +811,25 @@ int vmxMenu::IsTextActorPicked(int pos1, int pos2)
 }
 
 
+int vmxMenu::IsVisible()
+{
+    return m_text_actor->GetVisibility();
+}
+
+
+void vmxMenu::ListenForLeftButtonDownEvent(int is_listening)
+{
+    if(is_listening)
+    {
+        m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
+    }
+    else
+    {
+        m_interactor->RemoveObservers(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
+    }
+}
+
+
 void vmxMenu::ListenForLeftButtonUpEvent(int is_listening)
 {
 //    if(!m_interactor) return;
@@ -675,74 +845,6 @@ void vmxMenu::ListenForLeftButtonUpEvent(int is_listening)
         //cout<<" m_left_button_up_callback(0) ";
         m_interactor->RemoveObservers(vtkCommand::EndInteractionEvent, m_left_button_up_callback);
         //m_interactor->RemoveObservers(vtkCommand::LeftButtonReleaseEvent, m_left_button_up_callback);
-    }
-}
-
-
-void vmxMenu::ListenForMouseMoveEvent(int is_listening)
-{
-//    if(!m_interactor) return;
-    
-    if(is_listening)
-    {
-        //cout<<" m_mouse_move_callback(1) ";
-        m_interactor->AddObserver(vtkCommand::ModifiedEvent, m_mouse_move_callback);
-        //m_interactor->AddObserver(vtkCommand::MouseMoveEvent, m_mouse_move_callback);
-    }
-    else
-    {
-        //cout<<" m_mouse_move_callback(0) ";
-        m_interactor->RemoveObservers(vtkCommand::ModifiedEvent, m_mouse_move_callback);
-        //m_interactor->RemoveObservers(vtkCommand::MouseMoveEvent, m_mouse_move_callback);
-    }
-}
-
-
-void vmxMenu::RedoPlacement()
-{
-//    if(m_placement==FREE)
-//    {
-//        
-//    }
-    if(m_placement==RELATIVE)
-    {
-        this->SetPlacementToRelative(m_placement_relative_percentages[0],m_placement_relative_percentages[1]);
-    }
-    if(m_placement==LOWER_LEFT)
-    {
-        this->SetPlacementToLowerLeft();
-    }
-    if(m_placement==LOWER_CENTER)
-    {
-        this->SetPlacementToLowerCenter();
-    }
-    if(m_placement==LOWER_RIGHT)
-    {
-        this->SetPlacementToLowerRight();
-    }
-    if(m_placement==CENTER_LEFT)
-    {
-        this->SetPlacementToCenterLeft();
-    }
-//    if(m_placement==CENTER_CENTER)
-//    {
-//
-//    }
-    if(m_placement==CENTER_RIGHT)
-    {
-         this->SetPlacementToCenterRight();
-    }
-    if(m_placement==UPPER_LEFT)
-    {
-        this->SetPlacementToUpperLeft();
-    }
-    if(m_placement==UPPER_CENTER)
-    {
-        this->SetPlacementToUpperCenter();
-    }
-    if(m_placement==UPPER_RIGHT)
-    {
-        this->SetPlacementToUpperRight();
     }
 }
 
@@ -765,13 +867,17 @@ void vmxMenu::SetColor(double r, double g, double b)
     m_selected_text_actor->GetTextProperty()->SetColor(1,1,1);
     m_selected_text_actor->GetTextProperty()->SetOpacity(0.7);
     m_drag_actor->GetTextProperty()->SetOpacity(0.5);
+    
+    // Call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->SetColor(r,g,b);
+        }
+    }
+
 }
-
-
-//void vmxMenu::SetDataObjectTree(mxDataObjectTree *tree)
-//{
-//    m_tree = tree;
-//}
 
 
 void vmxMenu::SetFontSize(double font_size)
@@ -798,6 +904,16 @@ void vmxMenu::SetFontSize(double font_size)
     m_drag_actor->GetTextProperty()->SetFontSize(m_font_size);
     
     this->ComputeSelectionTextLine();
+    
+    // Call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->SetFontSize(font_size);
+        }
+    }
+
 }
 
 
@@ -807,9 +923,7 @@ void vmxMenu::SetInteractor(vtkRenderWindowInteractor *interactor)
     
     m_interactor = interactor;
     
-    //m_interactor->AddObserver(vtkCommand::CharEvent, key_press_call_back);
-    
-    m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
+//    m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
     m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
     
     m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_text_actor);
@@ -821,141 +935,55 @@ void vmxMenu::SetInteractor(vtkRenderWindowInteractor *interactor)
     m_drag_actor->SetVisibility(0);
     
     this->ComputeSelectionTextLine();
+    
+    // Call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->SetInteractor(interactor);
+            m_item_pointers[i]->GetSubMenu()->SetVisibility(0);
+        }
+    }
+
 }
 
 
-//void vmxMenu::SetMarkedItemVisibility(int is_showing_marked_item)
-//{
-//    
-//}
-
-
 void vmxMenu::SetOrigin(int origin1, int origin2)
-{
+{    
     int text_actor_size[2];
     this->GetSizeOfTextActor(text_actor_size[0], text_actor_size[1]);
 
     m_text_actor->SetPosition(origin1,origin2);
     m_checkboxes_actor->SetPosition(origin1+text_actor_size[0],origin2);
     m_selected_text_actor->SetPosition(origin1,origin2);
-    m_placement = FREE;
-}
-
-
-void vmxMenu::SetPlacementToCenterLeft()
-{
-    this->SetPlacementToRelative(0,50);
-    m_placement = CENTER_LEFT;
-}
-
-
-void vmxMenu::SetPlacementToCenterRight()
-{
-    this->SetPlacementToRelative(100,50);
-    m_placement = CENTER_RIGHT;
-}
-
-
-void vmxMenu::SetPlacementToLowerCenter()
-{
-    this->SetPlacementToRelative(50,0);
-    m_placement = LOWER_CENTER;
-}
-
-
-void vmxMenu::SetPlacementToLowerLeft()
-{
-    this->SetOrigin(0,0);
-    m_placement = LOWER_LEFT;
-}
-
-
-void vmxMenu::SetPlacementToLowerRight()
-{
-    int *window_size = m_interactor->GetRenderWindow()->GetSize();
-    int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0], menu_size[1]);
-    
-    int origin[2];
-    origin[0] = window_size[0] - menu_size[0];
-    origin[1] = 0;
-    
-    this->SetOrigin(origin[0],origin[1]);
-    m_placement = LOWER_RIGHT;
-}
-
-
-void vmxMenu::SetPlacementToRelative(unsigned int x_percent, unsigned int y_percent)
-{
-    m_placement_relative_percentages[0] = x_percent;
-    m_placement_relative_percentages[1] = y_percent;
-    
-    int *window_size = m_interactor->GetRenderWindow()->GetSize();
-    int origin[2];
-    origin[0] = (window_size[0] * x_percent) / 100;
-    origin[1] = (window_size[1] * y_percent) / 100;
-    
-    int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0], menu_size[1]);
-
-    if(origin[0]+menu_size[0]>window_size[0])
-    {
-        origin[0] = window_size[0] - menu_size[0];
-    }
-    
-    if(origin[1]+menu_size[1]>window_size[1])
-    {
-        origin[1] = window_size[1] - menu_size[1];
-    }
-
-    this->SetOrigin(origin[0],origin[1]);
-    m_placement = RELATIVE;
-}
-
-
-void vmxMenu::SetPlacementToUpperCenter()
-{
-    this->SetPlacementToRelative(50,100);
-    m_placement = UPPER_CENTER;
-}
-
-
-void vmxMenu::SetPlacementToUpperLeft()
-{
-    int *window_size = m_interactor->GetRenderWindow()->GetSize();
-    int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0], menu_size[1]);
-
-    int origin[2];
-    origin[0] = 0;
-    origin[1] = window_size[1] - menu_size[1];
-    
-    this->SetOrigin(origin[0],origin[1]);
-    m_placement = UPPER_LEFT;
-}
-
-
-void vmxMenu::SetPlacementToUpperRight()
-{
-    int *window_size = m_interactor->GetRenderWindow()->GetSize();
-    int menu_size[2];
-    this->GetSizeOfMenu(menu_size[0], menu_size[1]);
-    
-    int origin[2];
-    origin[0] = window_size[0] - menu_size[0];
-    origin[1] = window_size[1] - menu_size[1];
-    
-    this->SetOrigin(origin[0],origin[1]);
-    m_placement = UPPER_RIGHT;
+    m_placement = FIXED;
 }
 
 
 void vmxMenu::SetVisibility(int is_visible)
 {
+    if(this->GetVisibility() && is_visible) return;
+    if(!this->GetVisibility() && !is_visible) return;
+    
     this->m_text_actor->SetVisibility(is_visible);
     this->m_checkboxes_actor->SetVisibility(is_visible);
-    this->m_selected_text_actor->SetVisibility(is_visible);
-    this->m_drag_actor->SetVisibility(is_visible);
+    this->m_selected_text_actor->SetVisibility(0);//    this->m_selected_text_actor->SetVisibility(is_visible);
+//    this->m_drag_actor->SetVisibility(is_visible);
+    
+    // If the menu is not visible, it should not observe interaction events
+    if(!is_visible)
+    {
+        //m_interactor->GetRenderWindow()->RemoveObservers(vtkCommand::ModifiedEvent, m_window_modified_callback);
+        //this->ListenForMouseMoveEvent(0);
+        this->ListenForLeftButtonUpEvent(0);
+        this->ListenForLeftButtonDownEvent(0);
+    }
+    else
+    {
+        //m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
+        this->ListenForLeftButtonDownEvent(1);
+    }
 }
 
 
@@ -1004,11 +1032,11 @@ int vmxMenu::ShowSelectedItems()
         {
             if(i!=0)
             {
-                selected_text.Append("_\n");
+                selected_text.Append("\n");//selected_text.Append("_\n");
             }
             else
             {
-                selected_text.Append("_");
+                selected_text.Append(" ");//selected_text.Append("_");
             }
         }
     }
@@ -1022,6 +1050,95 @@ int vmxMenu::ShowSelectedItems()
     m_selected_text_actor->SetVisibility(1);
     
     return 1;
+}
+
+
+int vmxMenu::ShowTextItems()
+{
+    mxString text;
+    mxString checkbox_text;
+    
+    for(int i=m_item_pointers.GetNumberOfElements()-1; i>=0; i--)
+    {
+        //m_item_pointers[i] = it.GetElementAddress();
+        text.Append(" ");
+        text.Append(m_item_pointers[i]->m_text);
+        
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            checkbox_text.Append("  >>");
+        }
+        
+        if(i!=0)
+        {
+            text.Append("\n");
+            checkbox_text.Append("\n");
+        }
+    }
+    
+    m_text_actor->SetInput(text.Get_C_String());
+    m_checkboxes_actor->SetInput(checkbox_text.Get_C_String());
+    
+    // Now that this menu is built, call this method for each submenu
+    for(unsigned int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->GetSubMenu())
+        {
+            m_item_pointers[i]->GetSubMenu()->ShowTextItems();
+        }
+    }
+
+    
+    
+//    mxString text, checkbox_text;
+//    
+//    m_number_of_items_in_text_actor = 0;
+//    int m = 0;
+//    for(int i=m_text_index_offset; i<=this->GetNumberOfItems()-1 && m<m_text_actor_max_number_of_items; i++, m++)
+//    {
+//        m_number_of_items_in_text_actor++;
+//        
+//        text.Append(" ");
+//        if(!m_item_pointers[i]->m_is_controller)
+//        {
+//            text.Append("   ");
+//        }
+//        
+//        text.Append(m_item_pointers[i]->m_text);
+//        for(unsigned int k=0; k<m_item_pointers[i]->m_number_of_check_boxes; k++)
+//        {
+//            if(m_item_pointers[i]->m_checkboxes[k]==0)
+//            {
+//                checkbox_text.Append("[_]");
+//            }
+//            else
+//            {
+//                checkbox_text.Append("[x]");
+//            }
+//        }
+//        
+//        if(i!=this->GetNumberOfItems()-1 && m!=m_text_actor_max_number_of_items-1)
+//        {
+//            text.Append("\n");
+//            checkbox_text.Append("\n");
+//        }
+//    }
+//    
+//    if(m_number_of_items_in_text_actor<this->GetNumberOfItems())
+//    {
+//        this->ListenForMouseWheelBackwardEvent(1);
+//        this->ListenForMouseWheelForwardEvent(1);
+//    }
+//    else
+//    {
+//        this->ListenForMouseWheelBackwardEvent(0);
+//        this->ListenForMouseWheelForwardEvent(0);
+//    }
+//    
+//    m_text_actor->SetInput(text.Get_C_String());
+//    m_checkboxes_actor->SetInput(checkbox_text.Get_C_String());
+//    
+//    return 1;
 }
 
 
