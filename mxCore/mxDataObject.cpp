@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    mxDataObject.h
+ Module:    mxDataObject.cpp
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
