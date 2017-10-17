@@ -49,6 +49,7 @@
 
 
 // Pre-declarations.
+class vtkRenderer;
 class vtkRenderWindowInteractor;
 class vtkActor;
 class qmxDataObjectContextMenu;
@@ -79,7 +80,7 @@ protected:
     /// Indicates if multiple object of this class can be displayed together.
     /// If the indicator is set, only a single object can be viewed at a time.
     /// By default the indicator is not set (multiple objects can be displayed together).
-    static int m_is_exclusive_visibility_on;
+    int m_is_exclusive_visibility_on;
     
     /// Indicates if the object is in use by a function, so it should not be used for another function (hence, locked).
     /// Notice: The indicator is controlled (set/reset) on a higher level of the app.
@@ -88,6 +89,10 @@ protected:
     
     /// Logbook of all signatures (records/names) and parameters of functions called on this object.
     mxString m_log;
+    
+    /// Number of visualization components of the object (e.g. an image visualized with orthogonal planes
+    /// will have 3 components: axil, sagittal and coronal plane). Default value is 1.
+    unsigned int m_number_of_visualization_components;
 
 public:
     
@@ -95,10 +100,10 @@ public:
     mxDataObject();
     
     /// Destructor.
-    ~mxDataObject();
+    virtual ~mxDataObject();
     
-    /// Copy data members of input object.
-    virtual int CopyFrom(mxObject *data_object);
+    /// Copy data members of input object if the input object nad this object are of the same type.
+    virtual int CopyFromDataObject(mxDataObject *data_object);
     
     /// Get bounds of the object in 3D space. If not applicable (e.g. object is a 2D signal) return fail 0.
     virtual int GetBoundsInWorldCoordinates(double &x_min, double &x_max, double &y_min, double &y_max, double &z_min, double &z_max);
@@ -114,6 +119,13 @@ public:
     
     /// Get log string of all signatures (records/names) and parameters of functions called on this object.
     mxString& GetLog();
+    
+    /// Get the number of visualization components of this object (e.g. an image visualized with orthogonal planes
+    /// will have 3 components: axil, sagittal and coronal plane).
+    unsigned int GetNumberOfVisualizationComponents()
+    {
+        return m_number_of_visualization_components;
+    };
     
     /// Get the properties widget of the object.
     virtual qmxDataObjectPropertiesWidget* GetPropertiesWidget();
@@ -156,14 +168,29 @@ public:
     void SetExclusiveVisibility(int is_visibility_exclusive);
     
     /// Set the interactor for VTK visualization.
-    virtual void SetInteractorFor3DView(vtkRenderWindowInteractor *interactor);
+    virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
     /// Lock/unlock the object. Use this to indicate that an external function is using the object. Do not forget to release the
     /// object after the efunction execution has ended.
     void SetLocked(int is_locked);
     
+    /// Set the number of visualization components of this object (e.g. an image visualized with orthogonal planes
+    /// will have 3 components: axil, sagittal and coronal plane).
+    void SetNumberOfVisualizationComponents(unsigned int number_of_components)
+    {
+        if(number_of_components==0) return;
+        m_number_of_visualization_components = number_of_components;
+    };
+    
+    /// Set the renderer for VTK visualization.
+    virtual void SetRenderer(vtkRenderer *renderer);
+    
     /// Set the visibility of the object for VTK visualization.
     virtual void SetVisibilityIn3DView(int is_visible);
+    
+    /// Set the visibility of the object component for VTK visualization.
+    /// E.g. a 3D image has 3 visualization components: axial, sagittal and coronal planes.
+    virtual void SetVisibilityOfComponent(int component_index, int is_visible);
     
     /// Method that will show basic context menu of the object.
     virtual void ShowBasicContextMenu();

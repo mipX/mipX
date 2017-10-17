@@ -532,6 +532,41 @@ int mxString::ExtractDifferenceString(mxString &input_string, mxString &output_d
 }
 
 
+int mxString::ExtractFileNameAndFileExtension(mxString &output_file_name_with_path, mxString &output_extension)
+{
+    if(this->IsEmpty()) return 0;
+    
+    int index_of_last_dot = -1;
+    for(int i=this->GetNumberOfCharacters()-1; i>=0; i--)
+    {
+        if((*this)[i]=='.')
+        {
+            index_of_last_dot = i;
+            break;
+        }
+    }
+    
+    // If the dot was found...
+    if(index_of_last_dot>0)
+    {
+        //...copy the string up to (but NOT including) the last dot to output_file_name_with_path...
+        output_file_name_with_path.Clear();
+        for(int i=0; i<index_of_last_dot; i++)
+        {
+            output_file_name_with_path.Append((*this)[i]);
+        }
+        //... and copy the string from the last dot (but NOT including it) to the end of the string to output_extension.
+        output_extension.Clear();
+        for(int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++)
+        {
+            output_extension.Append((*this)[i]);
+        }
+    }
+    
+    return 1;
+}
+
+
 int mxString::ExtractFilePathParts(mxString &output_dir, mxString &output_file_name, mxString &output_extension)
 {
     if(this->IsEmpty()) return 0;
@@ -573,6 +608,27 @@ int mxString::ExtractFilePathParts(mxString &output_dir, mxString &output_file_n
     for(int i=index_of_last_slash+1; i<index_of_last_dot; i++) { output_file_name.Append((*this)[i]); }
     
     return 1;
+}
+
+
+int mxString::PathLevelUp(mxString &output_dir)
+{
+    int index_of_last_slash = -1;
+    // Index this->GetNumberOfCharacters()-1 is not of interest because it is either a '/' ('\\')
+    // or a letter.
+    for(int i=this->GetNumberOfCharacters()-2; i>=0; i--)
+    {
+        if((*this)[i]=='\\' || (*this)[i]=='/') { index_of_last_slash = i; break; }
+    }
+    
+    // If the slash was found, copy the string up to and including the last slash to output_dir.
+    output_dir.Clear();
+    if(index_of_last_slash>=0)
+    {
+        for(int i=0; i<=index_of_last_slash; i++) { output_dir.Append((*this)[i]); }
+        return 1;
+    }
+    return 0;
 }
 
 

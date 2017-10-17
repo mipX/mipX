@@ -22,9 +22,9 @@
 
 
 
-// Definition of the static members
-mxString mxObject::m_class_name;
-mxString mxObject::m_class_descriptive_name;
+//// Definition of the static members
+//mxString mxObject::m_class_name;
+//mxString mxObject::m_class_descriptive_name;
 
 
 
@@ -43,13 +43,13 @@ mxObject::~mxObject()
 }
 
 
-int mxObject::CopyFrom(mxObject *object)
+int mxObject::Copy(mxObject *object)
 {
     if(!object) return 0;
     this->m_object_descriptive_name.Assign(object->m_object_descriptive_name);
     
     // Do not copy object name. Depending on higher level app, it could be a unique name.
-    // Also, no need to copy class names, as they are the same for each object of the same class.
+    // Also, do not copy class names, as they define the type of the object.
     
     return 1;
 }

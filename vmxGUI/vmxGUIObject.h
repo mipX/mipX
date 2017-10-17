@@ -18,7 +18,7 @@
 
 
 
-#if defined(vmxGUIObject_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
+#if defined(vmxGUIObject_USE_SOURCE_CODE) || defined(vmxGUI_USE_SOURCE_CODE)
     #define vmxGUIObject_API
 #else
     #if defined(_MSC_VER)
@@ -43,10 +43,15 @@
 
 
 #include "mxString.h"
+#include "vmxGUIClipBoard.h"
+#include "vmxGUIInteractorStyleTrackballCamera.h"
+
 #include <iostream>
+
 #include <vtkRenderWindow.h>
 #include <vtkCommand.h>
 #include <vtkSmartPointer.h>
+
 
 
 
@@ -86,6 +91,9 @@ protected:
     
     /// Main widget to which this object belongs.
     vmxGUIMainWidget *m_main_widget;
+    
+    /// Pointer to clipboard this object uses.
+    vmxGUIClipBoard *m_clip_board;
     
     /// Class (type) unique name string.
     mxString m_class_name;//static mxString m_class_name;
@@ -133,40 +141,33 @@ public:
 //    /// The extent is [x_min, x_max] and [y_min, y_max].
 //    void GetContainerAvailableExtent(int &x_min, int &x_max, int &y_min, int &y_max);
     
+    /// Get the pointer to the main widget.
+    vmxGUIMainWidget* GetMainWidget() { return m_main_widget; };
+    
+    /// Get the pointer to the clipboard this object uses.
+    vmxGUIClipBoard* GetClipBoard() { return m_clip_board; };
+    
     /// Get origin of the object in absolute coordinates on the render window.
     /// These are absolute (actual) positions on the screen.
-    virtual void GetOrigin(int &x_origin, int &y_origin)
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::GetOrigin()!"<<endl;
-    }; // should be re-implemented in child object.
+    virtual void GetOrigin(int &x_origin, int &y_origin) { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::GetOrigin()!"<<endl; };
     
     /// Get the placement type for this object.
     vmxGUIObject::vmxGUIObjectPlacement GetPlacement();
     
     /// Get size of the object.
-    virtual void GetSize(int &x_size, int &y_size)
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::GetSize()!"<<endl;
-    }; // should be re-implemented in child object.
+    virtual void GetSize(int &x_size, int &y_size) { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::GetSize()!"<<endl; };
     
     /// Given the input positions, check if the object is picked (if the position falls within the object bounds).
     int IsPicked(int pos1, int pos2);
     
     /// Get visibility of this object.
-    virtual int IsVisible()
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::IsVisible()!"<<endl;
-        return 0;
-    }; // should be re-implemented in child object.
+    virtual int IsVisible() { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::IsVisible()!"<<endl; return 0; };
     
     /// Check if the object stretches over the whole X axis.
     int IsStretchingOver_X_Axis();
     
     /// Reset the object.
-    virtual void Reset()
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::Reset()!"<<endl;
-    }; // should be re-implemented in child object.
+    virtual void Reset() { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::Reset()!"<<endl; };
     
     /// Based on existing placement preference, repositions the object.
     /// To be used in case window changes size.
@@ -192,12 +193,12 @@ public:
         cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetMaximumSize()!"<<endl;
     };
     
+    /// Set interactor of the object.
+    virtual void SetInteractor(vtkRenderWindowInteractor *interactor) { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetInteractor()!"<<endl; };
+
     /// Set origin of the object on the screen.
     /// These are absolute (actual) positions on the screen.
-    virtual void SetOrigin(int x_origin, int y_origin)
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetOrigin()!"<<endl;
-    }; // to be re-implemented in child class.
+    virtual void SetOrigin(int x_origin, int y_origin) { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetOrigin()!"<<endl; };
     
     /// Place the list_widget relative to the size of the render window.
     void SetPlacementToRelative(unsigned int x_percent, unsigned int y_percent);
@@ -234,10 +235,7 @@ public:
     
     /// Set visibility of the object. This method should be re-implemented
     /// in child class, but should call RedoPlacement() mehod within it!
-    virtual void SetVisibility(int is_visible)
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetVisibility()!"<<endl;
-    };
+    virtual void SetVisibility(int is_visible) { cout<<this->m_class_name.Get_C_String()<<" called vmxGUIObject::SetVisibility()!"<<endl; };
 };
 
 
@@ -388,7 +386,7 @@ protected:
     /// Class (type) unique name string.
     mxString m_class_name;//static mxString m_class_name;
     
-    /// Pointer to the containing render window.
+    /// Pointer to the containing render window. We keep a separate pointer to allow a possibility of use of external render window.
     vtkRenderWindow *m_render_window;
     
     /// Available extent of x values, sequentially [x_min,x_max] for the left side of the main widget.
@@ -415,6 +413,26 @@ protected:
     /// Callback regulating the positioning of objects when the render window is resized.
     vtkSmartPointer<vmxGUIMainWidgetRenderWindowModifiedCallback> m_window_modified_callback;
 
+    /// Renderer that will contain GUI objects.
+    vtkSmartPointer<vtkRenderer> m_renderer_GUI;
+
+    /// Renderer that will contain 3D scene.
+    vtkSmartPointer<vtkRenderer> m_renderer_3D;
+    
+// THERE SHOULD BE A LIST OF USER DEFINED RENDERERS HERE.... or maybe not, renderers are maintained in the render window, so they can be accessed.
+  
+
+    /// Render window that contains all the renderers and the interactor.
+    vtkSmartPointer<vtkRenderWindow> m_render_window_internal; //Maybe the render window should not be included here, but externally. To be determined.
+
+    /// Render window interactor associated with the render window.
+    vtkSmartPointer<vtkRenderWindowInteractor> m_interactor;
+    
+    /// Style assigned to the interactor.
+    vtkSmartPointer<vmxGUIInteractorStyleTrackballCamera> m_interactor_style;
+    
+    /// Clipboard owned by the main widget.
+    vmxGUIClipBoard m_clipboard;
     
 public:
     
@@ -452,7 +470,19 @@ public:
     /// Get available size of the widget. 'is_stretching_over_x_axis' indicates if the object for which we
     /// are checking the extent is stretching over all x axis (left, center and right side).
     void GetAvailableSizeForRightSide(int &x_size, int &y_size, int is_stretching_over_x_axis);
+
+    /// Get pointer to the clipboard.
+    vmxGUIClipBoard* GetClipBoard() { return &m_clipboard; };
     
+    /// Get pointer to the interactor.
+    vtkRenderWindowInteractor* GetInteractor() { return m_interactor; };
+
+    /// Get pointer to the renderer of GUI.
+    vtkRenderer* GetRenderer_GUI() { return m_renderer_GUI; };
+    
+    /// Get pointer to the 3D renderer.
+    vtkRenderer* GetRenderer_3D() { return m_renderer_3D; };
+
     /// Get pointer to the render window.
     vtkRenderWindow* GetRenderWindow();
     
@@ -468,6 +498,14 @@ public:
     
     /// Set the render window.
     void SetRenderWindow(vtkRenderWindow *render_window);
+    
+    /// Render and start the interaction.
+    void StartInteraction()
+    {
+        this->GetRenderWindow()->Render();
+        this->GetInteractor()->Start();
+    }
+    
     
 };
 

@@ -43,6 +43,7 @@
 
 
 #include "mxDataObject.h"
+#include "mxDataObjectFactory.h"
 #include "mxString.h"
 #include <iostream>
 
@@ -68,6 +69,12 @@ protected:
     
 public:
     
+    /// Constructor.
+    mxDataObjectFactory(){};
+    
+    /// Destructor.
+    virtual ~mxDataObjectFactory(){};
+    
     /// Add existing data object to the data tree.
     /// Note: the object is NOT added with a unique name.
     int AddExistingObject(mxDataObject* data_object)
@@ -84,14 +91,14 @@ public:
     
     /// Create an instance of a data object.
     /// Note: the object is NOT created with a unique name.
-    virtual mxDataObject* Create() = 0;
+    virtual mxDataObject* Create() {return NULL;};// = 0;
     
     
 //    /// Load/create multiple instances of data objects of a single class.
 //    virtual mxList<mxDataObject*> Load() = 0;
     
     /// Get class name of object this factory manages.
-    virtual mxString GetClassName() = 0;
+    virtual mxString GetClassName(){mxString s; return s;};// = 0;
     
     /// Get pointer to data object list of this factory.
     mxList<mxDataObject*>* GetCreatedDataObjects()
@@ -100,10 +107,10 @@ public:
     };
     
     /// Release an instance of a data object.
-    virtual void Release(mxDataObject* data_object) = 0;
+    virtual void Release(mxDataObject* data_object) {};//= 0;
     
     /// Release all instances of data objects.
-    virtual void ReleaseAllDataObjects() = 0;
+    virtual void ReleaseAllDataObjects(){};// = 0;
 
     /// Set the pointer to the data object tree.
     void SetDataObjectTree(mxDataObjectTree *data_object_tree)
@@ -175,7 +182,8 @@ mxDataObject* mxDataObjectFactoryT<T>::Create()
 template<class T>
 mxString mxDataObjectFactoryT<T>::GetClassName()
 {
-    return (T::GetClassName());//class name is accessible through class because it is a static member and method.
+    T t;
+    return t.GetClassName();
 }
 
 

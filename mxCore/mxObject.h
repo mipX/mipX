@@ -59,11 +59,11 @@ class mxObject_API mxObject
 protected:
     
     /// Class (type) unique name string (no other class should have this name - to be regulated on a higher level).
-    static mxString m_class_name;
+    mxString m_class_name;
 
     /// Class (type) descriptive name string used to in short describe the class (e.g. "mxObject" can be described as "Object").
     /// This name in not unique, multiple classes can have the same descriptive name.
-    static mxString m_class_descriptive_name;
+    mxString m_class_descriptive_name;
     
     /// Object unique name string (no other object should have this name - to be regulated on a higher level).
     mxString m_object_name;
@@ -78,19 +78,19 @@ public:
 	mxObject();
 
 	/// Destructor.
-	~mxObject();
+	virtual ~mxObject();
     
     /// Copy members of input object.
     /// Notice: Do not copy object name. Depending on higher level app, it could be a unique name.
     /// Also, no need to copy class names, as they are the same for each object of the same class.
-    virtual int CopyFrom(mxObject *object);
+    int Copy(mxObject *object);
     
     /// Get class (type) unique name string (no other class should have this name - to be regulated on a higher level).
-    static mxString& GetClassName();
+    mxString& GetClassName();
     
     /// Get class (type) descriptive name string used to in short describe the class (e.g. "mxObject" can be described as "Object").
     /// This name in not unique, multiple classes can have the same descriptive name.
-    static mxString& GetClassDescriptiveName();
+    mxString& GetClassDescriptiveName();
     
     /// Get object unique name string (no other object should have this name - to be regulated on a higher level).
     mxString& GetObjectName();

@@ -396,9 +396,15 @@ public:
     
     /// Add newly created element to the end of the list.
 	T* AddNewToEnd();
+
+    /// Add newly created element before the given node in the list.
+    T* AddNewBeforeNode(mxListNode<T> *node);
     
     /// Add given element before the given node.
 	int AddBeforeNode(mxListNode<T> *p_node, T &element);
+    
+    /// Add newly created element after the given node in the list.
+    T* AddNewAfterNode(mxListNode<T> *node);
     
     /// Add given element after the given node.
 	int AddAfterNode(mxListNode<T> *p_node, T &element);	
@@ -724,6 +730,29 @@ int mxList<T>::AddBeforeNode(mxListNode<T> *node, T &element)
 
 
 template<class T>
+T* mxList<T>::AddNewBeforeNode(mxListNode<T> *node)
+{
+    if(!node) return NULL;
+    if(this->IsEmpty()) return NULL;
+    
+    if(node==m_begin_node)
+    {
+        return (this->AddNewToBegin());
+    }
+    
+    mxListNode<T> *nel = new mxListNode<T>(this);
+    
+    nel->m_previous_node = node->m_previous_node;
+    nel->m_next_node = node;
+    node->m_previous_node->m_next_node = nel;
+    node->m_previous_node = nel;
+    m_number_of_elements++;
+    
+    return nel->GetElementAddress();
+}
+
+
+template<class T>
 int mxList<T>::AddAfterNode(mxListNode<T> *node, T &element)
 {
 	if(!node) return 0;
@@ -741,6 +770,29 @@ int mxList<T>::AddAfterNode(mxListNode<T> *node, T &element)
 		m_number_of_elements++;
 	}
 	return 1;
+}
+
+
+template<class T>
+T* mxList<T>::AddNewAfterNode(mxListNode<T> *node)
+{
+    if(!node) return NULL;
+    if(this->IsEmpty()) return NULL;
+    
+    if(node==m_end_node)
+    {
+        return (this->AddNewToEnd());
+    }
+    
+    mxListNode<T> *nel = new mxListNode<T>(this);
+    
+    nel->m_next_node = node->m_next_node;
+    nel->m_previous_node = node;
+    node->m_next_node->m_previous_node = nel;
+    node->m_next_node = nel;
+    m_number_of_elements++;
+    
+    return nel->GetElementAddress();
 }
 
 

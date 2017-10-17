@@ -177,14 +177,31 @@ public:
     /// Extract the first string that is different for this and input string (difference is copied from this string).
     /// Example: For "str_first", input_string: "str_second", the output is: "first".
     int ExtractDifferenceString(mxString &input_string, mxString &output_difference_string);
+    
+    /// Remove the extension from the file name/path.
+    /// Example: For "x:\dir\file.png" extracts: "x:\dir\file" and "png".
+    int ExtractFileNameAndFileExtension(mxString &output_file_name_with_path, mxString &output_extension);
 
     /// Extract file path parts: directory, file name and extension.
     /// Example: For "x:\dir\file.png" extracts: "x:\dir\", "file" and "png". ('\' can be replaced with '/').
     int ExtractFilePathParts(mxString &output_dir, mxString &output_file_name, mxString &output_extension);
+    
+    /// For path string get the path of directory level up.
+    /// Example: For "x:\dir\dir2\" level up is: "x:\dir\". ('\' can be replaced with '/').
+    int PathLevelUp(mxString &output_dir);
+    
+    static char PathSeparator()
+    {
+    #if defined(_MSC_VER)
+            return '\\';// for Microsoft Windows.
+    #else
+            return '/';// for Unix-type systems.
+    #endif
+    };
 
 	/// Replace one input character with the other one.
 	void ReplaceCharacters(char character_to_replace, char replacement_character);
-
+    
 	/// Inserts a number at places marked with marker_character.
     /// Example: For "file###_asd", n=52, marker_character='#', output is: "file052_asd".
 	int InsertNumber(int n, char marker_character);

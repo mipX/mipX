@@ -22,34 +22,30 @@
 
 
 
-// Definition of the static members
-int mxDataObject::m_is_exclusive_visibility_on = 0;
-//mxDataObjectFactory* mxDataObject::m_factory = 0;
-
-
 mxDataObject::mxDataObject()
 {
     this->m_factory = NULL;
 	this->m_is_locked = 0;
     this->m_is_exclusive_visibility_on = 0;
     this->m_color[0] = this->m_color[1] = this->m_color[2] = this->m_color[3] = 0;
+    this->m_number_of_visualization_components = 1;
 }
 
 
 mxDataObject::~mxDataObject()
 {
-	this->Reset();
+    this->mxDataObject::Reset();
 }
 
 
-int mxDataObject::CopyFrom(mxObject *object)
+int mxDataObject::CopyFromDataObject(mxDataObject *data_object)
 {
-    if(!object) return 0;
-    if(object->GetClassName() != this->GetClassName()) return 0;
+    if(!data_object) return 0;
+   
+    // Normally we would hve type checking in CopyFromObject method, but here it's not needed
+    // as the input is already of the same type.
     
-    mxDataObject *data_object = static_cast<mxDataObject*>(object);
-    
-    mxObject::CopyFrom(data_object);
+    this->mxObject::Copy(data_object);
     this->m_log = data_object->m_log;
     this->SetColor(data_object->m_color[0], data_object->m_color[1], data_object->m_color[2], data_object->m_color[3]);
     
@@ -58,6 +54,7 @@ int mxDataObject::CopyFrom(mxObject *object)
     // Do not copy exclusive visibility indicator (it's the same for all objects).
     
     return 1;
+
 }
 
 
@@ -149,7 +146,7 @@ int mxDataObject::LoadFromFolder(const char *folder_path, const char *extension)
 
 void mxDataObject::Reset()
 {
-    mxObject::Reset();
+    this->mxObject::Reset();
     this->m_is_locked = 0;
     this->m_log.Clear();
 }
@@ -184,9 +181,9 @@ void mxDataObject::SetExclusiveVisibility(int is_visibility_exclusive)
 }
 
 
-void mxDataObject::SetInteractorFor3DView(vtkRenderWindowInteractor *interactor)
+void mxDataObject::SetInteractor(vtkRenderWindowInteractor *interactor)
 {
-    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetInteractorFor3DView()"<<std::endl;
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetInteractor()"<<std::endl;
 }
 
 
@@ -196,9 +193,21 @@ void mxDataObject::SetLocked(int is_locked)
 }
 
 
+void mxDataObject::SetRenderer(vtkRenderer *renderer)
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetRenderer()"<<std::endl;
+}
+
+
 void mxDataObject::SetVisibilityIn3DView(int is_visible)
 {
     std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetVisibilityIn3DView()"<<std::endl;
+}
+
+
+void mxDataObject::SetVisibilityOfComponent(int component_index, int is_visible)
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetVisibilityOfComponent()"<<std::endl;
 }
 
 

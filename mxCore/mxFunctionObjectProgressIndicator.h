@@ -84,7 +84,7 @@ public:
     mxFunctionObjectProgressIndicator();
     
     /// Destructor.
-    ~mxFunctionObjectProgressIndicator();
+    virtual ~mxFunctionObjectProgressIndicator();
     
     /// Get address of the function object currently connected (attached) to this progress indicator.
     mxFunctionObject* GetFunctionObject();

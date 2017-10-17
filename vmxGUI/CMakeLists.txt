@@ -27,29 +27,31 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set( ${TARGET_NAME}_SOURCES
-    vmxFilesDialog.cpp
+    vmxGUIFilesDialog.cpp
+#    vmxGUIMainWidget.cpp
     vmxGUIObject.cpp
-    vmxInteractorStyleImage.cpp
-    vmxInteractorStyleTrackballCamera.cpp
-    vmxListWidget.cpp
-    vmxMenu.cpp
-    vmxMenuBar.cpp
-    vmxButtonGroup.cpp
-    vmxTextInput.cpp
+    vmxGUIInteractorStyleImage.cpp
+    vmxGUIInteractorStyleTrackballCamera.cpp
+    vmxGUIListWidget.cpp
+    vmxGUIMenu.cpp
+    vmxGUIMenuBar.cpp
+    vmxGUIButtonGroup.cpp
+    vmxGUITextInput.cpp
 )
 
 set( ${TARGET_NAME}_HEADERS
-    vmxClipBoard.h
-    vmxEventDetector.h
-    vmxFilesDialog.h
+    vmxGUIClipBoard.h
+    vmxGUIEventDetector.h
+    vmxGUIFilesDialog.h
+#    vmxGUIMainWidget.h
     vmxGUIObject.h
-    vmxInteractorStyleImage.h
-    vmxInteractorStyleTrackballCamera.h
-    vmxListWidget.h
-    vmxMenu.h
-    vmxMenuBar.h
-    vmxButtonGroup.h
-    vmxTextInput.h
+    vmxGUIInteractorStyleImage.h
+    vmxGUIInteractorStyleTrackballCamera.h
+    vmxGUIListWidget.h
+    vmxGUIMenu.h
+    vmxGUIMenuBar.h
+    vmxGUIButtonGroup.h
+    vmxGUITextInput.h
 )
 
 set( ${TARGET_NAME}_TEMPLATES
@@ -64,16 +66,17 @@ set( ${TARGET_NAME}_LIBS
 )
 
 add_definitions( -DvmxButtonGroup_EXPORTS
-    -DvmxClipBoard_EXPORTS
-    -DvmxEventDetector_EXPORTS
-    -DvmxFilesDialog_EXPORTS
+    -DvmxGUIClipBoard_EXPORTS
+    -DvmxGUIEventDetector_EXPORTS
+    -DvmxGUIFilesDialog_EXPORTS
+#    -DvmxGUIMainWidget_EXPORTS
     -DvmxGUIObject_EXPORTS
-    -DvmxInteractorStyleImage_EXPORTS
-    -DvmxInteractorStyleTrackballCamera_EXPORTS
-    -DvmxListWidget_EXPORTS
-    -DvmxMenu_EXPORTS
-    -DvmxMenuBar_EXPORTS
-    -DvmxTextInput_EXPORTS
+    -DvmxGUIInteractorStyleImage_EXPORTS
+    -DvmxGUIInteractorStyleTrackballCamera_EXPORTS
+    -DvmxGUIListWidget_EXPORTS
+    -DvmxGUIMenu_EXPORTS
+    -DvmxGUIMenuBar_EXPORTS
+    -DvmxGUITextInput_EXPORTS
 )
 
 

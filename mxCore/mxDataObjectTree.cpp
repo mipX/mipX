@@ -55,13 +55,17 @@ int mxDataObjectTree::AddExistingObject(mxDataObject* data_object)
 
 int mxDataObjectTree::AddFactory(mxDataObjectFactory *factory)
 {
+    //std::cout<<"factoru_address="<<((void*)factory)<<std::endl;
     if(!factory) return 0;
-    if(mxListFunctions::HasElement(this->m_data_object_factories, factory)) return 1;
-    else
+    if(!mxListFunctions::HasElement(this->m_data_object_factories, factory))
     {
+        //std::cout<<" adding_new_factory" <<std::endl;
         this->m_data_object_factories.AddToEnd(factory);
         factory->SetDataObjectTree(this);
     }
+    
+    //std::cout<<"no of factories="<<m_data_object_factories.GetNumberOfElements()<<std::endl;
+
     return 1;
 }
 
@@ -105,6 +109,7 @@ mxString mxDataObjectTree::CheckObjectName(mxString desired_name)
 
 mxDataObject* mxDataObjectTree::Create(const char *class_or_type_name, const char *data_object_name)
 {
+    //std::cout<<"mxDataObjectTree::Create: no of factories="<<m_data_object_factories.GetNumberOfElements()<<std::endl;
     mxListIterator<mxDataObjectFactory*> itf;
     for(itf.SetToBegin(this->m_data_object_factories); itf.IsValid(); itf.MoveToNext())
     {
@@ -151,7 +156,9 @@ mxDataObject* mxDataObjectTree::GetDataObject(const char *data_object_name)
 
 mxList<mxDataObject*> mxDataObjectTree::Load(const char *file_names, const char *loading_class_name)
 {
-    
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT IMPLEMENTED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    mxList<mxDataObject*> l;
+    return l;
 }
 
 

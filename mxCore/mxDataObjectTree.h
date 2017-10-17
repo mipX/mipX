@@ -49,9 +49,9 @@
 
 
 
-/// Abstract class of data object factory.
+/// Data object tree used to handle data on mx level.
 
-class mxDataObjectTree
+class mxDataObjectTree_API mxDataObjectTree
 {
     
 protected:
@@ -66,11 +66,10 @@ public:
     mxDataObjectTree();
 
     /// Destructor.
-    ~mxDataObjectTree();
+    virtual ~mxDataObjectTree();
 
-    
     /// Add existing data object to the data tree.
-    int AddExistingObject(mxDataObject* data_object);
+    virtual int AddExistingObject(mxDataObject* data_object);
     
     /// Fails to add if the factory with the same class object name already exists.
     int AddFactory(mxDataObjectFactory *factory);
@@ -80,7 +79,7 @@ public:
     mxString CheckObjectName(mxString desired_name);
     
     /// Create an instance of a data object for the given input class/type name. Fail returns NULL.
-    mxDataObject* Create(const char *class_or_type_name, const char *data_object_name = NULL);
+    virtual mxDataObject* Create(const char *class_or_type_name, const char *data_object_name = NULL);
     
     /// Get data object by its unique data object name. Fail returns NULL.
     mxDataObject* GetDataObject(const char *data_object_name);
@@ -90,14 +89,14 @@ public:
     virtual mxList<mxDataObject*> Load(const char *file_names, const char *loading_class_name = NULL);
     
     /// Release an instance of a data object.
-    void Release(mxDataObject* data_object);
+    virtual void Release(mxDataObject* data_object);
     
     /// Release all data objects from the tree. Factories remain intact.
-    void ReleaseAllDataObjects();
+    virtual void ReleaseAllDataObjects();
     
-    /// Rename the data object that is in the data tree.
-    void RenameDataObject(mxDataObject* data_object, const char *desired_name);
-    
+//    /// Rename the data object that is in the data tree.
+//    virtual void RenameDataObject(mxDataObject* data_object, const char *desired_name);
+//    
 };
 
 

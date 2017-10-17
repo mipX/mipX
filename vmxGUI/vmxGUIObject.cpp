@@ -259,6 +259,8 @@ void vmxGUIObject::SetMainWidget(vmxGUIMainWidget *main_widget)
     {
         vmxGUIObject *obj = this;
         m_main_widget->m_objects.AddToEnd(obj);
+        m_clip_board = main_widget->GetClipBoard();
+        obj->SetInteractor(main_widget->GetInteractor());
     }
 }
 
@@ -301,7 +303,7 @@ void vmxGUIObject::SetPlacementToRelative(unsigned int x_percent, unsigned int y
     origin[0] = x_min + (window_size[0] * x_percent) / 100;
     origin[1] = y_min + (window_size[1] * y_percent) / 100;
     
-    cout<<"temp: origin[0]="<<origin[0]<<", origin[1]="<<origin[1]<<endl;
+    //cout<<"temp: origin[0]="<<origin[0]<<", origin[1]="<<origin[1]<<endl;
 
     
     int widget_size[2];
@@ -461,6 +463,30 @@ vmxGUIMainWidget::vmxGUIMainWidget()
     m_class_name.Assign("vmxGUIMainWidget");
     m_render_window = NULL;
     
+    
+    m_renderer_GUI = vtkSmartPointer<vtkRenderer>::New();
+    m_renderer_3D = vtkSmartPointer<vtkRenderer>::New();
+    m_render_window_internal = vtkSmartPointer<vtkRenderWindow>::New();
+    m_interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    m_interactor_style = vtkSmartPointer<vmxGUIInteractorStyleTrackballCamera>::New();
+    
+    m_render_window_internal->AddRenderer(m_renderer_GUI);
+    m_render_window_internal->AddRenderer(m_renderer_3D);
+    m_interactor->SetRenderWindow(m_render_window_internal);
+    m_interactor->SetInteractorStyle(m_interactor_style);
+    m_render_window_internal->SetSize(1920, 1080);
+    
+    
+    m_renderer_GUI->SetViewport(0,0,1,1);
+    m_renderer_3D->SetViewport(0,0,1,1);
+    
+    
+    m_render_window_internal->SetNumberOfLayers(2);
+    
+    m_renderer_GUI->SetLayer(1);
+    m_renderer_3D->SetLayer(0);
+    
+    
     m_spacing = 1;
     
     int window_size[2];
@@ -477,11 +503,16 @@ vmxGUIMainWidget::vmxGUIMainWidget()
     m_right_x_extent[1] = window_size[0]-1;
     m_right_y_extent[0] = 0;
     m_right_y_extent[1] = window_size[1]-1;
+
     
     m_window_modified_callback = vtkSmartPointer<vmxGUIMainWidgetRenderWindowModifiedCallback>::New();
     m_window_modified_callback->m_widget = this;
     m_window_modified_callback->m_previous_window_size[0] = window_size[0];
     m_window_modified_callback->m_previous_window_size[1] = window_size[1];
+    
+    // use the internal render window.
+    this->SetRenderWindow(m_render_window_internal);
+    
 }
 
 
@@ -736,7 +767,7 @@ void vmxGUIMainWidget::Reset()
 
 void vmxGUIMainWidget::SetRenderWindow(vtkRenderWindow *render_window)
 {
-    if(m_render_window == render_window) return;
+    //if(m_render_window == render_window) return;
     
     if(m_render_window)
     {
