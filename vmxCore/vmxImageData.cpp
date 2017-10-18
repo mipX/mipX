@@ -51,6 +51,57 @@ int vmxImageDataT<T>::internalAttachToPreset_mxImage()
     
     this->m_vtk_image_data_array.SetNumberOfElements(mxImageT<T>::GetDimension_T());
     int src = mxImageT<T>::GetDimension_S()*mxImageT<T>::GetDimension_R()*mxImageT<T>::GetDimension_C();
+    int tsrc = src * mxImageT<T>::GetDimension_T();
+
+    this->m_vtk_image_data->SetDimensions(mxImageT<T>::GetDimension_C(), mxImageT<T>::GetDimension_R(), mxImageT<T>::GetDimension_S()*mxImageT<T>::GetDimension_T());
+    this->m_vtk_image_data->SetExtent(0, mxImageT<T>::GetDimension_C()-1, 0, mxImageT<T>::GetDimension_R()-1, 0, mxImageT<T>::GetDimension_S()*mxImageT<T>::GetDimension_T()-1);
+    this->m_vtk_image_data->SetOrigin(mxImageT<T>::GetOrigin_C(),mxImageT<T>::GetOrigin_R(),mxImageT<T>::GetOrigin_S());
+    this->m_vtk_image_data->SetSpacing(mxImageT<T>::GetSpacing_C(),mxImageT<T>::GetSpacing_R(),mxImageT<T>::GetSpacing_S());
+
+    
+    switch(type_size)
+    {
+        case 1:
+        {
+            uint8_t *data_address = (uint8_t*)(this->GetData());
+            this->m_vtk_image_data->SetPointDataActiveScalarInfo(this->m_vtk_image_data->GetInformation(),VTK_TYPE_UINT8,1);
+            vtkSmartPointer<vtkTypeUInt8Array> vtk_data_array = vtkSmartPointer<vtkTypeUInt8Array>::New();
+            vtk_data_array->SetArray(data_address, tsrc, 1);//The last argument value '1' indicates that VTK must not free array memory.
+            m_vtk_image_data->GetPointData()->SetScalars(vtk_data_array);
+        }
+            break;
+        case 2:
+        {
+            uint16_t *data_address = (uint16_t*)(this->GetData());
+            this->m_vtk_image_data->SetPointDataActiveScalarInfo(this->m_vtk_image_data->GetInformation(),VTK_TYPE_UINT16,1);
+            vtkSmartPointer<vtkTypeUInt16Array> vtk_data_array = vtkSmartPointer<vtkTypeUInt16Array>::New();
+            vtk_data_array->SetArray(data_address, tsrc, 1);//The last argument value '1' indicates that VTK must not free array memory.
+            m_vtk_image_data->GetPointData()->SetScalars(vtk_data_array);
+        }
+            break;
+        case 4:
+        {
+            uint32_t *data_address = (uint32_t*)(this->GetData());
+            this->m_vtk_image_data->SetPointDataActiveScalarInfo(this->m_vtk_image_data->GetInformation(),VTK_TYPE_UINT32,1);
+            vtkSmartPointer<vtkTypeUInt32Array> vtk_data_array = vtkSmartPointer<vtkTypeUInt32Array>::New();
+            vtk_data_array->SetArray(data_address, tsrc, 1);//The last argument value '1' indicates that VTK must not free array memory.
+            m_vtk_image_data->GetPointData()->SetScalars(vtk_data_array);
+        }
+            break;
+//        case 8:
+//        {
+//            uint64_t *data_address = (uint64_t*)(this->GetData()); // this line does not wotk with vtkUnsignedLongArray.
+//            this->m_vtk_image_data->SetPointDataActiveScalarInfo(this->m_vtk_image_data->GetInformation(),VTK_TYPE_UINT64,1);
+//            vtkSmartPointer<vtkTypeUInt64Array> vtk_data_array = vtkSmartPointer<vtkTypeUInt64Array>::New();
+//            vtk_data_array->SetArray(data_address, tsrc, 1);//The last argument value '1' indicates that VTK must not free array memory.
+//            m_vtk_image_data->GetPointData()->SetScalars(vtk_data_array);
+//        }
+//            break;
+            
+            cout<<"vmxImageDataT<T>::SetDimensions() error: the type of size size(T)="<<type_size<<" is not supported!"<<endl;
+            return 0;
+    }
+    
     
     for(unsigned int i=0; i<this->m_vtk_image_data_array.GetNumberOfElements(); i++)
     {

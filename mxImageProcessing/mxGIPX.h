@@ -67,6 +67,9 @@ public:
     /// Invert values of voxels (negative) based on found maximum and minimum voxel values.
     int InvertValues(mxBasicImage &input, mxBasicImage &output);
     
+    /// Mask the input image with image mask (e.g. a segmented image with 0 value for background).
+    int Mask(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output);
+    
     /// Threshold the input image with given value (all values equalt to and above it will be recorded in the output). The rest is background (zero value).
     int Threshold(mxBasicImage &input, mxImageScalar threshold, mxBasicImage &output);
 

@@ -68,12 +68,16 @@ public:
     /// Morphological dilation of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
     
+    /// Extract the connected component starting from the given seed indexes by 26-neighborgood propagation on value above the given threshold value.
+    int ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t=0);
+    
     /// Morphological erosion of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
 
     /// Morphological opening (erosion followed by dilation) of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int OpenWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
 
+    
     
 };
 

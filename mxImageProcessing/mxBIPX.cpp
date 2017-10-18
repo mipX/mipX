@@ -93,6 +93,85 @@ int mxBIPX::DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsign
 }
 
 
+int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output, unsigned int t)
+{
+    if(input.IsEmpty()) return 0;
+    if(!input.IsEqualSizeAs(mask)) return 0;
+    
+    output.SetDimensionsAndPropertiesAs(input);
+    output_image.FillInWith(0);
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetNumberOfSlices(),input.GetNumberOfRows(),input.GetNumberOfColumns());
+    
+    for(unsigned int s=0; s<input.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<input.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<input.GetDimension_C(); c++)
+            {
+                if(mask.Get(t,s,r,c)!=0)
+                {
+                    int is_radius_found = 0;
+                    for(int radius_squared = 0; !is_radius_found && radius_squared<g.GetMaxSphereSquaredRadius(); radius_squared++)
+                    {
+                        int sn,rn,cn;
+                        for(g.ForSphere(s,r,c,radius_squared); g.GetSphere(radius_squared+1,sn,rn,cn); )
+                        {
+                            if(input.Get(t,sn,rn,cn)==0)
+                            {
+                                output.Set(t,s,r,c,squared_radius);
+                                is_radius_found = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if(is_radius_found) output.Set(t,s,r,c,g.GetMaxSphereSquaredRadius());
+                }
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+int mxBIPX::ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t)
+{
+    if(input.IsEmpty()) return 0;
+    
+    output.CopyFromDataObject(input);
+    output.FillInWith(0);
+    
+    mxList< mxIndex > temp_list;
+    mxIndex index;
+    index.SetIndex(t,seed_s,seed_r,seed_c);
+    temp_list.AddToBegin(index);
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(),input.GetDimension_R(),input.GetDimension_C());
+    
+    for( ; !temp_list.IsEmpty(); temp_list.DeleteBegin())
+    {
+        index = temp_list.GetBeginElement();
+        
+        int sn, rn, cn;
+        for(g.For_26_Neighborhood(index.S(),index.R(),index.C()); g.Get_26_Neighborhood(sn,rn,cn); )
+        {
+            if( (input.Get(t,sn,rn,cn) > threshold) && (output.Get(t,sn,rn,cn) == 0) )
+            {
+                mxIndex *pi = temp_list.AddNewToEnd();
+                pi->SetIndex(t,sn,rn,cn);
+                output.Set(t,sn,rn,cn, input.Get(t,sn,rn,cn));
+            }
+        }
+    }
+    
+    return 1;
+}
+
+
 int mxBIPX::ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
     if(input.IsEmpty()) return 0;

@@ -41,7 +41,7 @@ vmxImageT<T>::vmxImageT()
 
 template<class T>
 vmxImageT<T>::~vmxImageT()
-{    
+{
     this->vmxImageT<T>::Reset();
 }
 

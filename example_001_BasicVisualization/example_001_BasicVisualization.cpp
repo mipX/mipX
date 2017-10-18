@@ -56,13 +56,24 @@ int main()
     v_tree.AddFactory(new vmxImage16UFactory);
     v_tree.AddFactory(new vmxImage32UFactory);
     
+    
+    cout<<"Try 16U";
+    vmxImage16U *vimg16 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","my_image16"));
+    vimg16->SetDimensions(1,10,10,10);
+    for(unsigned int i=0; i<vimg16->GetNumberOfDataElements(); i++)
+    {
+        vimg16->Set(i,i);
+    }
+    vimg16->SetVisibility(1);
+    vimg16->SaveToVTK16UFile("/Users/danilobabin/-DIP_IMAGES/test_image_mipx.vtk");
+    cout<<" OK ";
 
     // Create an image using the data list widget. The data list widget assigns to the image the
     // interactor of the main widget.
     vmxImage16U *vimg = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","my_image"));
-    //vimg->SetRenderer(main_widget.GetRenderer_3D());
     vimg->SetMappingToOpaqueGrayScale(); //vimg->SetMappingToOpaqueColor();
-    vimg->LoadVTKFile("/Users/danilobabin/-DIP_IMAGES/-HEART/LAA/2016_12_23/dicom_set_grayscale.vtk");
+    //vimg->LoadVTKFile("/Users/danilobabin/-DIP_IMAGES/-HEART/LAA/2016_12_23/dicom_set_grayscale.vtk");
+    vimg->LoadVTKFile("/Users/danilobabin/-DIP_IMAGES/test_image_mipx.vtk");
     vimg->SetVisibility(1);
     
     
@@ -72,6 +83,8 @@ int main()
     vimg32->FillInWith(5);
     vimg32->SetVisibility(1);
     cout<<" OK ";
+    
+    
     
 //    vmxImage16U *vimg2 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","my_image2"));
 //    //vimg2->SetRenderer(main_widget.GetRenderer_3D());
@@ -85,17 +98,18 @@ int main()
     
     
     
-//    // Register the vmxMeshFactory with the data list widget.
-//    // The widget will later use this factory to construct objects of the given type.
-//    v_tree.AddFactory(new vmxMeshFactory);
-//
-//    // Create a mesh using the data list widget.
-//    vmxMesh *mesh = static_cast<vmxMesh*> (v_tree.Create("vmxMesh","my_mesh"));
-//    mesh->CreatePolyData(vimg, 50);
-//    mesh->CreateActorByLookupTableScalarColoring(0,255);
-//    mesh->SetVisibility(1);
-//    //mesh->SetColor(1,0,0);
-//    //mesh->SaveToSTLFiles("/Users/danilobabin/-DIP_IMAGES/test_mesh.stl");
+    // Register the vmxMeshFactory with the data list widget.
+    // The widget will later use this factory to construct objects of the given type.
+    v_tree.AddFactory(new vmxMeshFactory);
+
+    // Create a mesh using the data list widget.
+    vmxMesh *mesh = static_cast<vmxMesh*> (v_tree.Create("vmxMesh","my_mesh"));
+    //mesh->CreatePolyData(vimg, 50);
+    mesh->CreatePolyData(vimg16, 500);
+    mesh->CreateActorByLookupTableScalarColoring(0,vimg16->GetDimension_C()*vimg16->GetDimension_R()*vimg16->GetDimension_S());
+    mesh->SetVisibility(1);
+    //mesh->SetColor(1,0,0);
+    //mesh->SaveToSTLFiles("/Users/danilobabin/-DIP_IMAGES/test_mesh.stl");
     
     
 

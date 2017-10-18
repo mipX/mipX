@@ -19,6 +19,7 @@ set( ${TARGET_NAME}_SOURCES
     mxImage.cpp
     mxIndex.cpp
     mxObject.cpp
+    mxPoint.cpp
     mxPosition.cpp
     mxString.cpp
     mxVoxel.cpp
@@ -34,6 +35,7 @@ set( ${TARGET_NAME}_HEADERS
     mxImage.h
     mxIndex.h
     mxObject.h
+    mxPoint.h
     mxPosition.h
     mxString.h
     mxVoxel.h
@@ -54,6 +56,7 @@ add_definitions( -DmxDataObject_EXPORTS
     -DmxImage_EXPORTS
     -DmxIndex_EXPORTS
     -DmxObject_EXPORTS
+    -DmxPoint_EXPORTS
     -DmxPosition_EXPORTS
     -DmxString_EXPORTS
     -DmxVoxel_EXPORTS
