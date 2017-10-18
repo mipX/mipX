@@ -68,6 +68,9 @@ public:
     /// Morphological dilation of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
     
+    /// Squared distance transform - calculates the distance of the voxels in masked image to the nearest background voxel in input image.
+    int DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output, unsigned int t=0);
+    
     /// Extract the connected component starting from the given seed indexes by 26-neighborgood propagation on value above the given threshold value.
     int ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t=0);
     

@@ -192,19 +192,19 @@
 #include "mxRegularGrid.h"
 #include "mxGeometry.h"
 #include "mxImage.h"
-#include "mxIPG.h"
+#include "mxGIPX.h"
 
 #include "vmxImage.h"
 
-#include "vmxMenu.h"
-#include "vmxMenuBar.h"
-#include "vmxFilesDialog.h"
-#include "vmxListWidget.h"
-#include "vmxTextInput.h"
-#include "vmxInteractorStyleImage.h"
-#include "vmxInteractorStyleTrackballCamera.h"
-#include "vmxButtonGroup.h"
-//#include "vmxRenderer.h"
+#include "vmxGUIMenu.h"
+#include "vmxGUIMenuBar.h"
+#include "vmxGUIFilesDialog.h"
+#include "vmxGUIListWidget.h"
+#include "vmxGUITextInput.h"
+#include "vmxGUIInteractorStyleImage.h"
+#include "vmxGUIInteractorStyleTrackballCamera.h"
+#include "vmxGUIButtonGroup.h"
+//#include "vmxGUIRenderer.h"
 
 
 
@@ -232,13 +232,13 @@ public:
 
 
 
-class TryMenuSlot : public vmxMenuSlot
+class TryMenuSlot : public vmxGUIMenuSlot
 {
 public:
     
     virtual ~TryMenuSlot(){};
     
-    int Execute(vmxMenu *menu) { cout<<((void*)menu)<<"->Execute() "; return 1; };
+    int Execute(vmxGUIMenu *menu) { cout<<((void*)menu)<<"->Execute() "; return 1; };
 };
 
 
@@ -254,9 +254,9 @@ int main()
 	vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
     iren->SetRenderWindow(renWin);
 //	vtkSmartPointer<vtkInteractorStyleTrackballCamera> style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-    vtkSmartPointer<vmxInteractorStyleTrackballCamera> style = vtkSmartPointer<vmxInteractorStyleTrackballCamera>::New();
+    vtkSmartPointer<vmxGUIInteractorStyleTrackballCamera> style = vtkSmartPointer<vmxGUIInteractorStyleTrackballCamera>::New();
 //  vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
-//    vtkSmartPointer<vmxInteractorStyleImage> style = vtkSmartPointer<vmxInteractorStyleImage>::New();
+//    vtkSmartPointer<vmxGUIInteractorStyleImage> style = vtkSmartPointer<vmxGUIInteractorStyleImage>::New();
 
 	iren->SetInteractorStyle(style);
 	renWin->SetSize(1920, 1080);
@@ -398,7 +398,7 @@ int main()
     
    
     
-    vmxClipBoard cb;
+    vmxGUIClipBoard cb;
     
     vmxGUIMainWidget main_widget;
     main_widget.SetRenderWindow(renWin);
@@ -418,10 +418,10 @@ int main()
     
     
     
-    vmxMenuBar menu_bar;
+    vmxGUIMenuBar menu_bar;
     menu_bar.SetMainWidget(&main_widget);
     //menu_bar.SetClipBoard(&cb);
-    vmxMenuBarItem *file_menu_item = menu_bar.AddItem("File");
+    vmxGUIMenuBarItem *file_menu_item = menu_bar.AddItem("File");
     file_menu_item->GetMenu()->AddItem("Load Data");
     file_menu_item->GetMenu()->AddItem("Close");
     file_menu_item->GetMenu()->BuildMenu();
@@ -434,7 +434,7 @@ int main()
     menu_bar.SetPlacementToUpperLeft();
     menu_bar.SetVisibility(1);
 
-    mxListIterator< vmxMenuBarItem > it;
+    mxListIterator< vmxGUIMenuBarItem > it;
     for(it.SetToBegin(menu_bar.m_items); it.IsValid(); it.MoveToNext())
     {
 
@@ -514,7 +514,7 @@ int main()
     
     
     
-    vmxTextInput text_input;
+    vmxGUITextInput text_input;
     text_input.SetClipBoard(&cb);
     text_input.SetMainWidget(&main_widget);
     //text_input.SetDataObjectTree(&tree);
@@ -528,7 +528,7 @@ int main()
     //text_input.ShowInputText();
     text_input.SetVisibility(1);
     
-    vmxTextInput text_input3;
+    vmxGUITextInput text_input3;
     text_input3.SetClipBoard(&cb);
     text_input3.SetMainWidget(&main_widget);
     //text_input3.SetDataObjectTree(&tree);
@@ -544,7 +544,7 @@ int main()
 
 
     
-    vmxTextInput text_input2;
+    vmxGUITextInput text_input2;
     text_input2.SetClipBoard(&cb);
     text_input2.SetMainWidget(&main_widget);
     //text_input2.SetDataObjectTree(&tree);
@@ -558,7 +558,7 @@ int main()
     //text_input2.ShowInputText();
     text_input2.SetVisibility(1);
     
-    vmxTextInput text_input4;
+    vmxGUITextInput text_input4;
     text_input4.SetClipBoard(&cb);
     text_input4.SetMainWidget(&main_widget);
     //text_input4.SetDataObjectTree(&tree);
@@ -572,7 +572,7 @@ int main()
     //text_input4.ShowInputText();
     text_input4.SetVisibility(1);
 
-    vmxTextInput text_input5;
+    vmxGUITextInput text_input5;
     text_input5.SetClipBoard(&cb);
     text_input5.SetMainWidget(&main_widget);
     //text_input5.SetDataObjectTree(&tree);
@@ -630,7 +630,7 @@ int main()
     
     
     //----- List Widget -----
-    vmxListWidget list_widget;
+    vmxGUIListWidget list_widget;
     list_widget.SetClipBoard(&cb);
     list_widget.SetMainWidget(&main_widget);
     //list_widget.SetDataObjectTree(&tree);
@@ -750,7 +750,7 @@ int main()
     //vmxImage *vimg = static_cast<vmxImage*>(image_factory->Create());
     
     vimg->SetInteractor(iren);
-    vimg->GetImagePlanes()->GetPlaneWidgetForSlices()->SetCurrentRenderer(renderer_ul);
+    vimg->GetImagePlanes()->GetPlaneWidget_S()->SetCurrentRenderer(renderer_ul);
     vimg->SetMappingToOpaqueGrayScale(); //vimg->SetMappingToOpaqueColor();
     vimg->LoadVTKFile("/Users/danilobabin/-DIP_IMAGES/-HEART/LAA/2016_12_23/dicom_set_grayscale.vtk");
     //vimg->SetVisibility(1);
@@ -771,12 +771,12 @@ int main()
     
     vmxImage *vimg2 = static_cast<vmxImage*>(image_factory->Create());
     
-    mxIPG ipg;
+    mxGIPX ipg;
     //ipg.InvertValues(*vimg, *vimg2);
     ipg.ThresholdInRange(*vimg, 100,150, *vimg2);
     
     vimg2->SetInteractor(iren);
-    vimg2->GetImagePlanes()->GetPlaneWidgetForSlices()->SetCurrentRenderer(renderer_ul);
+    vimg2->GetImagePlanes()->GetPlaneWidget_S()->SetCurrentRenderer(renderer_ul);
     vimg2->SetMappingToOpaqueGrayScale();
     //vimg2->GetImagePlanes()->GetPlaneWidgetForSlices()->SetPlaneOrientationToYAxes();
     vimg2->SetVisibility(1);
@@ -870,7 +870,7 @@ int main()
     
     vtkSmartPointer<DoubleClickCallback> double_click_call_back = vtkSmartPointer<DoubleClickCallback>::New();
     //style->AddObserver(style->EventDoubleClick, double_click_call_back);
-    style->AddObserver(vmxInteractorStyleTrackballCamera::EventDoubleClick, double_click_call_back);
+    style->AddObserver(vmxGUIInteractorStyleTrackballCamera::EventDoubleClick, double_click_call_back);
 
     
     

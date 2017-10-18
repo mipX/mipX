@@ -74,7 +74,7 @@ int mxGIPX::InvertValues(mxBasicImage &input, mxBasicImage &output)
 int mxGIPX::Mask(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output)
 {
     if(input.IsEmpty()) return 0;
-    if(!input.IsEqualSizeAs(mask)) return 0;
+    if(!input.IsEqualInDimensions_3D(mask)) return 0;
     
     output.SetDimensionsAndPropertiesAs(&input);
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)

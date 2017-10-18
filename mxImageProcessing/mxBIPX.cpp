@@ -96,13 +96,13 @@ int mxBIPX::DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsign
 int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output, unsigned int t)
 {
     if(input.IsEmpty()) return 0;
-    if(!input.IsEqualSizeAs(mask)) return 0;
+    if(!input.IsEqualInDimensions_3D(mask)) return 0;
     
-    output.SetDimensionsAndPropertiesAs(input);
-    output_image.FillInWith(0);
+    output.SetDimensionsAndPropertiesAs(&input);
+    output.FillInWith(0);
     
     mxGeometry g;
-    g.SetDimensions(input.GetNumberOfSlices(),input.GetNumberOfRows(),input.GetNumberOfColumns());
+    g.SetDimensions(input.GetDimension_S(),input.GetDimension_R(),input.GetDimension_C());
     
     for(unsigned int s=0; s<input.GetDimension_S(); s++)
     {
@@ -120,7 +120,7 @@ int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, 
                         {
                             if(input.Get(t,sn,rn,cn)==0)
                             {
-                                output.Set(t,s,r,c,squared_radius);
+                                output.Set(t,s,r,c,radius_squared);
                                 is_radius_found = 1;
                                 break;
                             }
@@ -141,7 +141,7 @@ int mxBIPX::ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &outpu
 {
     if(input.IsEmpty()) return 0;
     
-    output.CopyFromDataObject(input);
+    output.CopyFromDataObject(&input);
     output.FillInWith(0);
     
     mxList< mxIndex > temp_list;
