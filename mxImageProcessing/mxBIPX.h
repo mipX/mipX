@@ -71,17 +71,30 @@ public:
     /// Squared distance transform - calculates the distance of the voxels in masked image to the nearest background voxel in input image.
     int DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output, unsigned int t=0);
     
+    /// Morphological erosion of the binary input image using a spherical structuring element (SE) of given squared radius size.
+    int ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
+    
     /// Extract the connected component starting from the given seed indexes by 26-neighborgood propagation on value above the given threshold value.
     int ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t=0);
     
-    /// Morphological erosion of the binary input image using a spherical structuring element (SE) of given squared radius size.
-    int ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
+    /// Get the number of foreground (non-zero) voxels in 8 neighborhood of the given voxel indexes.
+    int NumberOfForegroundVoxelsInNeighborhood8(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c);
+    
+    /// Get the number of foreground (non-zero) voxels in 8 neighborhood of the given voxel indexes.
+    /// Warning: This is a function for iterative use (faster than non-iterative implementation),
+    /// but data validity check is NOT performed and mxGeometry has to have pre-set dimensions.
+    int NumberOfForegroundVoxelsInNeighborhood8_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c);
+    
+    /// Get the number of foreground (non-zero) voxels in 26 neighborhood of the given voxel indexes.
+    int NumberOfForegroundVoxelsInNeighborhood26(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c);
+    
+    /// Get the number of foreground (non-zero) voxels in 26 neighborhood of the given voxel indexes.
+    /// Warning: This is a function for iterative use (faster than non-iterative implementation),
+    /// but data validity check is NOT performed and mxGeometry has to have pre-set dimensions.
+    int NumberOfForegroundVoxelsInNeighborhood26_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c);
 
     /// Morphological opening (erosion followed by dilation) of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int OpenWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
-
-    
-    
 };
 
 

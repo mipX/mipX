@@ -112,22 +112,24 @@ int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, 
             {
                 if(mask.Get(t,s,r,c)!=0)
                 {
-                    int is_radius_found = 0;
-                    for(int radius_squared = 0; !is_radius_found && radius_squared<g.GetMaxSphereSquaredRadius(); radius_squared++)
+                    if(input.Get(t,s,r,c)!=0)
                     {
-                        int sn,rn,cn;
-                        for(g.ForSphere(s,r,c,radius_squared); g.GetSphere(radius_squared+1,sn,rn,cn); )
+                        int is_radius_found = 0;
+                        for(int radius_squared = 1; !is_radius_found && radius_squared<g.GetMaxSphereSquaredRadius()-1; radius_squared++)
                         {
-                            if(input.Get(t,sn,rn,cn)==0)
+                            int sn,rn,cn;
+                            for(g.ForSphere(s,r,c,radius_squared); g.GetSphere(radius_squared+1,sn,rn,cn); )
                             {
-                                output.Set(t,s,r,c,radius_squared);
-                                is_radius_found = 1;
-                                break;
+                                if(input.Get(t,sn,rn,cn)==0)
+                                {
+                                    output.Set(t,s,r,c, radius_squared);
+                                    is_radius_found = 1;
+                                    break;
+                                }
                             }
                         }
+                        if(!is_radius_found) output.Set(t,s,r,c, g.GetMaxSphereSquaredRadius());
                     }
-                    
-                    if(is_radius_found) output.Set(t,s,r,c,g.GetMaxSphereSquaredRadius());
                 }
             }
         }
@@ -210,10 +212,51 @@ int mxBIPX::ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigne
 }
 
 
+int mxBIPX::NumberOfForegroundVoxelsInNeighborhood8_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+{
+    int rn,cn;
+    int n=0;
+    for(geometry.For_8_Neighborhood(r,c); geometry.Get_8_Neighborhood(rn,cn); )
+    {
+        if(input.Get(t,s,rn,cn)) n++;
+    }
+    return n;
+}
+
+
+int mxBIPX::NumberOfForegroundVoxelsInNeighborhood26_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+{
+    int sn,rn,cn;
+    int n=0;
+    for(geometry.For_26_Neighborhood(s,r,c); geometry.Get_26_Neighborhood(sn,rn,cn); )
+    {
+        if(input.Get(t,sn,rn,cn)) n++;
+    }
+    return n;
+}
+
+
+int mxBIPX::NumberOfForegroundVoxelsInNeighborhood8(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+{
+    if(input.IsEmpty()) return 0;
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+    return this->NumberOfForegroundVoxelsInNeighborhood8_Iterative(input,g,t,s,r,c);
+}
+
+
+int mxBIPX::NumberOfForegroundVoxelsInNeighborhood26(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+{
+    if(input.IsEmpty()) return 0;
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+    return this->NumberOfForegroundVoxelsInNeighborhood26_Iterative(input,g,t,s,r,c);
+}
+
+
 int mxBIPX::OpenWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
     mxDataObjectFactory *f = input.GetFactory();
-    mxDataObject *obj = f->Create();
     mxBasicImage *bi = dynamic_cast<mxBasicImage*> (f->Create());
     if(!bi) return 0;
     if(!this->DilateWithSphereSE(input,*bi,squared_radius_of_SE,t))

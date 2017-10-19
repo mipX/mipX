@@ -196,16 +196,16 @@ public:
     int GetLine(mxIndex &output_indexes);
     
     /// The the size of the circle array - equals the maximum radius that can be used for the circle.
-    int GetMaxCircleSquaredRadius() { return this->m_indexes_circle.GetNumberOfElements();};
+    int GetMaxCircleSquaredRadius();
  
     /// The the size of the cube array - equals the maximum size that can be used for the cube.
-    int GetMaxCubeSize() { return this->m_indexes_cube.GetNumberOfElements();};
+    int GetMaxCubeSize();
     
     /// The the size of the sphere array - equals the maximum radius that can be used for the sphere.
-    int GetMaxSphereSquaredRadius() { return this->m_indexes_sphere.GetNumberOfElements();};
+    int GetMaxSphereSquaredRadius();
     
     /// The the size of the square array - equals the maximum size that can be used for the square.
-    int GetMaxSquareSize() { return this->m_indexes_square.GetNumberOfElements();};
+    int GetMaxSquareSize();
     
     /// Get sphere neighbors that fall within the preset dimensions and given end_square_radius_included. Use as the second argument in FOR loop.
 	int GetSphere(unsigned int end_square_radius_included, int &s, int &r, int &c);

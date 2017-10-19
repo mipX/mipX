@@ -322,6 +322,46 @@ int mxGeometry::GetLine(mxIndex &output_indexes)
 }
 
 
+int mxGeometry::GetMaxCircleSquaredRadius()
+{
+    if(this->m_indexes_circle.IsEmpty())
+    {
+        this->PopulateCircleIndexArray();
+    }
+    return this->m_indexes_circle.GetNumberOfElements();
+}
+
+
+int mxGeometry::GetMaxCubeSize()
+{
+    if(this->m_indexes_cube.IsEmpty())
+    {
+        this->PopulateCubeIndexArray();
+    }
+    return this->m_indexes_cube.GetNumberOfElements();
+}
+
+
+int mxGeometry::GetMaxSphereSquaredRadius()
+{
+    if(this->m_indexes_sphere.IsEmpty())
+    {
+        this->PopulateSphereIndexArray();
+    }
+    return this->m_indexes_sphere.GetNumberOfElements();
+}
+
+
+int mxGeometry::GetMaxSquareSize()
+{
+    if(this->m_indexes_square.IsEmpty())
+    {
+        this->PopulateSquareIndexArray();
+    }
+    return this->m_indexes_square.GetNumberOfElements();
+}
+
+
 int mxGeometry::GetSphere(unsigned int end_square_radius_included, int &s, int &r, int &c)
 {
     while(m_current_array_index<m_indexes_sphere.GetNumberOfElements() && this->m_current_array_index<=end_square_radius_included)
@@ -437,6 +477,8 @@ void mxGeometry::PopulateCircleIndexArray(unsigned int maximum_radius)
 
 void mxGeometry::PopulateCubeIndexArray(unsigned int maximum_size)
 {
+    //std::cout<<" mxGeometry::PopulateCubeIndexArray() ";
+    
     this->m_indexes_cube.SetNumberOfElements(maximum_size+1);
     
     mxArray< mxList<mxIndex> > coordinates_array;

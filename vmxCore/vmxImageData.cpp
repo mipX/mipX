@@ -334,31 +334,40 @@ int vmxImageDataT<T>::LoadVTKFile(const char *file_name)
 {
     this->vmxImageDataT<T>::Reset();
     
+    //vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
     vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
+    //vtkSmartPointer<vtkStructuredPointsReader> reader = vtkSmartPointer<vtkStructuredPointsReader>::New();
     reader->SetFileName(file_name);
     reader->Update();
     
-    mxString bds;
-    bds.Assign(reader->GetHeader());
     int t_size = 0, s_size = 0;
-    if(!bds.IsEmpty())
+    mxString bds;
+    if(reader->GetHeader())
     {
-        mxString bds2;
-        if(bds.ExtractString('T','t',bds2)) { bds2.ToNumber(t_size); }
-        if(bds.ExtractString('S','s',bds2)) { bds2.ToNumber(s_size); }
-        if(bds.ExtractString('O','o',bds2))
+        bds.Assign(reader->GetHeader());
+        if(!bds.IsEmpty())
         {
-            mxList<double> l;
-            bds2.ExtractNumbers(l);
-            if(l.GetNumberOfElements()==6)
+            mxString bds2;
+            if(bds.ExtractString('T','t',bds2)) { bds2.ToNumber(t_size); }
+            if(bds.ExtractString('S','s',bds2)) { bds2.ToNumber(s_size); }
+            if(bds.ExtractString('O','o',bds2))
             {
-                this->SetOrientation(l[0],l[1],l[2],l[3],l[4],l[5]);
+                mxList<double> l;
+                bds2.ExtractNumbers(l);
+                if(l.GetNumberOfElements()==6)
+                {
+                    this->SetOrientation(l[0],l[1],l[2],l[3],l[4],l[5]);
+                }
             }
         }
     }
     
+    //reader->GetOutput();
+    
     vtkSmartPointer<vtkImageShiftScale> ic = vtkSmartPointer<vtkImageShiftScale>::New();
-    ic->SetInputConnection(reader->GetOutputPort());
+    //ic->SetInputConnection(reader->GetOutputPort());
+    ic->SetInputData(reader->GetOutput());
+    
     int type_size = sizeof(T);
     if(type_size==1)
     {
@@ -629,17 +638,11 @@ int vmxImageDataT<T>::TakeOverVTKImageData(vtkImageData *vtk_image, unsigned int
 {
     if(!vtk_image) return 0;
     if(this->m_vtk_image_data == vtk_image) return 1;
-    //if(number_of_time_series==0 || number_of_slices==0) return 0;
-    //if(number_of_time_series*number_of_slices != vtk_image->GetDimensions()[2]) return 0;
     
     this->vmxImageDataT<T>::Reset();
     
     this->mxImageT<T>::SetSpacing(1,vtk_image->GetSpacing()[2],vtk_image->GetSpacing()[1],vtk_image->GetSpacing()[0]);
     this->mxImageT<T>::SetOrigin(0,vtk_image->GetOrigin()[2],vtk_image->GetOrigin()[1],vtk_image->GetOrigin()[0]);
-    
-    //    cout<<"spacing="<<vtk_image->GetSpacing()[2]<<","<<vtk_image->GetSpacing()[1]<<","<<vtk_image->GetSpacing()[0]<<endl;
-    
-    //    cout<<"img_spacing="<<this->GetSpacing_S()<<","<<this->GetSpacing_R()<<","<<this->GetSpacing_C()<<endl;
     
     
     this->m_vtk_image_data->ShallowCopy(vtk_image);// m_vtk_image_data becomes the owner of the data.
@@ -666,10 +669,8 @@ int vmxImageDataT<T>::TakeOverVTKImageData(vtkImageData *vtk_image, unsigned int
     if(number_of_time_series==0 || number_of_slices==0 || (number_of_time_series*number_of_slices != vtk_image->GetDimensions()[2]) )
     {
         number_of_time_series = 1;
-        number_of_time_series = this->m_vtk_image_data->GetDimensions()[2];
+        number_of_slices = this->m_vtk_image_data->GetDimensions()[2];
     }
-    //cout<<"img_spacing="<<this->GetSpacing_S()<<","<<this->GetSpacing_R()<<","<<this->GetSpacing_C()<<endl;
-    
     
     
     
@@ -677,12 +678,7 @@ int vmxImageDataT<T>::TakeOverVTKImageData(vtkImageData *vtk_image, unsigned int
     
     
     
-    //mxImageT<T>::SetSpacing(1,vtk_image->GetSpacing()[2],vtk_image->GetSpacing()[1],vtk_image->GetSpacing()[0]);
-    //mxImageT<T>::SetOrigin(0,vtk_image->GetOrigin()[2],vtk_image->GetOrigin()[1],vtk_image->GetOrigin()[0]);
-    
-    
-    //cout<<"img_spacing="<<this->GetSpacing_S()<<","<<this->GetSpacing_R()<<","<<this->GetSpacing_C()<<endl;
-    
+   
     
     this->m_vtk_image_data_array.SetNumberOfElements(number_of_time_series);
     int src = number_of_slices * this->m_vtk_image_data->GetDimensions()[1] * this->m_vtk_image_data->GetDimensions()[0];
@@ -737,9 +733,6 @@ int vmxImageDataT<T>::TakeOverVTKImageData(vtkImageData *vtk_image, unsigned int
                 return 0;
         }
     }
-    
-    //cout<<"img_spacing="<<this->GetSpacing_S()<<","<<this->GetSpacing_R()<<","<<this->GetSpacing_C()<<endl;
-    
     
     return 1;
 }

@@ -75,6 +75,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
+#include <vtkStructuredGridReader.h>
+#include <vtkStructuredPointsReader.h>
 #include <vtkStructuredPointsWriter.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedShortArray.h>
@@ -85,6 +87,8 @@
 #include <vtkTypeUInt16Array.h>
 #include <vtkTypeUInt8Array.h>
 #include <vtkWeakPointer.h>
+
+#include <vtkXMLImageDataReader.h>
 
 
 

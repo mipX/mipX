@@ -14,11 +14,13 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 set( ${TARGET_NAME}_SOURCES
     mxBIPX.cpp
     mxGIPX.cpp
+    mxSkeletonizationX.cpp
 )
 
 set( ${TARGET_NAME}_HEADERS
     mxBIPX.h
     mxGIPX.h
+    mxSkeletonizationX.h
 )
 
 set( ${TARGET_NAME}_TEMPLATES
@@ -34,6 +36,7 @@ set( ${TARGET_NAME}_LIBS
 
 add_definitions( -DmxBIPX_EXPORTS
     -DmxGIPX_EXPORTS
+    -DmxSkeletonizationX_EXPORTS
 )
 
 add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_TEMPLATES})
