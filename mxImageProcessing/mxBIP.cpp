@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    mxBIPX.cpp
+ Module:    mxBIP.cpp
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
@@ -18,45 +18,39 @@
 
 
 
-#include "mxBIPX.h"
+#include "mxBIP.h"
 
 
 
-mxBIPX::mxBIPX()
+mxBIP::mxBIP()
 {
 }
 
 
-mxBIPX::~mxBIPX()
+mxBIP::~mxBIP()
 {
 }
 
 
-int mxBIPX::CloseWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
+int mxBIP::CloseWithSphereSE(mxImage &input, mxImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
-    mxDataObjectFactory *f = input.GetFactory();
-    mxBasicImage *bi = dynamic_cast<mxBasicImage*> (f->Create());
-    if(!bi) return 0;
-    if(!this->DilateWithSphereSE(input,*bi,squared_radius_of_SE,t))
+    mxImage bi;
+    if(!this->DilateWithSphereSE(input,bi,squared_radius_of_SE,t))
     {
-        f->Release(bi);
         return 0;
     }
-    if(!this->ErodeWithSphereSE(*bi,output,squared_radius_of_SE,t))
+    if(!this->ErodeWithSphereSE(bi,output,squared_radius_of_SE,t))
     {
-        f->Release(bi);
         return 0;
     }
-    
-    f->Release(bi);
     return 1;
 }
 
 
-int mxBIPX::DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
+int mxBIP::DilateWithSphereSE(mxImage &input, mxImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
     if(input.IsEmpty()) return 0;
-    output.CopyFromDataObject(&input);
+    output.Copy(&input);
     
     mxGeometry g;
     g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
@@ -67,18 +61,18 @@ int mxBIPX::DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsign
         {
             for(unsigned int c=0; c<input.GetDimension_C(); c++)
             {
-                mxImageScalar v = input.Get(t,s,r,c);
+                mxImageScalar v = input(t,s,r,c);
                 if(v!=0)
                 {
                     int sn,rn,cn;
                     for(g.For_6_Neighborhood(s,r,c); g.Get_6_Neighborhood(sn,rn,cn); )
                     {
-                        if(input.Get(t,sn,rn,cn)==0)
+                        if(input(t,sn,rn,cn)==0)
                         {
                             int snn,rnn,cnn;
                             for(g.ForSphere(s,r,c,0); g.GetSphere(squared_radius_of_SE,snn,rnn,cnn); )
                             {
-                                output.Set(t,snn,rnn,cnn,v);
+                                output(t,snn,rnn,cnn) = v;
                             }
                             
                             break;
@@ -93,7 +87,7 @@ int mxBIPX::DilateWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsign
 }
 
 
-int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output, unsigned int t)
+int mxBIP::DistanceTransformForSphere(mxImage &input, mxImage &mask, mxImage &output, unsigned int t)
 {
     if(input.IsEmpty()) return 0;
     if(!input.IsEqualInDimensions_3D(mask)) return 0;
@@ -110,25 +104,24 @@ int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, 
         {
             for(unsigned int c=0; c<input.GetDimension_C(); c++)
             {
-                if(mask.Get(t,s,r,c)!=0)
+                if(mask(t,s,r,c)!=0)
                 {
-                    if(input.Get(t,s,r,c)!=0)
+                    if(input(t,s,r,c)!=0)
                     {
-                        int is_radius_found = 0;
-                        for(int radius_squared = 1; !is_radius_found && radius_squared<g.GetMaxSphereSquaredRadius()-1; radius_squared++)
+                        output(t,s,r,c) = g.GetMaxSphereSquaredRadius(); //initialize the output value
+                        for(int radius_squared = 1; radius_squared<g.GetMaxSphereSquaredRadius()-1; radius_squared++)
                         {
                             int sn,rn,cn;
                             for(g.ForSphere(s,r,c,radius_squared); g.GetSphere(radius_squared+1,sn,rn,cn); )
                             {
-                                if(input.Get(t,sn,rn,cn)==0)
+                                if(input(t,sn,rn,cn)==0)
                                 {
-                                    output.Set(t,s,r,c, radius_squared);
-                                    is_radius_found = 1;
+                                    output(t,s,r,c) = radius_squared;
+                                    radius_squared = g.GetMaxSphereSquaredRadius();//this is set to stop the outer 'for' loop.
                                     break;
                                 }
                             }
                         }
-                        if(!is_radius_found) output.Set(t,s,r,c, g.GetMaxSphereSquaredRadius());
                     }
                 }
             }
@@ -139,7 +132,7 @@ int mxBIPX::DistanceTransformForSphere(mxBasicImage &input, mxBasicImage &mask, 
 }
 
 
-int mxBIPX::ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t)
+int mxBIP::ExtractConnectedComponent26(mxImage &input, mxImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t)
 {
     if(input.IsEmpty()) return 0;
     
@@ -161,11 +154,11 @@ int mxBIPX::ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &outpu
         int sn, rn, cn;
         for(g.For_26_Neighborhood(index.S(),index.R(),index.C()); g.Get_26_Neighborhood(sn,rn,cn); )
         {
-            if( (input.Get(t,sn,rn,cn) > threshold) && (output.Get(t,sn,rn,cn) == 0) )
+            if( (input(t,sn,rn,cn) > threshold) && (output(t,sn,rn,cn) == 0) )
             {
                 mxIndex *pi = temp_list.AddNewToEnd();
                 pi->SetIndex(t,sn,rn,cn);
-                output.Set(t,sn,rn,cn, input.Get(t,sn,rn,cn));
+                output(t,sn,rn,cn) = input(t,sn,rn,cn);
             }
         }
     }
@@ -174,7 +167,7 @@ int mxBIPX::ExtractConnectedComponent26(mxBasicImage &input, mxBasicImage &outpu
 }
 
 
-int mxBIPX::ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
+int mxBIP::ErodeWithSphereSE(mxImage &input, mxImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
     if(input.IsEmpty()) return 0;
     output.CopyFromDataObject(&input);
@@ -188,18 +181,18 @@ int mxBIPX::ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigne
         {
             for(unsigned int c=0; c<input.GetDimension_C(); c++)
             {
-                mxImageScalar v = input.Get(t,s,r,c);
+                mxImageScalar v = input(t,s,r,c);
                 if(v!=0)
                 {
                     int sn,rn,cn;
                     for(g.For_6_Neighborhood(s,r,c); g.Get_6_Neighborhood(sn,rn,cn); )
                     {
-                        if(input.Get(t,sn,rn,cn)==0)
+                        if(input(t,sn,rn,cn)==0)
                         {
                             int snn,rnn,cnn;
                             for(g.ForSphere(sn,rn,cn,0); g.GetSphere(squared_radius_of_SE,snn,rnn,cnn); )
                             {
-                                output.Set(t,snn,rnn,cnn,0);
+                                output(t,snn,rnn,cnn) = 0;
                             }
                         }
                     }
@@ -212,31 +205,31 @@ int mxBIPX::ErodeWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigne
 }
 
 
-int mxBIPX::NumberOfForegroundVoxelsInNeighborhood8_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+int mxBIP::NumberOfForegroundVoxelsInNeighborhood8_Iterative(mxImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {
     int rn,cn;
     int n=0;
     for(geometry.For_8_Neighborhood(r,c); geometry.Get_8_Neighborhood(rn,cn); )
     {
-        if(input.Get(t,s,rn,cn)) n++;
+        if(input(t,s,rn,cn)) n++;
     }
     return n;
 }
 
 
-int mxBIPX::NumberOfForegroundVoxelsInNeighborhood26_Iterative(mxBasicImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+int mxBIP::NumberOfForegroundVoxelsInNeighborhood26_Iterative(mxImage &input, mxGeometry &geometry, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {
     int sn,rn,cn;
     int n=0;
     for(geometry.For_26_Neighborhood(s,r,c); geometry.Get_26_Neighborhood(sn,rn,cn); )
     {
-        if(input.Get(t,sn,rn,cn)) n++;
+        if(input(t,sn,rn,cn)) n++;
     }
     return n;
 }
 
 
-int mxBIPX::NumberOfForegroundVoxelsInNeighborhood8(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+int mxBIP::NumberOfForegroundVoxelsInNeighborhood8(mxImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {
     if(input.IsEmpty()) return 0;
     mxGeometry g;
@@ -245,7 +238,7 @@ int mxBIPX::NumberOfForegroundVoxelsInNeighborhood8(mxBasicImage &input, unsigne
 }
 
 
-int mxBIPX::NumberOfForegroundVoxelsInNeighborhood26(mxBasicImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
+int mxBIP::NumberOfForegroundVoxelsInNeighborhood26(mxImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {
     if(input.IsEmpty()) return 0;
     mxGeometry g;
@@ -254,25 +247,68 @@ int mxBIPX::NumberOfForegroundVoxelsInNeighborhood26(mxBasicImage &input, unsign
 }
 
 
-int mxBIPX::OpenWithSphereSE(mxBasicImage &input, mxBasicImage &output, unsigned int squared_radius_of_SE, unsigned int t)
+int mxBIP::OpenWithSphereSE(mxImage &input, mxImage &output, unsigned int squared_radius_of_SE, unsigned int t)
 {
-    mxDataObjectFactory *f = input.GetFactory();
-    mxBasicImage *bi = dynamic_cast<mxBasicImage*> (f->Create());
-    if(!bi) return 0;
-    if(!this->DilateWithSphereSE(input,*bi,squared_radius_of_SE,t))
+    mxImage bi;
+    if(!this->DilateWithSphereSE(input,bi,squared_radius_of_SE,t))
     {
-        f->Release(bi);
         return 0;
     }
-    if(!this->ErodeWithSphereSE(*bi,output,squared_radius_of_SE,t))
+    if(!this->ErodeWithSphereSE(bi,output,squared_radius_of_SE,t))
     {
-        f->Release(bi);
         return 0;
     }
-    
-    f->Release(bi);
     return 1;
 }
+
+
+int mxBIP::ProfileVolumeTransformForSphere(mxImage &input, mxImage &mask, mxImage &output, unsigned int t, unsigned int offset_percent)
+{
+    if(offset_percent<1 || offset_percent>100) offset_percent = 100;
+    if(mask.IsEmpty()) return 0;
+    if(!input.IsEqualInDimensions_3D(mask)) return 0;
+    
+    output.SetDimensionsAndPropertiesAs(&input);
+    output.FillInWith(0);
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(),input.GetDimension_R(),input.GetDimension_C());
+    
+    for(unsigned int s=0; s<input.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<input.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<input.GetDimension_C(); c++)
+            {
+                if(mask(t,s,r,c)!=0)
+                {
+                    int number_of_foreground_voxels = 0; // output will be the number_of_foreground_voxels
+                    int is_volume_calculated = 0;
+                    for(int radius_squared = 1; radius_squared<g.GetMaxSphereSquaredRadius()-1 && !is_volume_calculated; radius_squared++)
+                    {
+                        int sn,rn,cn;
+                        for(g.ForSphere(s,r,c,radius_squared); g.GetSphere(radius_squared+1,sn,rn,cn); )
+                        {
+                            if(input(t,sn,rn,cn)==0)
+                            {
+                                is_volume_calculated = 1;
+                            }
+                            else
+                            {
+                                number_of_foreground_voxels++;
+                            }
+                        }
+                    }
+                    
+                    output(t,s,r,c) = number_of_foreground_voxels;
+                }
+            }
+        }
+    }
+    
+    return 1;
+}
+
 
 
 

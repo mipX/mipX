@@ -270,22 +270,22 @@ void vmxMesh::CreatePolyData(mxBasicImage *image, int threshold)
                 }
                 break;
             }
-            case 8:
-            {
-                image_data->AllocateScalars(VTK_TYPE_UINT64, 1);
-                for(unsigned int s=0; s<image->GetDimension_S(); s++)
-                {
-                    for(unsigned int r=0; r<image->GetDimension_R(); r++)
-                    {
-                        for(unsigned int c=0; c<image->GetDimension_C(); c++)
-                        {
-                            uint64_t *v = static_cast<uint64_t*>(image_data->GetScalarPointer(c,r,s));
-                            *v = (uint64_t) image->Get(t,s,r,c);
-                        }
-                    }
-                }
-                break;
-            }
+//            case 8:
+//            {
+//                image_data->AllocateScalars(VTK_TYPE_UINT64, 1);
+//                for(unsigned int s=0; s<image->GetDimension_S(); s++)
+//                {
+//                    for(unsigned int r=0; r<image->GetDimension_R(); r++)
+//                    {
+//                        for(unsigned int c=0; c<image->GetDimension_C(); c++)
+//                        {
+//                            uint64_t *v = static_cast<uint64_t*>(image_data->GetScalarPointer(c,r,s));
+//                            *v = (uint64_t) image->Get(t,s,r,c);
+//                        }
+//                    }
+//                }
+//                break;
+//            }
         }
         
         double Cxyz[3], Rxyz[3], Sxyz[3];

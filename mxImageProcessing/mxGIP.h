@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    mxGIPX.h
+ Module:    mxGIP.h
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
@@ -18,63 +18,63 @@
 
 
 
-#if defined(mxGIPX_USE_SOURCE_CODE) || defined(mxImageProcessing_USE_SOURCE_CODE)
-    #define mxGIPX_API
+#if defined(mxGIP_USE_SOURCE_CODE) || defined(mxImageProcessing_USE_SOURCE_CODE)
+    #define mxGIP_API
 #else
     #if defined(_MSC_VER)
-        #ifdef mxGIPX_EXPORTS
-            #define mxGIPX_API __declspec(dllexport)
+        #ifdef mxGIP_EXPORTS
+            #define mxGIP_API __declspec(dllexport)
         #else
-            #define mxGIPX_API __declspec(dllimport)
+            #define mxGIP_API __declspec(dllimport)
         #endif
     #else
-        #ifdef mxGIPX_EXPORTS
-            #define mxGIPX_API __attribute__((visibility("default")))
+        #ifdef mxGIP_EXPORTS
+            #define mxGIP_API __attribute__((visibility("default")))
         #else
-            #define mxGIPX_API
+            #define mxGIP_API
         #endif
     #endif
 #endif
 
 
 
-#ifndef mxGIPX_H
-    #define mxGIPX_H
+#ifndef mxGIP_H
+    #define mxGIP_H
 
 
 
-#include "mxBasicImage.h"
+#include "mxImage.h"
 #include "mxFunctionObject.h"
 
 
 
 /// Voxel class representing indexes with a value.
 
-class mxGIPX_API mxGIPX : public mxFunctionObject
+class mxGIP_API mxGIP : public mxFunctionObject
 {
     
 public:
     
     /// Constructor.
-    mxGIPX();
+    mxGIP();
     
     /// Destructor.
-    ~mxGIPX();
+    ~mxGIP();
     
     /// Make the histogram of the input image.
-    int Histogram(mxBasicImage &input, mxArray<int> &output);
+    int Histogram(mxImage &input, mxArray<int> &output);
     
     /// Invert values of voxels (negative) based on found maximum and minimum voxel values.
-    int InvertValues(mxBasicImage &input, mxBasicImage &output);
+    int InvertValues(mxImage &input, mxImage &output);
     
     /// Mask the input image with image mask (e.g. a segmented image with 0 value for background).
-    int Mask(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output);
+    int Mask(mxImage &input, mxImage &mask, mxImage &output);
     
     /// Threshold the input image with given value (all values equalt to and above it will be recorded in the output). The rest is background (zero value).
-    int Threshold(mxBasicImage &input, mxImageScalar threshold, mxBasicImage &output);
+    int Threshold(mxImage &input, mxImageScalar threshold, mxImage &output);
 
     /// Threshold the input image with given range. All values in range [threshold1, threshold2] will be foreground in the output image.
-    int ThresholdInRange(mxBasicImage &input, mxImageScalar threshold1, mxImageScalar threshold2, mxBasicImage &output);
+    int ThresholdInRange(mxImage &input, mxImageScalar threshold1, mxImageScalar threshold2, mxImage &output);
 
 };
 

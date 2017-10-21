@@ -192,7 +192,7 @@
 #include "mxRegularGrid.h"
 #include "mxGeometry.h"
 #include "mxImage.h"
-#include "mxGIPX.h"
+#include "mxGIP.h"
 
 #include "vmxImage.h"
 
@@ -771,7 +771,7 @@ int main()
     
     vmxImage *vimg2 = static_cast<vmxImage*>(image_factory->Create());
     
-    mxGIPX ipg;
+    mxGIP ipg;
     //ipg.InvertValues(*vimg, *vimg2);
     ipg.ThresholdInRange(*vimg, 100,150, *vimg2);
     

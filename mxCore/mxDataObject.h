@@ -75,7 +75,7 @@ protected:
     unsigned char m_color[4];
     
     /// Pointer to the factory of this class object.
-    mxDataObjectFactory *m_factory; //static mxDataObjectFactory *m_factory;
+    mxDataObjectFactory *m_factory;
     
     /// Indicates if multiple object of this class can be displayed together.
     /// If the indicator is set, only a single object can be viewed at a time.
@@ -132,6 +132,9 @@ public:
     
     /// Check if the actor belongs to the object (used for calling the context menu).
     virtual int HasActor(vtkActor *actor);
+    
+    /// Internal method, to be used with caution!!!
+    void internalSetDataObjectFactory(mxDataObjectFactory *factory) { this->m_factory = factory; };
     
     /// Check if multiple objects can be displayed at the same time.
     int IsExclusiveVisibilityOn();

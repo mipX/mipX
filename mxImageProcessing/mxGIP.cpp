@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    mxGIPX.cpp
+ Module:    mxGIP.cpp
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
@@ -18,21 +18,21 @@
 
 
 
-#include "mxGIPX.h"
+#include "mxGIP.h"
 
 
 
-mxGIPX::mxGIPX()
+mxGIP::mxGIP()
 {
 }
 
 
-mxGIPX::~mxGIPX()
+mxGIP::~mxGIP()
 {
 }
 
 
-int mxGIPX::Histogram(mxBasicImage &input, mxArray<int> &output)
+int mxGIP::Histogram(mxImage &input, mxArray<int> &output)
 {
     if(input.IsEmpty()) return 0;
     
@@ -45,14 +45,14 @@ int mxGIPX::Histogram(mxBasicImage &input, mxArray<int> &output)
     
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
-        output[input.Get(i)-minimum_value] += 1;
+        output[input[i]-minimum_value] += 1;
     }
     
     return 1;
 }
 
 
-int mxGIPX::InvertValues(mxBasicImage &input, mxBasicImage &output)
+int mxGIP::InvertValues(mxImage &input, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
     output.SetDimensionsAndPropertiesAs(&input);
@@ -63,15 +63,15 @@ int mxGIPX::InvertValues(mxBasicImage &input, mxBasicImage &output)
     
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
-        double coeff = 1.0 - ((double)(input.Get(i)-minimum_value)) / ((double)(value_range));
-        output.Set(i, ((mxImageScalar)(coeff * ((double)maximum_value))) );
+        double coeff = 1.0 - ((double)(input[i]-minimum_value)) / ((double)(value_range));
+        output[i] = ((mxImageScalar)(coeff * ((double)maximum_value))) ;
     }
     
     return 1;
 }
 
 
-int mxGIPX::Mask(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output)
+int mxGIP::Mask(mxImage &input, mxImage &mask, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
     if(!input.IsEqualInDimensions_3D(mask)) return 0;
@@ -79,48 +79,48 @@ int mxGIPX::Mask(mxBasicImage &input, mxBasicImage &mask, mxBasicImage &output)
     output.SetDimensionsAndPropertiesAs(&input);
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
-        if(mask.Get(i)) output.Set(i,input.Get(i));
-        else output.Set(i,0);
+        if(mask[i]) output[i] = input[i];
+        else output[i] = 0;
     }
     
     return 1;
 }
 
 
-int mxGIPX::Threshold(mxBasicImage &input, mxImageScalar threshold, mxBasicImage &output)
+int mxGIP::Threshold(mxImage &input, mxImageScalar threshold, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
     output.SetDimensionsAndPropertiesAs(&input);
         
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
-        if(input.Get(i) >= threshold)
+        if(input[i] >= threshold)
         {
-            output.Set(i, input.Get(i));
+            output[i] = input[i];
         }
         else
         {
-            output.Set(i, 0);
+            output[i] = 0;
         }
     }
     return 1;
 }
 
 
-int mxGIPX::ThresholdInRange(mxBasicImage &input, mxImageScalar threshold1, mxImageScalar threshold2, mxBasicImage &output)
+int mxGIP::ThresholdInRange(mxImage &input, mxImageScalar threshold1, mxImageScalar threshold2, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
     output.SetDimensionsAndPropertiesAs(&input);
     
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
-        if(input.Get(i) >= threshold1 && input.Get(i) <= threshold2)
+        if(input[i] >= threshold1 && input[i] <= threshold2)
         {
-            output.Set(i, input.Get(i));
+            output[i] = input[i];
         }
         else
         {
-            output.Set(i, 0);
+            output[i] = 0;
         }
     }
 

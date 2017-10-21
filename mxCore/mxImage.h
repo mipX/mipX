@@ -200,6 +200,10 @@ public:
     T& operator()(unsigned int s, unsigned int r, unsigned int c);
     T& operator()(unsigned int r, unsigned int c);
     
+    /// Array indexing operator.
+    T& operator[](unsigned int i);
+    
+    
     /// Reset the object.
     virtual void Reset();
     

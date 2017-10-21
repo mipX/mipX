@@ -174,6 +174,7 @@ mxDataObject* mxDataObjectFactoryT<T>::Create()
 {
     T *t = new T;
     mxDataObject *obj = static_cast<mxDataObject*>(t);
+    obj->internalSetDataObjectFactory(this);
     this->m_created_objects.AddToEnd(obj);
     return obj;
 }

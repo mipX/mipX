@@ -27,9 +27,9 @@
  */
 
 
-#include "mxBIPX.h"
+#include "mxBIP.h"
 #include "mxGeometry.h"
-#include "mxSkeletonizationX.h"
+#include "mxSkeletonization.h"
 #include "vmxDataListWidget.h"
 #include "vmxImage.h"
 #include "vmxMesh.h"
@@ -65,19 +65,27 @@ int main()
     
     // Create an image using the data list widget. The data list widget assigns to the image the
     // interactor of the main widget.
-    vmxImage16U *vimg16 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","image_of_a_cube"));
+    vmxImage16U *vimg16 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","cube_and_sphere"));
     vimg16->SetDimensions(1,dimension_s,dimension_r,dimension_c);
+
+    //vimg16->LoadVTKFile("/Users/danilobabin/-DIP_IMAGES/-CEREBRAL VESSELS/02 - RP05 - Roothooft Bjorn Jozef - AVM - _OK_but_not_overlapping/vesselsThr70Masked.vtk");
     
+    int cube_size = 10;
     
     
     mxGeometry g;
     g.SetDimensions(vimg16->GetDimension_S(), vimg16->GetDimension_R(), vimg16->GetDimension_C());
     
     int sn, rn,cn;
-    for(g.ForCube(vimg16->GetDimension_S()/2, vimg16->GetDimension_R()/2, vimg16->GetDimension_C()/2, 0); g.GetCube(10, sn, rn, cn); )
+    for(g.ForCube(vimg16->GetDimension_S()/2, vimg16->GetDimension_R()/2, vimg16->GetDimension_C()/2, 0); g.GetCube(cube_size, sn, rn, cn); )
     {
         vimg16->Set(sn,rn,cn, 255);
     }
+    for(g.ForSphere(vimg16->GetDimension_S()/2+cube_size*2, vimg16->GetDimension_R()/2, vimg16->GetDimension_C()/2, 0); g.GetSphere((cube_size*cube_size), sn, rn, cn); )
+    {
+        vimg16->Set(sn,rn,cn, 255);
+    }
+
     
     vimg16->SetVisibility(1);
     vimg16->SaveToVTK16UFile("/Users/danilobabin/-DIP_IMAGES/test_image_mipx.vtk");
@@ -88,37 +96,45 @@ int main()
     // interactor of the main widget.
     vmxImage16U *vimg16_2 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","distance_transformed"));
     
-    mxBIPX bip;
-    if(!bip.DistanceTransformForSphere(*vimg16, *vimg16, *vimg16_2))
-        cout<<"mxBIPX::DistanceTransformForSphere() returned 0 (fail)!"<<endl;
+    mxBIP bip;
+    //if(!bip.DistanceTransformForSphere(*vimg16, *vimg16, *vimg16_2)) cout<<"mxBIP::DistanceTransformForSphere() returned 0 (fail)!"<<endl;
+
+    if(!bip.ProfileVolumeTransformForSphere(*vimg16, *vimg16, *vimg16_2))
+        cout<<"mxBIP::DistanceTransformForSphere() returned 0 (fail)!"<<endl;
    
     vimg16_2->SetVisibility(1);
     
-//    // Create an image using the data list widget. The data list widget assigns to the image the
-//    // interactor of the main widget.
-//    vmxImage16U *vimg16_3 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","skeletonized"));
-//
-//    mxSkeletonizationX skel;
-//    skel.OrderedSkeletonization(*vimg16_2, *vimg16_3);
-//    
-//    vimg16_3->SetVisibility(1);
-//    
+  
+    cout<<"  Distance transform done  ";
+    
+    
+    // Create an image using the data list widget. The data list widget assigns to the image the
+    // interactor of the main widget.
+    vmxImage16U *vimg16_3 = static_cast<vmxImage16U*> (v_tree.Create("vmxImage16U","skeletonized"));
+
+    //mxSkeletonizationX skel;
+    //mxSkeletonizationT skel;
+    mxSkeletonization skel;
+    //skel.OrderedSkeletonization(*vimg16_2, *vimg16_3);
+    skel.OrderedSkeletonization(*vimg16_2, *vimg16_3);
+    vimg16_3->SetVisibility(1);
     
     
     
     
-//    // Register the vmxMeshFactory with the data list widget.
-//    // The widget will later use this factory to construct objects of the given type.
-//    v_tree.AddFactory(new vmxMeshFactory);
-//
-//    // Create a mesh using the data list widget.
-//    vmxMesh *mesh = static_cast<vmxMesh*> (v_tree.Create("vmxMesh","my_mesh"));
-//    //mesh->CreatePolyData(vimg, 50);
-//    mesh->CreatePolyData(vimg16, 500);
-//    mesh->CreateActorByLookupTableScalarColoring(0,vimg16->GetDimension_C()*vimg16->GetDimension_R()*vimg16->GetDimension_S());
-//    mesh->SetVisibility(1);
-//    //mesh->SetColor(1,0,0);
-//    //mesh->SaveToSTLFiles("/Users/danilobabin/-DIP_IMAGES/test_mesh.stl");
+    
+    // Register the vmxMeshFactory with the data list widget.
+    // The widget will later use this factory to construct objects of the given type.
+    v_tree.AddFactory(new vmxMeshFactory);
+
+    // Create a mesh using the data list widget.
+    vmxMesh *mesh = static_cast<vmxMesh*> (v_tree.Create("vmxMesh","skeletonization_mesh"));
+    //mesh->CreatePolyData(vimg, 50);
+    mesh->CreatePolyData(vimg16_3, 1);
+    mesh->CreateActorByLookupTableScalarColoring(0,255);
+    mesh->SetVisibility(1);
+    //mesh->SetColor(1,0,0);
+    //mesh->SaveToSTLFiles("/Users/danilobabin/-DIP_IMAGES/test_mesh.stl");
     
     
 

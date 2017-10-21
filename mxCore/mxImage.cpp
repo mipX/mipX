@@ -81,7 +81,7 @@ int mxImageT<T>::Copy(mxImageT<T> *image)
     
     for(unsigned int i=0; i<image->GetNumberOfDataElements(); i++)
     {
-        this->m_grid(i) = image->m_grid(i);//this->Set( i, image->Get(i) );
+        this->m_grid[i] = image->m_grid[i];
     }
     
     if(!this->mxDataObject::CopyFromDataObject(image)) return 0;
@@ -103,7 +103,7 @@ void mxImageT<T>::FillInWith(mxImageScalar value)
 {
     for(unsigned int i=0; i<this->GetNumberOfDataElements(); i++)
     {
-        this->Set(i, value);
+        (*this)[i] = value;
     }
 }
 
@@ -117,7 +117,7 @@ void mxImageT<T>::FillIn_3D_ImageWith(unsigned int t, mxImageScalar value)
         {
             for(unsigned int c=0; c<this->GetDimension_C(); c++)
             {
-                this->Set(t,s,r,c, value);
+                (*this)(t,s,r,c) = value;
             }
         }
     }
@@ -131,7 +131,7 @@ void mxImageT<T>::FillInSliceWith(unsigned int t, unsigned int s, mxImageScalar 
     {
         for(unsigned int c=0; c<this->GetDimension_C(); c++)
         {
-            this->Set(t,s,r,c, value);
+            (*this)(t,s,r,c) = value;
         }
     }
 }
@@ -161,7 +161,7 @@ mxImageScalar mxImageT<T>::Get(unsigned int r, unsigned int c)
 template<class T>
 mxImageScalar mxImageT<T>::Get(unsigned int i)
 {
-    return (this->m_grid(i));
+    return (this->m_grid[i]);
 }
 
 
@@ -386,6 +386,13 @@ int mxImageT<T>::IsEqualInDimensions_2D(mxBasicImage &image)
 
 
 template<class T>
+T& mxImageT<T>::operator[](unsigned int i)
+{
+    return this->m_grid[i];
+}
+
+
+template<class T>
 T& mxImageT<T>::operator()(unsigned int r, unsigned int c)
 {
     return this->m_grid(0,0,r,c);
@@ -445,7 +452,7 @@ void mxImageT<T>::Set(unsigned int r, unsigned int c, mxImageScalar value)
 template<class T>
 void mxImageT<T>::Set(unsigned int i, mxImageScalar value)
 {
-    this->m_grid(i) = value;
+    this->m_grid[i] = value;
 }
 
 

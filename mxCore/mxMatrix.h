@@ -124,7 +124,7 @@ public:
     mxMatrix<T>& operator =(mxMatrix<T> &m);
     
     /// Indexing operator for accessing matrix as an array.
-    T& operator()(int i);
+    T& operator[](int i);
 
     /// Indexing operator for 2D matrices.
 	T& operator()(int r, int c);
@@ -374,7 +374,7 @@ mxMatrix<T>& mxMatrix<T>::operator =(mxMatrix<T> &m)
 
 
 template<class T>
-T& mxMatrix<T>::operator()(int i)
+T& mxMatrix<T>::operator[](int i)
 {
     return (m_data_address[i]);
 }
