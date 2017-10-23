@@ -323,7 +323,7 @@ int mxSkeletonization::OrderedSkeletonization(mxImage &input, mxImage &output, u
     if(input.IsEmpty()) return 0;
     
     //Find the max value in the image
-    mxImageScalar max_gray_value, min_gray_value;
+    uint64_t max_gray_value, min_gray_value;
     input.GetVoxelMinAndMaxValues(min_gray_value, max_gray_value);
     
     if(max_gray_value==0) return 0;

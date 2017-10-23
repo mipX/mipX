@@ -9,8 +9,7 @@ PROJECT(MIPX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-add_subdirectory( example_001_BasicVisualization )
-add_subdirectory( example_002_Skeletonization )
+add_subdirectory( examples )
 add_subdirectory( mxCore )
 add_subdirectory( mxImageProcessing )
 add_subdirectory( vmxAppCore )

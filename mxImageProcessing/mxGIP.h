@@ -43,6 +43,7 @@
 
 
 
+#include "mxCurve.h"
 #include "mxImage.h"
 #include "mxFunctionObject.h"
 
@@ -63,6 +64,7 @@ public:
     
     /// Make the histogram of the input image.
     int Histogram(mxImage &input, mxArray<int> &output);
+    int Histogram(mxImage &input, mxCurve &output);
     
     /// Invert values of voxels (negative) based on found maximum and minimum voxel values.
     int InvertValues(mxImage &input, mxImage &output);

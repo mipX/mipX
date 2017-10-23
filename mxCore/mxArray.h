@@ -111,6 +111,10 @@ namespace mxArrayFunctions
     template <typename T>
     void SwapValues(T &v1, T &v2);
     
+    /// Load an array of doubles from string of double values.
+    template <typename T>
+    int LoadFromStringOfDoubleValues(mxArray<T> &a, char *array_string, unsigned int number_of_characters_in_array_string);
+    
     /// Sort elements in the ascending order.
     template <typename T>
     int SortAscending(mxArray<T> &a);
@@ -323,6 +327,131 @@ void mxArray<T>::Print(std::ostream &o)
 
 
 //----------------------------------------------------------------------------------------------------------------------
+
+
+
+template <class T>
+int mxArrayFunctions::LoadFromStringOfDoubleValues(mxArray<T> &a, char *array_string, unsigned int number_of_characters_in_array_string)
+{
+    if(!array_string) return 0;
+    if(number_of_characters_in_array_string<3) return 0;
+
+    // limit the use of the loading function to data of the same size as double.
+    if(sizeof(T)!=sizeof(double)) return 0;
+    
+    // Find '['
+    int i=0;
+    for(i=0; array_string[i]!='[' && i<number_of_characters_in_array_string; i++)
+    {
+        if(i==number_of_characters_in_array_string-1)
+        {
+            std::cout<<"mxArrayFunctions::LoadFromStringOfDoubleValues(): Error reading string, could not find '[' character!"<<std::endl;
+            return 0;
+        }
+    }
+    i++;
+    
+    // Find ']'
+    int i2 = i;
+    for(i2=i; array_string[i2]!=']' && i2<number_of_characters_in_array_string; i2++)
+    {
+        if(i2==number_of_characters_in_array_string-1)
+        {
+            std::cout<<"mxArrayFunctions::LoadFromStringOfDoubleValues(): Error reading string, could not find ']' character!"<<std::endl;
+            return 0;
+        }
+    }
+    i2--;
+    
+    // Count the number of elements in the array - this is done by calculating the number of commas ","
+    // Also checks the correctness of characters in between two brackets: "[" and "]"
+    int number_of_elements_of_array = 1;
+    for(int c=i; c<=i2; c++)
+    {
+        if(array_string[c]==',') number_of_elements_of_array++;
+        
+        // check if characters belong to a real number
+        if(array_string[c]!=' ' && array_string[c]!=',' && array_string[c]!='.' && array_string[c]!='-' && array_string[c]!='+' && (!(array_string[c]>='0' && array_string[c]<='9')))
+        {
+            std::cout<<"mxArrayFunctions::LoadFromStringOfDoubleValues(): Error reading string, incorrect charcters used for a double number!"<<std::endl;
+            return 0;
+        }
+    }
+    
+    a.Reset();
+    a.SetNumberOfElements(number_of_elements_of_array);
+    
+    
+    double dec = 1;
+    double value = 0;
+    int number_of_added_elements = 0;
+    int is_dot_found = 0;
+    int is_sign_found = 0;
+    for(int r=i2 ; r>=i-1; r--)
+    {
+        if(array_string[r]==',' || array_string[r]=='[')
+        {
+            // Write the calculated value in the array
+            a[a.GetNumberOfElements()-1-number_of_added_elements] = value;
+            number_of_added_elements++;
+            
+            // Reset 'dec' and 'value' for a new number
+            dec = 1;
+            value = 0;
+            
+            // Set the dot indicator to 0
+            is_dot_found = 0;
+            
+            // Set the sign indicator to 0
+            is_sign_found = 0;
+        }
+        // Since we search backwards, the numbers and dot can be taken into account only if the sign has not yet been found!
+        if(!is_sign_found)
+        {
+            // If MINUS sign is found, make negative value, set the indicator of found sign
+            if(array_string[r]=='-')
+            {
+                value = -value;
+                is_sign_found = 1;
+            }
+            // If PLUS sign is found, just set the indicator of found sign
+            if(array_string[r]=='+') is_sign_found = 1;
+            
+            // If a number is found
+            if(array_string[r]>='0' && array_string[r]<='9')
+            {
+                value += ((int)(array_string[r] - '0'))*dec;
+                dec = dec * 10;
+            }
+            if(array_string[r]=='.')
+            {
+                // If this is the first dot
+                if(!is_dot_found)
+                {
+                    value = value/dec;
+                    is_dot_found = 1;
+                    dec = 1;
+                }
+                // If this is the second dot, the error ocurred, exit with 0
+                else
+                {
+                    std::cout<<"mxArrayFunctions::LoadFromStringOfDoubleValues(): Error reading string, incorrect charcter '.' placement!"<<std::endl;
+                    return 0;
+                }
+            }
+        }
+        else
+        {
+            // If the sign is found and the current character is not ',' or '[', report an error
+            if(array_string[r]!=',' && array_string[r]!='[' && array_string[r]!=' ')
+            {
+                std::cout<<"mxArrayFunctions::LoadFromStringOfDoubleValues(): Error reading string, incorrect charcter before sign caharcter found!"<<std::endl;
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
 
 
 

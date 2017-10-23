@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    example_002_Skeletonization.cpp
+ Module:    example_Skeletonization.cpp
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.

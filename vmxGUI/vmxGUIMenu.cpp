@@ -1137,8 +1137,8 @@ int vmxGUIMenu::ShowTextItems()
 //    
 //    m_text_actor->SetInput(text.Get_C_String());
 //    m_checkboxes_actor->SetInput(checkbox_text.Get_C_String());
-//    
-//    return 1;
+    
+    return 1;
 }
 
 

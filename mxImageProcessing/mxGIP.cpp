@@ -36,10 +36,14 @@ int mxGIP::Histogram(mxImage &input, mxArray<int> &output)
 {
     if(input.IsEmpty()) return 0;
     
-    mxImageScalar minimum_value, maximum_value;
+    //mxImageScalar minimum_value, maximum_value;
+    uint64_t minimum_value, maximum_value;
     input.GetVoxelValueFullRange(minimum_value, maximum_value);
+   
+    //std::cout<<"minimum_value, maximum_value"<<minimum_value<<","<<maximum_value<<" ";
     
-    mxImageScalar value_full_range = maximum_value - minimum_value + 1;
+    unsigned int value_full_range = ((int)maximum_value) - ((int)minimum_value) + 1;
+    
     output.SetNumberOfElements(value_full_range);
     output.FillInWith(0);
     
@@ -52,12 +56,34 @@ int mxGIP::Histogram(mxImage &input, mxArray<int> &output)
 }
 
 
+int mxGIP::Histogram(mxImage &input, mxCurve &output)
+{
+    uint64_t minimum_value, maximum_value;
+    input.GetVoxelMinAndMaxValues(minimum_value, maximum_value);
+    
+    unsigned int value_full_range = ((int)maximum_value) - ((int)minimum_value) + 1;
+    
+    output.SetNumberOfSamples(value_full_range);
+    double initial_value = 0;
+    output.FillIn_X_ValuesAscending(minimum_value,1);
+    output.GetArrayOf_Y_Values()->FillInWith(initial_value);
+    for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
+    {
+        unsigned int local_index = input[i]-minimum_value;
+        output.Set(local_index, input[i], (output.Y(local_index)+1)) ;
+    }
+    
+    return 1;
+}
+
+
+
 int mxGIP::InvertValues(mxImage &input, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
     output.SetDimensionsAndPropertiesAs(&input);
     
-    mxImageScalar minimum_value, maximum_value;
+    uint64_t minimum_value, maximum_value;
     input.GetVoxelMinAndMaxValues(minimum_value, maximum_value);
     mxImageScalar value_range = maximum_value - minimum_value;
     

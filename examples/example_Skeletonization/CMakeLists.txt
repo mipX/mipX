@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 cmake_policy(SET CMP0043 NEW)
 
-set( TARGET_NAME example_002_Skeletonization )
+set( TARGET_NAME example_Skeletonization )
 
 PROJECT(${TARGET_NAME})
 
@@ -24,11 +24,11 @@ endif()
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/../mxCore
-    ${PROJECT_SOURCE_DIR}/../mxImageProcessing
-    ${PROJECT_SOURCE_DIR}/../vmxAppCore
-    ${PROJECT_SOURCE_DIR}/../vmxCore
-    ${PROJECT_SOURCE_DIR}/../vmxGUI
+    ${PROJECT_SOURCE_DIR}/../../mxCore
+    ${PROJECT_SOURCE_DIR}/../../mxImageProcessing
+    ${PROJECT_SOURCE_DIR}/../../vmxAppCore
+    ${PROJECT_SOURCE_DIR}/../../vmxCore
+    ${PROJECT_SOURCE_DIR}/../../vmxGUI
 )
 
 set( ${TARGET_NAME}_SOURCES

@@ -12,6 +12,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set( ${TARGET_NAME}_SOURCES
+    mxCurve.cpp
     mxDataObject.cpp
     mxDataObjectTree.cpp
     mxFunctionObject.cpp
@@ -27,6 +28,7 @@ set( ${TARGET_NAME}_SOURCES
 
 set( ${TARGET_NAME}_HEADERS
     mxBasicImage.h
+    mxCurve.h
     mxDataObject.h
     mxDataObjectFactory.h
     mxDataObjectTree.h
@@ -48,7 +50,8 @@ set( ${TARGET_NAME}_TEMPLATES
     mxRegularGrid.h
 )
 
-add_definitions( -DmxDataObject_EXPORTS
+add_definitions( -DmxCurve_EXPORTS
+    -DmxDataObject_EXPORTS
     -DmxDataObjectTree_EXPORTS
     -DmxFunctionObject_EXPORTS
     -DmxFunctionObjectProgressIndicator_EXPORTS

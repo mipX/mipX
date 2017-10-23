@@ -316,7 +316,7 @@ double mxImageT<T>::GetSpacing_C()
 
 
 template<class T>
-int mxImageT<T>::GetVoxelMinAndMaxValues(mxImageScalar &min_value_included, mxImageScalar &max_value_included)
+int mxImageT<T>::GetVoxelMinAndMaxValues(uint64_t &min_value_included, uint64_t &max_value_included)
 {
     if(this->IsEmpty()) { return 0; }
     T* data = (T*) this->GetData();
@@ -331,7 +331,7 @@ int mxImageT<T>::GetVoxelMinAndMaxValues(mxImageScalar &min_value_included, mxIm
 
 
 template<class T>
-void mxImageT<T>::GetVoxelValueFullRange(mxImageScalar &min_value_included, mxImageScalar &max_value_included)
+void mxImageT<T>::GetVoxelValueFullRange(uint64_t &min_value_included, uint64_t &max_value_included)
 {
     int type_size = sizeof(T);
     

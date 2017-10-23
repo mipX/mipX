@@ -36,6 +36,8 @@ mxArray<mxArray<mxIndex> > mxGeometry::m_indexes_square;
 
 void mxGeometry::ForIndexes(int s, int r, int c, unsigned int start_array_index_included)
 {
+    assert(this->m_dimensions[0] != 0 && this->m_dimensions[1] != 0 && this->m_dimensions[2] != 0);
+    
     this->m_current_central_indexes.SetIndex(s,r,c);
     this->m_current_array_index = start_array_index_included;
     this->m_current_local_index = 0;
@@ -128,6 +130,8 @@ void mxGeometry::ForCube(int s, int r, int c, unsigned int start_size_included)
 
 void mxGeometry::ForLine(int s_start_included, int r_start_included, int c_start_included, int direction_s, int direction_r, int direction_c)
 {
+    assert(this->m_dimensions[0] != 0 && this->m_dimensions[1] != 0 && this->m_dimensions[2] != 0);
+    
     this->m_line_begin_indexes.SetIndex(s_start_included,r_start_included,c_start_included);
     this->m_line_direction_indexes.SetIndex(direction_s,direction_r,direction_c);
     double d = this->m_line_direction_indexes.DistanceMaximumNorm(this->m_line_begin_indexes);

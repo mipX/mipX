@@ -174,10 +174,12 @@ public:
     double GetSpacing_C();
     
     /// Get the minimum and maximum voxel value found in the image.
-    int GetVoxelMinAndMaxValues(mxImageScalar &min_value_included, mxImageScalar &max_value_included);
+    int GetVoxelMinAndMaxValues(uint64_t &min_value_included, uint64_t &max_value_included);
     
     /// Get the full range of voxel values [min_value_included,max_value_included].
-    void GetVoxelValueFullRange(mxImageScalar &min_value_included, mxImageScalar &max_value_included);
+    void GetVoxelValueFullRange(uint64_t &min_value_included, uint64_t &max_value_included);
+    //void GetVoxelValueFullRange(T &min_value_included, T &max_value_included);
+
 
     /// Calculate index values for given world coordinates. If indexes fall outside the image range return fail 0.
     int IndexFromWorldCoordinates(double w_t, double w_s, double w_r, double w_c, int &out_t, int &out_s, int &out_r, int &out_c);
@@ -255,7 +257,9 @@ typedef mxImageT<uint32_t> mxImage32U;
 
 
 /// Defualt image class will have 16U (16-bit unsigned) type of elements.
-typedef mxImage16U mxImage;
+//typedef mxImage16U mxImage;
+typedef mxImageT<mxImageScalar> mxImage;
+
 
 
 

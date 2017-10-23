@@ -51,7 +51,9 @@
 
 /// Image scalar definition. With this definition the size of the scalar can be changed (for future growth).
 
-typedef uint64_t mxImageScalar;
+//typedef uint64_t mxImageScalar;
+typedef uint16_t mxImageScalar;
+
 
 
 /// Image template as a data object of a structured grid of elements.
@@ -150,10 +152,12 @@ public:
     virtual double GetSpacing_C() = 0;
     
     /// Get the minimum and maximum voxel value found in the image.
-    virtual int GetVoxelMinAndMaxValues(mxImageScalar &min_value_included, mxImageScalar &max_value_included) = 0;
-    
+    //virtual int GetVoxelMinAndMaxValues(mxImageScalar &min_value_included, mxImageScalar &max_value_included) = 0;
+    virtual int GetVoxelMinAndMaxValues(uint64_t &min_value_included, uint64_t &max_value_included) = 0;
+
     /// Get the full range of voxel values [min_value_included,max_value_included].
-    virtual void GetVoxelValueFullRange(mxImageScalar &min_value_included, mxImageScalar &max_value_included) = 0;
+    //virtual void GetVoxelValueFullRange(mxImageScalar &min_value_included, mxImageScalar &max_value_included) = 0;
+    virtual void GetVoxelValueFullRange(uint64_t &min_value_included, uint64_t &max_value_included) = 0;
     
     /// Calculate index values for given world coordinates. If indexes fall outside the image range return fail 0.
     virtual int IndexFromWorldCoordinates(double w_t, double w_s, double w_r, double w_c, int &out_t, int &out_s, int &out_r, int &out_c) = 0;

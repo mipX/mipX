@@ -1,7 +1,7 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    example_001_BasicVisualization.cpp
+ Module:    example_BasicVisualization.cpp
  
  Authors: Danilo Babin.
  Copyright (c) Danilo Babin.
