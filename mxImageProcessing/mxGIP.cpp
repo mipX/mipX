@@ -66,7 +66,7 @@ int mxGIP::Histogram(mxImage &input, mxCurve &output)
     output.SetNumberOfSamples(value_full_range);
     double initial_value = 0;
     output.FillIn_X_ValuesAscending(minimum_value,1);
-    output.GetArrayOf_Y_Values()->FillInWith(initial_value);
+    output.Get_Y_Values()->FillInWith(initial_value);
     for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
     {
         unsigned int local_index = input[i]-minimum_value;

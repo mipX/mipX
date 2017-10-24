@@ -10,5 +10,6 @@ PROJECT(MIPX_examples)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory( example_BasicVisualization )
+add_subdirectory( example_CurveDetectRisingSlopes )
 add_subdirectory( example_Skeletonization )
 add_subdirectory( example_HistogramAsCurve )

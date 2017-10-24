@@ -68,13 +68,13 @@ int mxCurve::FillIn_X_ValuesAscending(double x0_included, double delta_x)
 }
 
 
-mxArray< double >* mxCurve::GetArrayOf_X_Values()
+mxArray< double >* mxCurve::Get_X_Values()
 {
     return &(this->m_X_values);
 }
 
 
-mxArray< double >* mxCurve::GetArrayOf_Y_Values()
+mxArray< double >* mxCurve::Get_Y_Values()
 {
     return &(this->m_Y_values);
 }
@@ -245,9 +245,9 @@ int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
     // read X values
     if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
     
-    mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->GetArrayOf_X_Values()), text_buffer, amount_of_characters_to_load);
+    mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load);
     
-    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->GetArrayOf_X_Values()), text_buffer, amount_of_characters_to_load))
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load))
     {
         std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error reading X array!"<<std::endl;
         std::cout<<"text_buffer: "<<text_buffer<<std::endl;
@@ -258,7 +258,7 @@ int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
     
     // read Y values
     if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
-    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->GetArrayOf_Y_Values()), text_buffer, amount_of_characters_to_load))
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_Y_Values()), text_buffer, amount_of_characters_to_load))
     {
         std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error reading Y array!"<<std::endl;
         std::cout<<"text_buffer: "<<text_buffer<<std::endl;
@@ -267,9 +267,9 @@ int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
         return 0;
     }
     
-    if(this->GetArrayOf_X_Values()->GetNumberOfElements() != this->GetArrayOf_Y_Values()->GetNumberOfElements())
+    if(this->Get_X_Values()->GetNumberOfElements() != this->Get_Y_Values()->GetNumberOfElements())
     {
-        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error: unequal size of X and Y values arrays, size_of_X="<<this->GetArrayOf_X_Values()->GetNumberOfElements()<<", size_of_Y="<<this->GetArrayOf_Y_Values()->GetNumberOfElements()<<std::endl;
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error: unequal size of X and Y values arrays, size_of_X="<<this->Get_X_Values()->GetNumberOfElements()<<", size_of_Y="<<this->Get_Y_Values()->GetNumberOfElements()<<std::endl;
         this->Reset();
         file.close();
         return 0;
@@ -340,7 +340,17 @@ void mxCurve::SaveToMatlabFile(const char *file_name)
     file<<"values_x = [";
     for(unsigned int s=0; s<this->GetNumberOfSamples()-1; s++)
     {
-        file<<this->m_X_values[s];
+        std::ostringstream oss;
+        oss.precision(4);//std::numeric_limits<double>::digits);
+        oss << std::fixed << this->m_X_values[s];
+        std::string str = oss.str();
+        
+//        file.showpoint;
+//        file<<std::ofstream::showpoint;
+//        file.precision(4);
+//        file<<std::ofstream::fixed;
+
+        file<<str;//this->m_X_values[s];
         file<<", ";
     }
     file<<this->m_X_values[this->GetNumberOfSamples()-1]<<"];"<<std::endl;
@@ -349,7 +359,13 @@ void mxCurve::SaveToMatlabFile(const char *file_name)
     file<<"values_y = [";
     for(unsigned int s=0; s<this->GetNumberOfSamples()-1; s++)
     {
-        file<<this->m_Y_values[s];
+        std::ostringstream oss;
+        oss.precision(4);//std::numeric_limits<double>::digits);
+        oss << std::fixed << this->m_Y_values[s];
+        std::string str = oss.str();
+
+
+        file<<str;//this->m_Y_values[s];
         file<<", ";
     }
     file<<this->m_Y_values[this->GetNumberOfSamples()-1]<<"];"<<std::endl;

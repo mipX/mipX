@@ -49,6 +49,7 @@
 
 #include <strstream>
 #include <fstream>
+#include <iomanip>
 
 
 /// 2D curve (x and y=f(x) values) as pair of arrays of x and corresponding y values.
@@ -88,10 +89,10 @@ public:
     int FillIn_X_ValuesAscending(double x0_included = 0, double delta_x = 1);
     
     /// Get array of X values.
-    mxArray< double >* GetArrayOf_X_Values();
+    mxArray< double >* Get_X_Values();
     
     /// Get array of Y values.
-    mxArray< double >* GetArrayOf_Y_Values();
+    mxArray< double >* Get_Y_Values();
    
     /// Get label for X axis.
     mxString GetLabelFor_X_Axis();
