@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImagePlanes.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -92,6 +92,7 @@
 
 
 
+/// VTK level image planes.
 
 template<class T>
 class vmxImagePlanes_API vmxImagePlanesT
@@ -105,20 +106,20 @@ protected:
     /// Indexes of planes currently being visualized in order c,r,s,t.
     unsigned int m_index[4];
     
-    
+    /// Plane for S direction.
     vtkSmartPointer<vmxImagePlaneWidget> m_plane_S;
     
+    /// Plane for R direction.
     vtkSmartPointer<vmxImagePlaneWidget> m_plane_R;
     
+    /// Plane for C direction.
     vtkSmartPointer<vmxImagePlaneWidget> m_plane_C;
-    
-    //vtkRenderer *m_renderer;
     
     /// Lookup table for scalar mapping.
     vtkSmartPointer<vtkLookupTable> m_lookup_table;
     
     /// The interactor to which the object is assigned. Currently only a single interactor is supported.
-    vtkWeakPointer<vtkRenderWindowInteractor> m_interactor;// vtkRenderWindowInteractor *m_interactor;
+    vtkWeakPointer<vtkRenderWindowInteractor> m_interactor;
     
     
 public:
@@ -146,7 +147,6 @@ public:
 
     /// Get lookup table (e.g. if visualization parameters need to be set individually).
     vtkLookupTable* GetLookupTable();
-
     
     /// Get image plane widget for S (slices) direction.
     vmxImagePlaneWidget* GetPlaneWidget_S();
@@ -156,48 +156,25 @@ public:
 
     /// Get image plane widget for C (slices) direction.
     vmxImagePlaneWidget* GetPlaneWidget_C();
-
-  
     
     /// Set input image for visualization.
     int SetImage(vmxImageDataT<T> *input_image);
     
     /// Set Interactor.
     int SetInteractor(vtkRenderWindowInteractor *interactor);
- //   vtkRenderWindowInteractor* GetInteractor();
-    
     
     /// Set indexes of image planes with rendering the scene. Success 1, fail 0.
-
     int SetIndex_C(unsigned int index);
 
+    /// Set indexes of image planes with rendering the scene. Success 1, fail 0.
     int SetIndex_R(unsigned int index);
 
+    /// Set indexes of image planes with rendering the scene. Success 1, fail 0.
     int SetIndex_S(unsigned int index);
     
+    /// Set indexes of image planes with rendering the scene. Success 1, fail 0.
     int SetIndex_T(unsigned int index);
     
-//    /// Set indexes WITHOUT rendering the scene (use when multiple objects need to be updated before the scene is rendered).
-//    int SetIndexTransversal_NoRender(unsigned int index);
-//    int SetIndexCoronal_NoRender(unsigned int index);
-//    int SetIndexSagittal_NoRender(unsigned int index);
-//    
-//    /// Get indexes of image planes.
-//    unsigned int GetIndexTransversal(){return m_transversal_index;};
-//    unsigned int GetIndexCoronal(){return m_coronal_index;};
-//    unsigned int GetIndexSagittal(){return m_sagittal_index;};
-//    
-    //    /// Set the orientation of each of the planes (assumption that they are orthogonal to the "transversal" one).
-    //    void SetPlaneOrientationCxCyCzRxRyRz(double cx, double cy, double cz, double rx, double ry, double rz);
-    
-//    /// Set the image PLANES 4x4 matrix from input image properties. Sets origin and orientation of each of the planes (assumption that they are orthogonal to the "transversal" one).
-//    void SetPlaneMatrix_4x4_FromImage(vbdBasicImageT<T> *input_image);
-    
-
-//    
-//    /// Set time index WITHOUT rendering the scene (use when multiple objects need to be updated before the scene is rendered).
-//    int SetTimeIndex_NoRender(unsigned int t);
-//    
     /// Color the opaque image plane. If you want to use lookup table with full scalar range, set
     /// 'is_using_full_range' to non zero, otherwise [minimim,maximum] range of pixel values is used.
     void SetMappingToOpaqueColor();
@@ -226,14 +203,6 @@ public:
     /// Set visibility of C (column) plane on/off.
     void SetVisibilityOf_C_Plane(int is_visible);
 
-    
-//    void SetVisibilityOfRowPlane(int is_visible);
-//    void SetVisibilityOfColumnPlane(int is_visible);
-    
-    /// Check visibility of planes.
-//    int IsVisibleTansversalPlane();
-//    int IsVisibleCoronalPlane();
-//    int IsVisibleSagittalPlane();
 };
 
 

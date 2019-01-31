@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxFunctionObject.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  

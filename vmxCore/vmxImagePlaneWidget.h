@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImagePlaneWidget.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -58,39 +58,11 @@
 
 
 #include <chrono>
-//#include <stdint.h>
-
-
-//#include <stdint.h>
-//#include "mxImage.h"
-//#include <vtkGenericDataObjectReader.h>
-//#include <vtkImageData.h>
-//#include <vtkImageCast.h>
-//#include <vtkImageFlip.h>
 #include <vtkImagePlaneWidget.h>
-//#include <vtkImageShiftScale.h>
-//#include <vtkInformation.h>
-//#include <vtkLookupTable.h>
-//#include <vtkPNGReader.h>
-//#include <vtkPNGWriter.h>
-//#include <vtkPointData.h>
 #include <vtkRenderWindowInteractor.h>
-//#include <vtkSmartPointer.h>
-//#include <vtkStringArray.h>
-//#include <vtkStructuredPointsWriter.h>
-//#include <vtkUnsignedCharArray.h>
-//#include <vtkUnsignedShortArray.h>
-//#include <vtkUnsignedIntArray.h>
-//#include <vtkUnsignedLongArray.h>
-//#include <vtkTypeUInt64Array.h>
-//#include <vtkTypeUInt32Array.h>
-//#include <vtkTypeUInt16Array.h>
-//#include <vtkTypeUInt8Array.h>
-//#include <vtkWeakPointer.h>
 
 
-
-/// VTK level image template as a data object of a structured grid of elements.
+/// VTK level image plane widget for multi-plane reconstruction.
 
 class vmxImagePlaneWidget_API vmxImagePlaneWidget : public vtkImagePlaneWidget
 {

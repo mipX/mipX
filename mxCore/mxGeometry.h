@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxGeometry.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -56,8 +56,10 @@ template class mxGeometry_API mxArray<unsigned int>;
 //-----------------------------------------------------------------------------------------------------------
 
 
-/// Geometric shapes and objects for 2D and 3D images. Note: the mxGeometry object is in fact an iterator. This means
-/// that a single object is used for a single FOR loop. If another loop needs to be entered within the first loop,
+/// Geometric shapes and objects for 2D and 3D images.
+/// Note: the mxGeometry object is in fact an iterator. This means
+/// that a single object is used for a single FOR loop. If another
+/// loop needs to be entered within the first loop,
 /// a new mxGeometry object needs to be used.
 ///
 /// Example for iterating over sphere neighborhood:

@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxMesh.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -81,8 +81,6 @@ void vmxMesh3D::CreateActorByDifferentlyColoringDisjointComponents()
 
 void vmxMesh3D::CreateActorByLookupTableScalarColoring(vtkLookupTable *lookup_table)
 {
-    //cout<<"scalar_min_value="<<scalar_min_value<<",scalar_max_value="<<scalar_max_value<<endl;
-    
     this->m_poly_data_mapper->SetInputData(this->m_poly_data);
     this->m_poly_data_mapper->SetScalarVisibility(1); //indicates that scalars from the lookup table should be used
     this->m_poly_data_mapper->SetColorModeToMapScalars();

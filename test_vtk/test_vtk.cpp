@@ -1,88 +1,276 @@
-#include <vtkVersion.h>
+#include <vtkSphereSource.h>
+#include <vtkMath.h>
+#include <vtkDoubleArray.h>
+#include <vtkDataArray.h>
+#include <vtkFieldData.h>
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRenderWindow.h>
-#include <vtkSmartPointer.h>
-#include <vtkChartXY.h>
-#include <vtkTable.h>
-#include <vtkPlot.h>
-#include <vtkFloatArray.h>
-#include <vtkContextView.h>
-#include <vtkContextScene.h>
-#include <vtkPen.h>
+#include <vtkXYPlotActor.h>
 
 int main(int, char *[])
 {
-    // Create a table with some points in it
-    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
+    vtkSmartPointer<vtkXYPlotActor> plot =
+    vtkSmartPointer<vtkXYPlotActor>::New();
+    plot->ExchangeAxesOff();
+    plot->SetLabelFormat( "%g" );
+    plot->SetXTitle( "Level" );
+    plot->SetYTitle( "Frequency" );
+    //plot->SetXValuesToIndex();
+    plot->SetXValuesToValue();
     
-    vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
-    arrX->SetName("X Axis");
-    table->AddColumn(arrX);
+//    plot->SetDataObjectXComponent(0, 0);
+//    plot->SetDataObjectYComponent(0, 1);
+//    plot->SetDataObjectYComponent(1, 2);
+    //plot->SetDataObjectYComponent(0, 1);
     
-    vtkSmartPointer<vtkFloatArray> arrC = vtkSmartPointer<vtkFloatArray>::New();
-    arrC->SetName("Cosine");
-    table->AddColumn(arrC);
+    vtkSmartPointer<vtkDataObject> data =
+    vtkSmartPointer<vtkDataObject>::New();
     
-    vtkSmartPointer<vtkFloatArray> arrS = vtkSmartPointer<vtkFloatArray>::New();
-    arrS->SetName("Sine");
-    table->AddColumn(arrS);
+    vtkSmartPointer<vtkFieldData> field =
+    vtkSmartPointer<vtkFieldData>::New();
     
-    // Fill in the table with some example values
-    int numPoints = 69;
-    float inc = 7.5 / (numPoints-1);
-    table->SetNumberOfRows(numPoints);
-    for (int i = 0; i < numPoints; ++i)
+    for (unsigned int i = 0 ; i < 2 ; i++)
     {
-        table->SetValue(i, 0, i * inc);
-        table->SetValue(i, 1, cos(i * inc));
-        table->SetValue(i, 2, sin(i * inc));
+        vtkSmartPointer<vtkDoubleArray> array_s =
+        vtkSmartPointer<vtkDoubleArray>::New();
+        vtkSmartPointer<vtkDoubleArray> array_x =
+        vtkSmartPointer<vtkDoubleArray>::New();
+//        vtkSmartPointer<vtkFieldData> field =
+//        vtkSmartPointer<vtkFieldData>::New();
+        //vtkSmartPointer<vtkDataObject> data =
+        //vtkSmartPointer<vtkDataObject>::New();
+        
+        for (int b = 0; b < 30; b++)   /// Assuming an array of 30 elements
+        {
+            double val = vtkMath::Random(0.0,2.0);
+            //double tuple[2];
+            //tuple[0] = b-10;
+            //tuple[1] = val;
+            array_s->InsertValue(b, val);
+            //array_s->InsertTuple(b, tuple);
+            double x_val = b-10;
+            array_x->InsertValue(b, x_val);
+        }
+        field->AddArray(array_x);
+        field->AddArray(array_s);
+//        data->SetFieldData(field);
+        //plot->AddDataObjectInput(data);
+        
+        //connect index and X value array.
+        //plot->SetPointComponent(0, 0);
+        //plot->SetPointComponent(i, 2*i);
+//        plot->SetDataObjectXComponent(0, 0);
+        plot->SetDataObjectXComponent(i, 2*i);
+
+        // connect index and Y value array.
+ //       plot->SetDataObjectYComponent(0, 1);
+        plot->SetDataObjectYComponent(i, 2*i+1);
+        
+        //plot->AddDataObjectInput(data);
     }
+    data->SetFieldData(field);
     
-    // Set up the view
-    vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
-    view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
+    plot->AddDataObjectInput(data);
     
-    // Add multiple line plots, setting the colors etc
-    vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
-    view->GetScene()->AddItem(chart);
-    vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+    plot->SetPlotColor(1,1,1,0);
+    plot->SetPlotColor(1,0,1,0);
     
-//#if VTK_MAJOR_VERSION <= 5
-//    line->SetInput(table, 0, 1);
-//#else
-    line->SetInputData(table, 0, 1);
-//#endif
+    vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+    renderer->AddActor(plot);
     
-    line->SetColor(0, 255, 0, 255);
-    line->SetWidth(1.0);
-    line = chart->AddPlot(vtkChart::LINE);
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+    vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer( renderer );
+    renderWindow->SetSize(500,500);
     
-//#if VTK_MAJOR_VERSION <= 5
-//    line->SetInput(table, 0, 2);
-//#else
-    line->SetInputData(table, 0, 2);
-//#endif
+    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    interactor->SetRenderWindow( renderWindow );
     
-    line->SetColor(255, 0, 0, 255);
-    line->SetWidth(5.0);
-    
-    // For dotted line, the line type can be from 2 to 5 for different dash/dot
-    // patterns (see enum in vtkPen containing DASH_LINE, value 2):
-#ifndef WIN32
-    line->GetPen()->SetLineType(vtkPen::DASH_LINE);
-#endif
-    // (ifdef-ed out on Windows because DASH_LINE does not work on Windows
-    //  machines with built-in Intel HD graphics card...)
-    
-    //view->GetRenderWindow()->SetMultiSamples(0);
-    
-    // Start interactor
-    view->GetInteractor()->Initialize();
-    view->GetInteractor()->Start();
+    // Initialize the event loop and then start it
+    interactor->Initialize();
+    interactor->Start();
     
     return EXIT_SUCCESS;
 }
+
+
+
+//#include "vtkRenderer.h"
+//#include "vtkRenderWindow.h"
+//#include "vtkRenderWindowInteractor.h"
+//#include "vtkSmartPointer.h"
+//#include "vtkObjectFactory.h"
+//#include "vtkContext2D.h"
+//#include "vtkContextItem.h"
+//#include "vtkContextActor.h"
+//#include "vtkContextScene.h"
+//#include "vtkPen.h"
+//#include "vtkBrush.h"
+//#include "vtkTextProperty.h"
+//#include "vtkOpenGLContextDevice2D.h"
+//#include "vtkStdString.h"
+//
+//#include "mxString.h"
+//#include "mxMatrix.h"
+//
+//#define VTK_CREATE(type, name) \
+//vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+//
+//
+////----------------------------------------------------------------------------
+//class APIDiagram : public vtkContextItem
+//{
+//public:
+//
+//    //char *m_input;
+//
+//    static APIDiagram *New();
+//    vtkTypeMacro(APIDiagram, vtkContextItem);
+//    // Paint event for the chart, called whenever the chart needs to be drawn
+//    virtual bool Paint(vtkContext2D *painter);
+//
+//    //void SetInput(const char *input) {m_input = input;};
+//};
+//
+//
+////----------------------------------------------------------------------------
+//int main( int, char *[] )
+//{
+//    // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
+//    VTK_CREATE(vtkContextActor, actor);
+//    VTK_CREATE(APIDiagram, diagram);
+//    actor->GetScene()->AddItem(diagram);
+//    VTK_CREATE(vtkRenderer, renderer);
+//    renderer->SetBackground(.2, .3, .4);
+//    VTK_CREATE(vtkRenderWindow, renderWindow);
+//    renderWindow->SetSize(800, 600);
+//    renderWindow->AddRenderer(renderer);
+//    renderer->AddActor(actor);
+//
+//    VTK_CREATE(vtkRenderWindowInteractor, interactor);
+//    interactor->SetRenderWindow(renderWindow);
+//    //renderWindow->SetMultiSamples(0);
+//    renderWindow->Render();
+//
+//    interactor->Start();
+//
+//    return 1;
+//}
+//
+//// Make our new derived class to draw a diagram
+//vtkStandardNewMacro(APIDiagram);
+//
+////// This function draws our API diagram
+////bool APIDiagram::Paint(vtkContext2D *painter)
+////{
+////    // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
+////    painter->GetTextProp()->SetVerticalJustificationToCentered();
+////    painter->GetTextProp()->SetJustificationToCentered();
+////    painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
+////    painter->GetTextProp()->SetFontSize(24);
+////    painter->GetPen()->SetColor(0, 0, 0);
+////
+////    painter->GetBrush()->SetColor(100, 255, 100,25);
+////    painter->DrawRect(100, 50, 200, 100);
+////    painter->DrawString(200, 100, "OpenGL");
+////
+////    painter->GetBrush()->SetColor(255, 100, 0,255);
+////    painter->DrawRect(300, 50, 200, 100);
+////    painter->DrawString(400, 100, "Others?");
+////
+////    painter->GetBrush()->SetColor(100, 0, 255);
+////    painter->DrawRect(500, 50, 200, 100);
+////    painter->DrawString(600, 100, "Others?");
+////
+////    painter->GetBrush()->SetColor(180, 180, 255);
+////    painter->DrawRect(100, 150, 600, 100);
+////    painter->DrawString(400, 200, "2D API");
+////
+////    painter->GetBrush()->SetColor(255, 255, 180);
+////    painter->DrawRect(100, 250, 600, 200);
+////    painter->DrawString(400, 400, "Canvas API");
+////
+////    painter->GetBrush()->SetColor(180, 255, 180,75);
+////    painter->DrawRect(100, 250, 300, 100);
+////    painter->DrawString(250, 300, "Point Mark");
+////
+////    painter->GetBrush()->SetColor(255, 255, 255,255);
+////    painter->DrawRect(100, 450, 600, 100);
+////    painter->DrawString(400, 500, "Canvas View");
+////
+////    return true;
+////}
+//
+//
+//// This function draws our API diagram
+//bool APIDiagram::Paint(vtkContext2D *painter)
+//{
+//    // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
+//    painter->GetTextProp()->SetVerticalJustificationToCentered();
+//    painter->GetTextProp()->SetJustificationToCentered();
+//    painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
+//    painter->GetTextProp()->SetFontSize(24);
+//    painter->GetPen()->SetColor(0, 0, 0);
+//
+//
+//    const char *input = " {Table}{A}{B}{C} {1}{1a}{1b}{1c} {2}{2a}{2b}{2c}";
+//    mxString s;
+//    s.Assign(input);
+//
+//    int size_C = 4;
+//    int size_R = 3;
+//
+//    int window_size[2];
+//    window_size[0] = 800;
+//    window_size[1] = 600;
+//
+//    int field_size[2];
+//    field_size[0] = window_size[0]/size_C;
+//    field_size[1] = window_size[1]/size_R;
+//
+//
+//    mxList< mxString > list;
+//
+//    s.ExtractStrings('{', '}', list);
+//
+//    painter->GetBrush()->SetColor(100, 100, 100, 255);
+//
+//    painter->GetPen()->SetColor(255,255,0,255);
+//    painter->GetTextProp()->SetColor(1,1,0);// notice: this method takes doubles (range 0 to 1)!
+//
+//    mxMatrix< mxString > table;
+//    table.SetDimensions(size_R, size_C);
+//
+//    mxListIterator<mxString> it;
+//    it.SetToBegin(list);
+//    for(int r=table.GetNumberOfRows()-1; r>=0 && it.IsValid(); r--)
+//    {
+//        for(int c=0; c<size_C && it.IsValid(); c++, it.MoveToNext())
+//        {
+//            table(r,c).Assign(it.GetElement());
+//        }
+//    }
+//
+//    for(int r=0; r<table.GetNumberOfRows(); r++)
+//    {
+//        for(int c=0; c<table.GetNumberOfColumns(); c++)
+//        {
+//            painter->DrawRect(c*field_size[0], r*field_size[1], (c+1)*field_size[0], (r+1)*field_size[1]);
+//            painter->DrawString( ((2*c+1)*field_size[0])/2, ((2*r+1)*field_size[1])/2, table(r,c).Get_C_String());
+//        }
+//    }
+//
+//    return true;
+//}
+//
+
 
 
 
@@ -229,8 +417,8 @@ int main(int, char *[])
 // Program:   mipx
 // Module:    test_VTK_over_libs.cpp
 // 
-// Authors: Danilo Babin.
-// Copyright (c) Danilo Babin.
+// Authors: Danilo Babin, Hrvoje Leventic.
+// Copyright (c) Danilo Babin, Hrvoje Leventic.
 // All rights reserved.
 // See Copyright.txt
 //
@@ -978,79 +1166,4 @@ int main(int, char *[])
 //
 //
 //
-//
-////----------------------------------------------------------------------------------------------
-//
-//
-//
-//
-//
-////#include <vtkCamera.h>
-////#include <vtkJPEGReader.h>
-////#include <vtkImageData.h>
-////#include <vtkImageMapper.h> // Note: this is a 2D mapper (cf. vtkImageActor which is 3D)
-////#include <vtkActor2D.h>
-////#include <vtkProperty2D.h>
-////#include <vtkRenderer.h>
-////#include <vtkRenderWindow.h>
-////#include <vtkRenderWindowInteractor.h>
-////#include <vtkSmartPointer.h>
-////
-////int main(int argc, char **argv)
-////{
-////    vtkSmartPointer<vtkJPEGReader> reader =
-////    vtkSmartPointer<vtkJPEGReader>::New();
-////    reader->SetFileName("/Users/danilobabin/-DIP_IMAGES/Alis Michalis Vencanje 2015_10/DSC_7001.jpg");
-////    reader->Update(); // why is this necessary? shouldn't the VTK pipeline take care of this automatically?
-////    
-////    vtkSmartPointer<vtkImageMapper> mapper =
-////    vtkSmartPointer<vtkImageMapper>::New();
-////    mapper->SetInputData(reader->GetOutput());
-////    mapper->SetColorWindow(255); // width of the color range to map to
-////    mapper->SetColorLevel(127.5); // center of the color range to map to
-//////    int extent[2];
-//////    extent[0] = extent[1] = 200;
-//////    mapper->SetCustomDisplayExtents(extent);
-////    
-////    vtkSmartPointer<vtkActor2D> image =
-////    vtkSmartPointer<vtkActor2D>::New();
-////    image->SetMapper(mapper);
-////    
-////    vtkSmartPointer<vtkRenderer> renderer =
-////    vtkSmartPointer<vtkRenderer>::New();
-////    renderer->AddActor(image);
-////    
-////    vtkSmartPointer<vtkRenderWindow> window =
-////    vtkSmartPointer<vtkRenderWindow>::New();
-////    window->AddRenderer(renderer);
-////    
-////    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-////    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-////    interactor->SetRenderWindow(window);
-////    
-////    // Set window to the image size. Note: why is this so cumbersome?
-////    //int imageSize[3];
-////    //reader->GetOutput()->GetDimensions(imageSize);
-////    //window->SetSize(imageSize[0], imageSize[1]);
-////    //reader->GetOutput()->GetDimensions(imageSize);
-////    int *window_size = window->GetSize();
-////    //reader->GetOutput()->SetDimensions(window_size);
-////    //image->SetPosition(0,0);
-////    //image->SetPosition2(window_size[0],window_size[1]);
-////    image->SetWidth(1.0);//window_size[0]);
-////    image->SetHeight(1.0);
-////    
-////    //renderer->GetActiveCamera()->Zoom(0.05);
-////    
-////    window->Render();
-////    renderer->GetActiveCamera()->Zoom(500);
-////    window->Render();
-////    // Here we'd normally call window->Render() to run the pipeline assembled above,
-////    // But instead we'll start an event loop using an interactor,
-////    // which prevents the program from returning as soon as it opens the image
-////    interactor->Start();
-////    
-////    return EXIT_SUCCESS;
-////}
-////
 //

@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxDataObjectFactory.h
  
-  Authors: Danilo Babin.
-  Copyright (c) Danilo Babin.
+  Authors: Danilo Babin, Hrvoje Leventic.
+  Copyright (c) Danilo Babin, Hrvoje Leventic.
   All rights reserved.
   See Copyright.txt
   
@@ -83,6 +83,7 @@ public:
         if(data_object->GetClassName()==this->GetClassName().Get_C_String())
         {
             this->m_created_objects.AddToEnd(data_object);
+            data_object->internalSetDataObjectFactory(this);
             return 1;
         }
         return 0;
@@ -172,7 +173,7 @@ mxDataObjectFactoryT<T>::~mxDataObjectFactoryT()
 template<class T>
 mxDataObject* mxDataObjectFactoryT<T>::Create()
 {
-    T *t = new T;
+    T *t = new T();
     mxDataObject *obj = static_cast<mxDataObject*>(t);
     obj->internalSetDataObjectFactory(this);
     this->m_created_objects.AddToEnd(obj);

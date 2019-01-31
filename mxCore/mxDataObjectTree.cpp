@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxDataObjectTree.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -132,6 +132,7 @@ mxDataObject* mxDataObjectTree::Create(const char *class_or_type_name, const cha
             return obj;
         }
     }
+    std::cout<<"mxDataObjectTree::Create(): could not find factory for class/type name class_or_type_name='"<<class_or_type_name<<"'"<<std::endl;
     return NULL;
 }
 
@@ -156,7 +157,7 @@ mxDataObject* mxDataObjectTree::GetDataObject(const char *data_object_name)
 
 mxList<mxDataObject*> mxDataObjectTree::Load(const char *file_names, const char *loading_class_name)
 {
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT IMPLEMENTED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOT IMPLEMENTED YET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     mxList<mxDataObject*> l;
     return l;
 }

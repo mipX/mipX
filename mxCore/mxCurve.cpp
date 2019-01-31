@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxCurve.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -178,6 +178,256 @@ int mxCurve::IsEmpty()
 }
 
 
+int mxCurve::Load_Legacy_SingleArrayFile_v2(const char *file_name)
+{
+    std::ifstream input_file;
+    input_file.open(file_name,std::ios::binary);
+    if(!input_file)
+    {
+        std::cout<<"bdCurveXY::LoadSingleArrayFile_v2() : Unable to open single array file: "<<file_name<<std::endl;
+        return 0;
+    }
+    
+    
+    char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
+    unsigned int amount_of_characters_to_load = 100000;
+    
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) return 0;
+    if(text_line[0]!='%' || text_line[1]!='S' || text_line[2]!='i' || text_line[3]!='n' || text_line[4]!='g' || text_line[5]!='l' || text_line[6]!='e' ||
+       text_line[7]!=' ' || text_line[8]!='A' || text_line[9]!='r' || text_line[10]!='r' || text_line[11]!='a' || text_line[12]!='y' ||
+       text_line[13]!=' ' || text_line[14]!='F' || text_line[15]!='i' || text_line[16]!='l' || text_line[17]!='e' ||  text_line[18]!=':')
+    { input_file.close(); return 0; }
+    
+    // load version
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(text_line[0]!='%' && text_line[1]!='v') { input_file.close(); return 0; }
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(text_line[0]!='%') { input_file.close(); return 0; }
+    mxString bds;
+    bds.Append(&(text_line[1]));
+    mxList<int> list;
+    bds.ExtractNumbers(list);
+    if(list.IsEmpty())
+    {
+        std::cout<<"bdCurveXY::LoadSingleArrayFile_v2(): No version value found!"<<std::endl;
+        input_file.close();
+        return 0;
+    }
+    if(list.GetBeginElement()>2)
+    {
+        std::cout<<"bdCurveXY::LoadSingleArrayFile_v2(): Version higher than supported, version: "<<list.GetBeginElement()<<std::endl;
+        input_file.close();
+        return 0;
+    }
+    
+//    // read object tag.
+//    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+//    if(text_line[0]!='%' && text_line[1]!='t') { input_file.close(); return 0; }
+//    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+//    if(text_line[0]!='%') { input_file.close(); return 0; }
+//    this->LoadTags(&(text_line[1]));
+    
+    // skip tag reading - check for the existing fields, but perform nothing.
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(text_line[0]!='%' && text_line[1]!='t') { input_file.close(); return 0; }
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(text_line[0]!='%') { input_file.close(); return 0; }
+    
+    
+    
+    //Load X array
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_line, amount_of_characters_to_load))
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v2(): error reading X array!"<<std::endl;
+        std::cout<<"text_buffer: "<<text_line<<std::endl;
+        this->Reset();
+        input_file.close();
+        return 0;
+    }
+
+//    if(!this->m_X_values. LoadFromString_DoubleValues(text_line))
+//    {
+//        cout<<"bdCurveXY::LoadSingleArrayFile_v2(): error loading X array! File name: "<<file_name<<endl;
+//        cout<<"text_line = "<<text_line<<endl;
+//        m_x.Reset();
+//        m_y.Reset();
+//        input_file.close();
+//        return 0;
+//    }
+    
+    //Load Y array
+    if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_Y_Values()), text_line, amount_of_characters_to_load))
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v2(): error reading Y array!"<<std::endl;
+        std::cout<<"text_buffer: "<<text_line<<std::endl;
+        this->Reset();
+        input_file.close();
+        return 0;
+    }
+//    if(!m_y.LoadFromString_DoubleValues(text_line))
+//    {
+//        cout<<"bdCurveXY::LoadSingleArrayFile_v2(): error loading Y array! File name: "<<file_name<<endl;
+//        cout<<"text_line = "<<text_line<<endl;
+//        //Delete both arrays
+//        m_x.Reset();
+//        m_y.Reset();
+//        input_file.close();
+//        return 0;
+//    }
+    
+    if(this->Get_X_Values()->GetNumberOfElements() != this->Get_Y_Values()->GetNumberOfElements())
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v2(): error: unequal size of X and Y values arrays, size_of_X="<<this->Get_X_Values()->GetNumberOfElements()<<", size_of_Y="<<this->Get_Y_Values()->GetNumberOfElements()<<std::endl;
+        this->Reset();
+        input_file.close();
+        return 0;
+    }
+    
+    if(this->IsEmpty())
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v2(): error: loaded curve is empty!"<<std::endl;
+        input_file.close();
+        return 0;
+    }
+    
+    input_file.close();
+    return 1;
+    
+//    if(m_x.GetNumberOfElements()!=m_y.GetNumberOfElements())
+//    {
+//        cout<<"bdCurveXY::LoadSingleArrayFile_v2(): loaded X and Y arrays are not of the same size: X= "<<m_x.GetNumberOfElements()<<", Y= "<<m_y.GetNumberOfElements()<<endl;
+//        m_x.Reset();
+//        m_y.Reset();
+//        input_file.close();
+//        return 0;
+//    }
+//
+//    if(m_x.GetNumberOfElements()==0)
+//    {
+//        cout<<"bdCurveXY::LoadSingleArrayFile()_v2: no elemetns loaded, array is empty!"<<endl;
+//        input_file.close();
+//        return 0;
+//    }
+//
+//    input_file.close();
+//    return 1;
+}
+
+
+
+int mxCurve::Load_Legacy_SingleArrayFile_v2a(const char *file_name)
+{
+    std::ifstream file;
+    file.open(file_name,std::ios::binary);
+    if(!file)
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3() : Error opening file: "<<file_name<<std::endl;
+        return 0;
+    }
+    
+    const unsigned int amount_of_characters_to_load = 1000000;
+    char text_buffer[amount_of_characters_to_load];
+    
+    
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) return 0;
+    if(text_buffer[0]!='%' || text_buffer[1]!='S' || text_buffer[2]!='i' || text_buffer[3]!='n' || text_buffer[4]!='g' || text_buffer[5]!='l' || text_buffer[6]!='e' ||
+       text_buffer[7]!=' ' || text_buffer[8]!='A' || text_buffer[9]!='r' || text_buffer[10]!='r' || text_buffer[11]!='a' || text_buffer[12]!='y' ||
+       text_buffer[13]!=' ' || text_buffer[14]!='F' || text_buffer[15]!='i' || text_buffer[16]!='l' || text_buffer[17]!='e' ||  text_buffer[18]!=':')
+    { file.close(); return 0; }
+    
+    // load version
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%' && text_buffer[1]!='v') { file.close(); return 0; }
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%') { file.close(); return 0; }
+    mxString text_string;
+    text_string.Append(&(text_buffer[1]));
+    mxList< int > list;
+    text_string.ExtractNumbers(list);
+    if(list.IsEmpty())
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): No version value found!"<<std::endl;
+        file.close();
+        return 0;
+    }
+    if(list.GetBeginElement()>2)
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): Version higher than supported, version: "<<list.GetBeginElement()<<std::endl;
+        file.close();
+        return 0;
+    }
+    
+    // if version is not 2, but is not higher than 2, just return 0 without notification, it will be handeled with earlier load methods.
+    if(list.GetBeginElement()!=2)
+    {
+        return 0;
+    }
+    
+    // read labels.
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%' && text_buffer[1]!='l') { file.close(); return 0; }
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%') { file.close(); return 0; }
+    this->SetLabelFor_X_Axis(&(text_buffer[1]));
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%') { file.close(); return 0; }
+    this->SetLabelFor_Y_Axis(&(text_buffer[1]));
+    
+    // skip tag reading - check for the existing fields, but perform nothing.
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%' && text_buffer[1]!='t') { file.close(); return 0; }
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(text_buffer[0]!='%') { file.close(); return 0; }
+    
+    // read X values
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    
+    //mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load);
+    
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load))
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error reading X array!"<<std::endl;
+        std::cout<<"text_buffer: "<<text_buffer<<std::endl;
+        this->Reset();
+        file.close();
+        return 0;
+    }
+    
+    // read Y values
+    if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
+    if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_Y_Values()), text_buffer, amount_of_characters_to_load))
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error reading Y array!"<<std::endl;
+        std::cout<<"text_buffer: "<<text_buffer<<std::endl;
+        this->Reset();
+        file.close();
+        return 0;
+    }
+    
+    if(this->Get_X_Values()->GetNumberOfElements() != this->Get_Y_Values()->GetNumberOfElements())
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error: unequal size of X and Y values arrays, size_of_X="<<this->Get_X_Values()->GetNumberOfElements()<<", size_of_Y="<<this->Get_Y_Values()->GetNumberOfElements()<<std::endl;
+        this->Reset();
+        file.close();
+        return 0;
+    }
+    
+    if(this->IsEmpty())
+    {
+        std::cout<<"mxCurve::Load_Legacy_SingleArrayFile_v3(): error: loaded curve is empty!"<<std::endl;
+        file.close();
+        return 0;
+    }
+    
+    file.close();
+    return 1;
+}
+
+
+
+
 int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
 {
     std::ifstream file;
@@ -245,7 +495,7 @@ int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
     // read X values
     if(!file.getline(text_buffer, amount_of_characters_to_load)) { file.close(); return 0; }
     
-    mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load);
+    //mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load);
     
     if(!mxArrayFunctions::LoadFromStringOfDoubleValues(*(this->Get_X_Values()), text_buffer, amount_of_characters_to_load))
     {
@@ -290,6 +540,8 @@ int mxCurve::Load_Legacy_SingleArrayFile_v3(const char *file_name)
 int mxCurve::LoadMatlabFile(const char *file_name)
 {
     if(this->Load_Legacy_SingleArrayFile_v3(file_name)) return 1;
+    if(this->Load_Legacy_SingleArrayFile_v2a(file_name)) return 1;
+    if(this->Load_Legacy_SingleArrayFile_v2(file_name)) return 1;
     return 0;
 }
 

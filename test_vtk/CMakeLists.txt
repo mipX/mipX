@@ -25,7 +25,8 @@ endif()
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../mxCore
-    ${PROJECT_SOURCE_DIR}/../mxImageProcessing
+    ${PROJECT_SOURCE_DIR}/../mxStandard
+    ${PROJECT_SOURCE_DIR}/../mxProcessing
     ${PROJECT_SOURCE_DIR}/../vmxCore
     ${PROJECT_SOURCE_DIR}/../vmxGUI
 )
@@ -39,7 +40,8 @@ set( ${TARGET_NAME}_HEADERS
 
 set( ${TARGET_NAME}_LIBS
     mxCore
-    mxImageProcessing
+    mxStandard
+    mxProcessing
     vmxCore
     vmxGUI
 )
@@ -48,7 +50,7 @@ set( MACOSX_RESOURCE_FILES ${CMAKE_SOURCE_DIR}/Files/Icons/mipx_icon_mipx.png )
 set( MACOSX_BUNDLE_INFO_STRING "@EXE_NAME@ - Version ${VERSION}" )
 set( MACOSX_BUNDLE_BUNDLE_VERSION ${VERSION} )
 set( MACOSX_BUNDLE_ICON_FILE "mipx_icon_mipx.png" )
-set( MACOSX_BUNDLE_GUI_IDENTIFIER "com.sri.aic" )
+set( MACOSX_BUNDLE_GUI_IDENTIFIER "mipx" )
 set( MACOSX_BUNDLE_BUNDLE_NAME "@EXE_NAME@" )
 
 

@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxGUIEventDetector.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -18,7 +18,7 @@
 
 
 
-#if defined(vmxGUIEventDetector_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
+#if defined(vmxGUIEventDetector_USE_SOURCE_CODE) || defined(vmxGUI_USE_SOURCE_CODE)
     #define vmxGUIEventDetector_API
 #else
     #if defined(_MSC_VER)
@@ -39,7 +39,7 @@
 
 
 #ifndef vmxGUIEventDetector_H
-	#define vmxGUIEventDetector_H
+#define vmxGUIEventDetector_H
 
 
 
@@ -48,7 +48,8 @@
 
 
 
-
+/// Detect a double click. Double click is a sequence of 2 button_down events in which the position of both events is close
+/// enough and time interval between them is short enough (specified in the class).
 
 class vmxGUIEventDetector_API vmxDoubleClickDetector
 {
@@ -65,8 +66,8 @@ protected:
     int m_is_double_clicked;
     
     
-    using clock             = std::chrono::system_clock;
-    using time_point_type   = std::chrono::time_point < clock, std::chrono::milliseconds > ;
+    using clock = std::chrono::system_clock;
+    using time_point_type = std::chrono::time_point < clock, std::chrono::milliseconds > ;
     
     /// Parameters to measure time between clicks.
     time_point_type m_time_of_left_click_in_ms, m_time_of_left_click_in_ms2;
@@ -137,7 +138,11 @@ public:
 
 
 
-class vmxGUIEventDetector_API vmxMouseDragDetector
+
+/// Detect a single click. Single click is a sequence "button_down, button_up" events in which the position of both events is close
+/// enough (specified in the class).
+
+class vmxGUIEventDetector_API vmxSingleClickDetector
 {
     
 protected:
@@ -145,9 +150,70 @@ protected:
     // for detecting double click.
     int m_left_button_down_previous_position[2];
     
+    /// Indicator that will be set when the double click is detected.
+    int m_is_single_clicked;
+    
+public:
+    
+    ///Constructor.
+    vmxSingleClickDetector()
+    {
+        m_left_button_down_previous_position[0] = m_left_button_down_previous_position[1] = 0;
+        m_is_single_clicked = 0;
+    };
+    
+    /// Destructor.
+    ~vmxSingleClickDetector(){};
+    
+    /// For input click position, reset local members values for single click detection.
+    void OnLeftButtonDown(int pos1, int pos2)
+    {
+        m_is_single_clicked = 0;
+        
+        m_left_button_down_previous_position[0] = pos1;
+        m_left_button_down_previous_position[1] = pos2;
+    };
+    
+    
+    void OnLeftButtonUp(int pos1, int pos2)
+    {
+        int xdist = pos1 - m_left_button_down_previous_position[0];
+        int ydist = pos2 - m_left_button_down_previous_position[1];
+        
+        int move_distance_squared = (xdist*xdist + ydist*ydist);
+        
+        // Reset m_number_of_clicks if the mouse moved further than desired for double click.
+        if(move_distance_squared > 25 )
+        {
+            m_is_single_clicked = 0;
+        }
+        else
+        {
+            m_is_single_clicked = 1;
+        }
+        
+    };
+    
+    int IsSingleClicked(){return m_is_single_clicked;};
+};
+
+
+/// Detector for mouse drag event.
+
+class vmxGUIEventDetector_API vmxMouseDragDetector
+{
+    
+protected:
+    
+    /// Position of the last button down event.
+    int m_left_button_down_previous_position[2];
+    
     /// Indicator that will be set when the drag is detected.
     int m_is_dragging;
     
+    /// Indicator that will be set when the drop is detected.
+    int m_is_dropped;
+
     /// Indicates if the left mouse button is down (pressed). This indicator is reset on left button up event.
     int m_is_left_button_down;
     
@@ -158,11 +224,19 @@ public:
     {
         m_left_button_down_previous_position[0] = m_left_button_down_previous_position[1] = 0;
         m_is_dragging = 0;
+        m_is_dropped = 0;
         m_is_left_button_down = 0;
     };
     
     /// Destructor.
     ~vmxMouseDragDetector(){};
+    
+    /// Get the start position of the drag event. It is the position of the last button down event.
+    void GetLeftButtonDragStartPosition(int &output_pos1, int &output_pos2)
+    {
+        output_pos1 = m_left_button_down_previous_position[0];
+        output_pos2 = m_left_button_down_previous_position[1];
+    };
     
     /// To be called on left button down event.
     void OnLeftButtonDown(int pos1, int pos2)
@@ -170,6 +244,7 @@ public:
         m_left_button_down_previous_position[0] = pos1;
         m_left_button_down_previous_position[1] = pos2;
         m_is_dragging = 0;
+        m_is_dropped = 0;
         m_is_left_button_down = 1;
     };
     
@@ -197,15 +272,27 @@ public:
     /// To be called on left button up event.
     void OnLeftButtonUp(int pos1, int pos2)
     {
+        if(m_is_dragging) m_is_dropped = 1;
+        
         m_is_dragging = 0;
         m_is_left_button_down = 0;
     };
     
-    int IsDragging(){return m_is_dragging;};
+    /// Indicates if dragging is being performed.
+    int IsDragging()
+    {
+        return m_is_dragging;
+    };
+    
+    /// Indicates if drop event was detected.
+    int IsDropped()
+    {
+        return m_is_dropped;
+    };
 };
 
 
-
+/// Detector for item selection event.
 
 class vmxGUIEventDetector_API vmxItemSelectionDetector
 {
@@ -276,9 +363,10 @@ public:
         }
     };
 
-    
+    /// Indicate if a single selection event was detected.
     int IsSingleSelectionDetected(){return m_is_single_selection_detected;};
     
+    /// Indicate if a multiple selection event was detected.
     int IsMultipleSelectionDetected(){return m_is_CTRL_key_down;};
 };
 

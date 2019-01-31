@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImageData.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -38,7 +38,6 @@ vmxImageDataT<T>::vmxImageDataT()
 template<class T>
 vmxImageDataT<T>::~vmxImageDataT()
 {
-    //cout<<" vmxImageDataT<T>::~~vmxImageDataT() ";
     this->vmxImageDataT<T>::Reset();
 }
 
@@ -46,7 +45,6 @@ vmxImageDataT<T>::~vmxImageDataT()
 template<class T>
 int vmxImageDataT<T>::internalAttachToPreset_mxImage()
 {
-    //cout<<"  vmxImageDataT<T>::internalAttachToPreset_mxImage()  ";
     int type_size = sizeof(T);
     
     this->m_vtk_image_data_array.SetNumberOfElements(mxImageT<T>::GetDimension_T());
@@ -334,9 +332,7 @@ int vmxImageDataT<T>::LoadVTKFile(const char *file_name)
 {
     this->vmxImageDataT<T>::Reset();
     
-    //vtkSmartPointer<vtkXMLImageDataReader> reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
     vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-    //vtkSmartPointer<vtkStructuredPointsReader> reader = vtkSmartPointer<vtkStructuredPointsReader>::New();
     reader->SetFileName(file_name);
     reader->Update();
     
@@ -362,10 +358,7 @@ int vmxImageDataT<T>::LoadVTKFile(const char *file_name)
         }
     }
     
-    //reader->GetOutput();
-    
     vtkSmartPointer<vtkImageShiftScale> ic = vtkSmartPointer<vtkImageShiftScale>::New();
-    //ic->SetInputConnection(reader->GetOutputPort());
     ic->SetInputData(reader->GetOutput());
     
     int type_size = sizeof(T);

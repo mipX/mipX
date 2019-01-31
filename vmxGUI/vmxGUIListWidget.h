@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxGUIListWidget.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -39,7 +39,7 @@
 
 
 #ifndef vmxGUIListWidget_H
-	#define vmxGUIListWidget_H
+#define vmxGUIListWidget_H
 
 
 
@@ -48,7 +48,7 @@
 #include "mxString.h"
 #include "vmxGUIClipBoard.h"
 #include "vmxGUIEventDetector.h"
-#include "vmxGUIObject.h"
+#include "vmxGUIWidget.h"
 
 
 #include <vtkCallbackCommand.h>
@@ -66,196 +66,8 @@
 
 // Pre-declaration.
 class vmxGUIListWidget;
-
-
-
-//class vmxGUIListWidget_API vmxGUIListWidgetRenderWindowModifiedCallback : public vtkCommand
-//{
-//    /// Indicates if the callback is on or off.
-//    int m_is_active;
-//    
-//public:
-//    
-//    /// Pointer to list_widget that uses this callback.
-//    vmxGUIListWidget *m_list_widget;
-//    
-//    int m_previous_window_size[2];
-//    
-//    /// Constructor.
-//    vmxGUIListWidgetRenderWindowModifiedCallback();
-//    
-//    /// Destructor.
-//    ~vmxGUIListWidgetRenderWindowModifiedCallback();
-//    
-//    /// Initialize the list_widget linked to this callback
-//    void SetListWidget(vmxGUIListWidget *list_widget);
-//    
-//    /// Create new object instance.
-//    static vmxGUIListWidgetRenderWindowModifiedCallback* New();
-//    
-//    /// Turn callback on or off.
-//    void Activate(int is_active);
-//    
-//    /// Method that executes when the callback is called.
-//    virtual void Execute(vtkObject *caller, unsigned long, void *);
-//};
-
-
-
-class vmxGUIListWidget_API vmxGUIListWidgetInteractorLeftButtonDownCallback : public vtkCommand
-{
-    /// Indicates if the callback is on or off.
-    int m_is_active;
-    
-public:
-    
-    /// Pointer to list_widget that uses this callback.
-    vmxGUIListWidget *m_list_widget;
-    
-    /// Constructor.
-    vmxGUIListWidgetInteractorLeftButtonDownCallback();
-    
-    /// Destructor.
-    ~vmxGUIListWidgetInteractorLeftButtonDownCallback();
-    
-    /// Initialize the list_widget linked to this callback
-    void SetListWidget(vmxGUIListWidget *list_widget);
-    
-    /// Create new object instance.
-    static vmxGUIListWidgetInteractorLeftButtonDownCallback* New();
-    
-    /// Turn callback on or off.
-    void Activate(int is_active);
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-
-class vmxGUIListWidget_API vmxGUIListWidgetInteractorLeftButtonUpCallback : public vtkCommand
-{
-    /// Indicates if the callback is on or off.
-    int m_is_active;
-    
-public:
-    
-    /// Pointer to list_widget that uses this callback.
-    vmxGUIListWidget *m_list_widget;
-    
-    /// Constructor.
-    vmxGUIListWidgetInteractorLeftButtonUpCallback();
-    
-    /// Destructor.
-    ~vmxGUIListWidgetInteractorLeftButtonUpCallback();
-    
-    /// Initialize the list_widget linked to this callback
-    void SetListWidget(vmxGUIListWidget *list_widget);
-    
-    /// Create new object instance.
-    static vmxGUIListWidgetInteractorLeftButtonUpCallback* New();
-    
-    /// Turn callback on or off.
-    void Activate(int is_active);
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-
-class vmxGUIListWidget_API vmxGUIListWidgetInteractorMouseMoveCallback : public vtkCommand
-{
-    /// Indicates if the callback is on or off.
-    int m_is_active;
-    
-public:
-    
-    /// Pointer to list_widget that uses this callback.
-    vmxGUIListWidget *m_list_widget;
-    
-    /// Constructor.
-    vmxGUIListWidgetInteractorMouseMoveCallback();
-    
-    /// Destructor.
-    ~vmxGUIListWidgetInteractorMouseMoveCallback();
-    
-    /// Initialize the list_widget linked to this callback
-    void SetListWidget(vmxGUIListWidget *list_widget);
-        
-    /// Create new object instance.
-    static vmxGUIListWidgetInteractorMouseMoveCallback* New();
-    
-    /// Turn callback on or off.
-    void Activate(int is_active);
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-class vmxGUIListWidget_API vmxGUIListWidgetInteractorMouseWheelBackwardCallback : public vtkCommand
-{
-    /// Indicates if the callback is on or off.
-    int m_is_active;
-    
-public:
-    
-    /// Pointer to list_widget that uses this callback.
-    vmxGUIListWidget *m_list_widget;
-    
-    /// Constructor.
-    vmxGUIListWidgetInteractorMouseWheelBackwardCallback();
-    
-    /// Destructor.
-    ~vmxGUIListWidgetInteractorMouseWheelBackwardCallback();
-    
-    /// Initialize the list_widget linked to this callback
-    void SetListWidget(vmxGUIListWidget *list_widget);
-    
-    /// Create new object instance.
-    static vmxGUIListWidgetInteractorMouseWheelBackwardCallback* New();
-    
-    /// Turn callback on or off.
-    void Activate(int is_active);
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-class vmxGUIListWidget_API vmxGUIListWidgetInteractorMouseWheelForwardCallback : public vtkCommand
-{
-    /// Indicates if the callback is on or off.
-    int m_is_active;
-    
-public:
-    
-    /// Pointer to list_widget that uses this callback.
-    vmxGUIListWidget *m_list_widget;
-    
-    /// Constructor.
-    vmxGUIListWidgetInteractorMouseWheelForwardCallback();
-    
-    /// Destructor.
-    ~vmxGUIListWidgetInteractorMouseWheelForwardCallback();
-    
-    /// Initialize the list_widget linked to this callback
-    void SetListWidget(vmxGUIListWidget *list_widget);
-    
-    /// Create new object instance.
-    static vmxGUIListWidgetInteractorMouseWheelForwardCallback* New();
-    
-    /// Turn callback on or off.
-    void Activate(int is_active);
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-// Pre-declaration.
 class vmxGUIListWidgetItem;
+
 
 
 
@@ -267,12 +79,14 @@ public:
 };
 
 
+/// Item class of a list widget.
 
 class vmxGUIListWidget_API vmxGUIListWidgetItem
 {
     
 public:
     
+    /// Define the max number of check boxes allowed for the list widget.
 #define vmxGUIListWidgetItem_max_number_of_checkboxes 10
     
     /// The item can be made to controll/contain other items, this indicator shows if that is the case.
@@ -297,6 +111,9 @@ public:
     /// Indicates if this item has been selected.
     int m_is_selected;
     
+    /// Indicate if only a single item (under the same controller) can be checked. Default is 0 (no).
+    int m_is_exclusively_checked;
+    
     /// Text of the item.
     mxString m_text;
     
@@ -313,7 +130,6 @@ public:
     /// Should be called as: item->AttachSlot(new MySlot);
     void AttachSlot(vmxGUIListWidgetMouseLeftClickSlot *slot);
     
-    
     /// Return pointer to attached external data.
     void* GetData()
     {
@@ -325,6 +141,15 @@ public:
     
     /// Indicates if the checkbox with given index is checked.
     int IsChecked(int checkbox_index);
+    
+    /// Check if the item is a controller.
+    int IsController() { return m_is_controller; };
+    
+    /// Indicates if the item is selected.
+    int IsSelected()
+    {
+        return m_is_selected;
+    };
     
     /// Set the pointer to external data.
     void SetData(void *data)
@@ -341,17 +166,12 @@ public:
 
 
 
-class vmxGUIListWidget_API vmxGUIListWidget : public vmxGUIObject
+/// VTK GUI list widget.
+
+class vmxGUIListWidget_API vmxGUIListWidget : public vmxGUIWidget
 {
     
 public:
-    
-//    /// Pointer to clipboard this object uses.
-//    vmxClipBoard *m_clip_board;
-//    
-    /// ListWidget that contains this list_widget (in case this list_widget is a sub-list_widget). If this list_widget is a root list_widget
-    /// the pointer will contain 'this' address (points to itself).
-    vmxGUIListWidget *m_list_widget;
     
     /// List of items in the widget.
     mxList<vmxGUIListWidgetItem> m_items;
@@ -375,11 +195,11 @@ public:
     /// Notice: this number can be different than the total number of items in the widget.
     int m_number_of_items_in_text_actor;
    
-    /// Detects if double click was performed.
-    vmxDoubleClickDetector m_double_click_detector;
+//    /// Detects if double click was performed.
+//    vmxDoubleClickDetector m_double_click_detector;
     
-    /// Detects if mouse draggung was performed.
-    vmxMouseDragDetector m_mouse_drag_detector;
+//    /// Detects if mouse draggung was performed.
+//    vmxMouseDragDetector m_mouse_drag_detector;
     
     /// Detects if items were selected.
     vmxItemSelectionDetector m_item_selection_detector;
@@ -390,7 +210,6 @@ public:
     /// Index of the picked checkbox. If none, the value will be -1.
     int m_picked_check_box_index;
 
-    
     /// Assigned VTK Render Window Interactor.
     vtkRenderWindowInteractor *m_interactor;
     
@@ -413,27 +232,17 @@ public:
     /// Actor shown to indicate drag event (drag item from list_widget).
     vtkSmartPointer<vtkTextActor> m_drag_actor;
     
-    /// Callback executed when the left button is pressed.
-    vtkSmartPointer<vmxGUIListWidgetInteractorLeftButtonDownCallback> m_left_button_down_callback;
-    
-    /// Callback executed when the left button is released.
-    vtkSmartPointer<vmxGUIListWidgetInteractorLeftButtonUpCallback> m_left_button_up_callback;
-
-    /// Callback executed when the mouse is moved.
-    vtkSmartPointer<vmxGUIListWidgetInteractorMouseMoveCallback> m_mouse_move_callback;
-    
-    /// Callback executed when the mouse wheel backward is detected.
-    vtkSmartPointer<vmxGUIListWidgetInteractorMouseWheelBackwardCallback> m_mouse_wheel_backward_callback;
-    
-    /// Callback executed when the mouse wheel forward is detected.
-    vtkSmartPointer<vmxGUIListWidgetInteractorMouseWheelForwardCallback> m_mouse_wheel_forward_callback;
-
-    
     /// This is the character used to mark items as selected (by default it is underscore '_').
     char m_selection_text_character;
     
     /// Text line used to mark a single line of text as selected.
     mxString m_selection_text_line;
+    
+    /// Pointer to the item that was selected last.
+    vmxGUIListWidgetItem *m_last_selected_item;
+    
+    /// Pointer to the data of the last selected item.
+    void *m_last_selected_item_data;
     
     
     
@@ -469,7 +278,29 @@ public:
     void GetColor(double &r, double &g, double &b);
     
     /// Get item by index.
-    vmxGUIListWidgetItem* GetItem(int item_index) { if(item_index<0 || item_index>=this->GetNumberOfItems()) return NULL; return m_item_pointers[item_index]; };
+    vmxGUIListWidgetItem* GetItem(int item_index)
+    {
+        if(item_index<0 || item_index>=this->GetNumberOfItems()) return NULL;
+        return m_item_pointers[item_index];
+    };
+    
+    /// Get items as an array of item pointers.
+    mxArray<vmxGUIListWidgetItem*>* GetItems()
+    {
+        return &m_item_pointers;
+    };
+    
+    /// Get the last selected item.
+    vmxGUIListWidgetItem** GetLastSelectedItem()
+    {
+        return &m_last_selected_item;
+    };
+    
+    /// Get the data associated with the last selected item.
+    void** GetLastSelectedItemData()
+    {
+        return &m_last_selected_item_data;
+    };
     
     /// Get number of items in the list_widget.
     int GetNumberOfItems() { return m_items.GetNumberOfElements(); };
@@ -492,6 +323,12 @@ public:
     /// Get index of picked item. If none, return -1 (invalid index).
     int GetPickedItemIndex(int pos1, int pos2);
     
+    /// Get array of selected items.
+    void GetSelectedItems(mxArray<vmxGUIListWidgetItem*> &array_of_selected_items);
+    
+    /// Get array of names of selected items.
+    void GetSelectedItemsNames(mxArray<mxString> &array_of_selected_items_names);
+    
     /// Get the size of the list_widget check box actor.
     int GetSizeOfCheckBoxActor(int &output_size1, int &output_size2);
     
@@ -504,6 +341,9 @@ public:
     /// Get visibility of the list_widget (check if the list_widget is visible).
     int GetVisibility();
     
+    /// Check if the given 2D VTK actor is contained in this object.
+    int HasVTKActor2D(vtkActor2D *actor_2D);
+    
     /// Given the input positions, check if the check box actor is picked (if the position falls within the check box actor).
     int IsCheckBoxActorPicked(int pos1, int pos2);
     
@@ -513,35 +353,47 @@ public:
     /// Check if there are multiple items selected (more than one item must be selected).
     int IsMultipleItemsSelected();
     
+    /// Indicate if the object was picked by checking if the screen pick coordinates fall inside the object.
+    int IsPicked(int pos1, int pos2) { return this->IsListWidgetPicked(pos1,pos2); };
+    
     /// Given the input positions, check if the text actor is picked (if the position falls within the text actor).
     int IsTextActorPicked(int pos1, int pos2);
     
     /// Get visibility of this object.
     int IsVisible();
-    
-//    /// Turn on/off listening for render window modified event.
-//    void ListenForRenderWindowModifiedEvent(int is_listening);
-    
-    /// Turn on/off listening for left button down event.
-    void ListenForLeftButtonDownEvent(int is_listening);
-
-    /// Turn on/off listening for mouse move event.
-    void ListenForMouseMoveEvent(int is_listening);
-    
-    /// Turn on/off listening for left button up event.
-    void ListenForLeftButtonUpEvent(int is_listening);
-    
-    /// Turn on/off listening for mouse wheel event.
-    void ListenForMouseWheelBackwardEvent(int is_listening);
-    
-    /// Turn on/off listening for mouse wheel event.
-    void ListenForMouseWheelForwardEvent(int is_listening);
-    
+        
     /// Method being executed when an item is picked.
     virtual void OnItemPicked()
     {
-        cout<<endl<<"picked_item_index="<<m_picked_item_index<<endl<<"picked_check_box_index="<<m_picked_check_box_index<<endl;
+        //cout<<endl<<"picked_item_index="<<m_picked_item_index<<endl<<"picked_check_box_index="<<m_picked_check_box_index<<endl;
     };
+    
+    /// Callback method executed the given event.
+    virtual void OnKeyPress();
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseMove();
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonUp();
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonDown();
+    
+    /// Callback method executed for the given event.
+    virtual void OnLeftButtonDoubleClick();
+    
+    /// Callback method executed for the given event.
+    virtual void OnLeftButtonDrag();
+    
+    /// Callback method executed for the given event.
+    virtual void OnLeftButtonDrop();
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelForward();
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelBackward();
     
     /// Reset the object.
     void Reset();
@@ -565,7 +417,10 @@ public:
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
     
-    /// Set maximum size of the object. Re-implemented from vmxGUIObject.
+    /// Set the main widget and connect visualization objects contained within it.
+    void SetMainWidget(vmxGUIMainWidget *main_widget);
+    
+    /// Set maximum size of the object. Re-implemented from vmxGUIWidget.
     void SetMaximumSize(int max_size_x, int max_size_y);
  
     /// Set the origin (position) of the list_widget.

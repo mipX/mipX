@@ -1,10 +1,10 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    vmxButtonGroup.h
+ Module:    vmxGUIButtonGroup.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -18,28 +18,28 @@
 
 
 
-#if defined(vmxButtonGroup_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
-    #define vmxButtonGroup_API
+#if defined(vmxGUIButtonGroup_USE_SOURCE_CODE) || defined(vmxGUI_USE_SOURCE_CODE)
+    #define vmxGUIButtonGroup_API
 #else
     #if defined(_MSC_VER)
-        #ifdef vmxButtonGroup_EXPORTS
-            #define vmxButtonGroup_API __declspec(dllexport)
+        #ifdef vmxGUIButtonGroup_EXPORTS
+            #define vmxGUIButtonGroup_API __declspec(dllexport)
         #else
-            #define vmxButtonGroup_API __declspec(dllimport)
+            #define vmxGUIButtonGroup_API __declspec(dllimport)
         #endif
     #else
-        #ifdef vmxButtonGroup_EXPORTS
-            #define vmxButtonGroup_API __attribute__((visibility("default")))
+        #ifdef vmxGUIButtonGroup_EXPORTS
+            #define vmxGUIButtonGroup_API __attribute__((visibility("default")))
         #else
-            #define vmxButtonGroup_API
+            #define vmxGUIButtonGroup_API
         #endif
     #endif
 #endif
 
 
 
-#ifndef vmxButtonGroup_H
-#define vmxButtonGroup_H
+#ifndef vmxGUIButtonGroup_H
+#define vmxGUIButtonGroup_H
 
 
 
@@ -47,9 +47,7 @@
 #include "mxArray.h"
 #include "mxList.h"
 #include "mxString.h"
-#include "vmxGUIClipBoard.h"
-#include "vmxGUIObject.h"
-#include "vmxGUIMenu.h"
+#include "vmxGUIWidget.h"
 
 
 #include <vtkCallbackCommand.h>
@@ -69,58 +67,40 @@
 
 
 // Pre-declaration.
-class vmxButtonGroup;
+class vmxGUIButtonGroup;
 
 
 
 
-class vmxButtonGroup_API vmxButtonGroupInteractorLeftButtonUpCallback : public vtkCommand
-{
-    
-public:
-    
-    /// Pointer to text input that uses this callback.
-    vmxButtonGroup *m_button_group;
-    
-    /// Constructor.
-    vmxButtonGroupInteractorLeftButtonUpCallback();
-    
-    /// Destructor.
-    ~vmxButtonGroupInteractorLeftButtonUpCallback();
-    
-    /// Initialize the text input linked to this callback
-    void SetTextInput(vmxButtonGroup *menu_bar);
-    
-    /// Create new object instance.
-    static vmxButtonGroupInteractorLeftButtonUpCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
 
-
-class vmxPushButtonSlot
+class vmxGUIButtonGroup_API vmxGUIButtonGroupSlot
 {
 public:
-    virtual int Execute(vmxButtonGroup *button_group) {cout<<" reimplement this "; return 0;};
-    virtual ~vmxPushButtonSlot() {};
+    virtual int Execute(vmxGUIButtonGroup *button_group)
+    {
+        // reimplement this.
+        return 0;
+    };
+    virtual ~vmxGUIButtonGroupSlot() {};
 };
 
 
 
-class vmxButtonGroup_API vmxButtonGroupItem
+/// GUI class of group of buttons which can be push buttons, radio buttons or check boxes.
+
+class vmxGUIButtonGroup_API vmxGUIButtonGroupItem
 {
     
 public:
     
-    /// Pointer to the menu bar this item belongs to.
-    vmxButtonGroup *m_button_group;
+    /// Pointer to the object this item belongs to.
+    vmxGUIButtonGroup *m_button_group;
     
     /// Indicates if this button is checked (e.g. in case type is radio button or check box).
     int m_is_checked;
     
     /// Slot to be executed when push button is pressed;
-    vmxPushButtonSlot *m_slot;
+    vmxGUIButtonGroupSlot *m_slot;
     
     /// Text of the item.
     mxString m_text;
@@ -130,15 +110,15 @@ public:
 
     
     /// Constructor.
-    vmxButtonGroupItem();
+    vmxGUIButtonGroupItem();
     
     /// Destructor.
-    ~vmxButtonGroupItem();
+    ~vmxGUIButtonGroupItem();
     
     /// Get the position of the text actor on screen.
     void GetOriginOfTextActor(int &output_origin1, int &output_origin2);
     
-    /// Get the size of the menu text actor.
+    /// Get the size of the text actor.
     void GetSizeOfTextActor(int &output_size1, int &output_size2);
     
     /// Given the input positions, check if the item is picked (if the position falls within the text actor).
@@ -153,7 +133,7 @@ public:
 
 
 
-class vmxButtonGroup_API vmxButtonGroup : public vmxGUIObject
+class vmxGUIButtonGroup_API vmxGUIButtonGroup : public vmxGUIWidget
 {
     
 public:
@@ -163,16 +143,13 @@ public:
     {
         CHECK_BOX,
         RADIO_BUTTON,
-        PUSH_BUTTON, // default
+        PUSH_BUTTON, // default is push button
     };
     
     /// Button type of this object.
     vmxInputType m_button_type;
-    
-//    /// Pointer to clipboard this object uses.
-//    vmxClipBoard *m_clip_board;
-//    
-    /// Description text that preceeds the input
+        
+    /// Description text that preceeds the input.
     mxString m_description_text;
     
     /// Text actor of the description text.
@@ -184,26 +161,22 @@ public:
     /// Font size of the used chacaters.
     int m_font_size;
     
-    /// Actors containing the text of menu bar items.
-    mxList< vmxButtonGroupItem > m_items;
-        
-    /// Callback executed when the left button is released.
-    vtkSmartPointer<vmxButtonGroupInteractorLeftButtonUpCallback> m_left_button_up_callback;
-    
+    /// List of items in the group.
+    mxList< vmxGUIButtonGroupItem > m_items;
    
     
     
     /// Constructor.
-    vmxButtonGroup();
+    vmxGUIButtonGroup();
     
     /// Destructor.
-    ~vmxButtonGroup();
+    virtual ~vmxGUIButtonGroup();
     
     /// Create new object instance.
-    static vmxButtonGroup* New();
+    static vmxGUIButtonGroup* New();
     
     /// Add a new item to the menu bar.
-    vmxButtonGroupItem* AddItem(const char *item_name, int is_checked = 0);
+    vmxGUIButtonGroupItem* AddItem(const char *item_name, int is_checked = 0);
     
     /// Get origin (position) of the whole object.
     void GetOrigin(int &origin1, int &origin2);
@@ -212,7 +185,7 @@ public:
     void GetOriginOfDescriptionText(int &origin1, int &origin2);
     
     /// For given input positions, get the picked item. If none return NULL.
-    vmxButtonGroupItem* GetPickedItem(int pos1, int pos2);
+    vmxGUIButtonGroupItem* GetPickedItem(int pos1, int pos2);
     
     /// Get size of the whole object (all actors together).
     void GetSize(int &output_size1, int &output_size2);
@@ -228,6 +201,24 @@ public:
     
 //    /// Set the description text that precedes the input
 //    void SetDescriptionText(const char *description) { m_description.Assign(description); };
+    
+    /// Callback method executed the given event.
+    virtual void OnKeyPress() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseMove() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonUp();
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonDown() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelForward() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelBackward() {};
     
     /// Set size of font in the object.
     void SetFontSize(double font_size);
@@ -250,7 +241,10 @@ public:
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
     
-    /// Set maximum size of the object. Re-implemented from vmxGUIObject.
+    /// Set the main widget and connect visualization objects contained within it.
+    void SetMainWidget(vmxGUIMainWidget *main_widget);
+    
+    /// Set maximum size of the object. Re-implemented from vmxGUIWidget.
     void SetMaximumSize(int max_size_x, int max_size_y);
     
     /// Set the origin (position) of the menu.
@@ -259,7 +253,7 @@ public:
     /// Set visibility of the menu.
     void SetVisibility(int is_visible);
     
-    /// Show the input text.
+    /// Show the input text. // THIS IS LIKE AN UPDATE METHOD!!!!!!!!!!!!!
     int ShowInputText();
     
     /// This will uncheck all items. Used for radio button manipulation.

@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxDataObject.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -69,7 +69,7 @@ int mxDataObject::GetBoundsInWorldCoordinates(double &x_min, double &x_max, doub
 
 int mxDataObject::GetColor(unsigned char *red, unsigned char *green, unsigned char *blue, unsigned char *a)
 {
-    if(!red || !green || !blue || !a) return 0;
+    //if(!red || !green || !blue || !a) return 0;
     *red = m_color[0];
     *green = m_color[1];
     *blue = m_color[2];
@@ -101,6 +101,13 @@ qmxDataObjectPropertiesWidget* mxDataObject::GetPropertiesWidget()
 {
     std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetPropertiesWidget()"<<std::endl;
     return NULL;
+}
+
+
+int mxDataObject::GetVisibilityOfComponent(int component_index)
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetVisibilityOfComponent(int)"<<std::endl;
+    return 0;
 }
 
 

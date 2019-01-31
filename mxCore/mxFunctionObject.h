@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxFunctionObject.h
  
-  Authors: Danilo Babin.
-  Copyright (c) Danilo Babin.
+  Authors: Danilo Babin, Hrvoje Leventic.
+  Copyright (c) Danilo Babin, Hrvoje Leventic.
   All rights reserved.
   See Copyright.txt
   
@@ -111,6 +111,7 @@ public:
 //-----------------------------------------------------------------------
 
 
+/// Base class for function objects.
 
 class mxFunctionObject_API mxFunctionObject : public mxObject
 {

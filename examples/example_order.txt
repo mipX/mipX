@@ -1,5 +1,0 @@
-Order in which examples were made (preferred order for demonstration/learning):
-
-example_BasicVisualization
-example_Skeletonization
-example_HistogramAsCurve

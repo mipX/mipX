@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxGUIMenuBar.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -23,122 +23,8 @@
 
 
 
-
 //-----------------------------------------------------------------------------------------------------
 
-
-
-//vmxGUIMenuBarInteractorLeftButtonDownCallback::vmxGUIMenuBarInteractorLeftButtonDownCallback()
-//{
-//    m_text_input = NULL;
-//}
-//
-//
-//vmxGUIMenuBarInteractorLeftButtonDownCallback::~vmxGUIMenuBarInteractorLeftButtonDownCallback()
-//{
-//    m_text_input = NULL;
-//}
-//
-//
-//void vmxGUIMenuBarInteractorLeftButtonDownCallback::SetTextInput(vmxGUIMenuBar *text_input)
-//{
-//    m_text_input = text_input;
-//}
-//
-//
-//vmxGUIMenuBarInteractorLeftButtonDownCallback* vmxGUIMenuBarInteractorLeftButtonDownCallback::New()
-//{
-//    return new vmxGUIMenuBarInteractorLeftButtonDownCallback;
-//}
-//
-//
-//void vmxGUIMenuBarInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigned long, void *)
-//{
-//    cout<<" down ";
-//    if(m_text_input)
-//    {
-//        if(m_text_input->m_interactor)
-//        {
-//            int pick_pos[2];
-//            m_text_input->m_interactor->GetEventPosition(pick_pos);
-//            
-//            if(m_text_input->IsPicked(pick_pos[0], pick_pos[1]))
-//            {
-//                m_text_input->SetActive(1);
-//            }
-//            else
-//            {
-//                m_text_input->SetActive(0);
-//            }
-//        }
-//    }
-//}
-//
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIMenuBarInteractorLeftButtonUpCallback::vmxGUIMenuBarInteractorLeftButtonUpCallback()
-{
-    m_menu_bar = NULL;
-}
-
-
-vmxGUIMenuBarInteractorLeftButtonUpCallback::~vmxGUIMenuBarInteractorLeftButtonUpCallback()
-{
-    m_menu_bar = NULL;
-}
-
-
-void vmxGUIMenuBarInteractorLeftButtonUpCallback::SetTextInput(vmxGUIMenuBar *menu_bar)
-{
-    m_menu_bar = menu_bar;
-}
-
-
-vmxGUIMenuBarInteractorLeftButtonUpCallback* vmxGUIMenuBarInteractorLeftButtonUpCallback::New()
-{
-    return new vmxGUIMenuBarInteractorLeftButtonUpCallback;
-}
-
-
-void vmxGUIMenuBarInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    //cout<<" up ";
-    if(m_menu_bar)
-    {
-        if(m_menu_bar->m_interactor)
-        {
-            int pick_pos[2];
-            m_menu_bar->m_interactor->GetEventPosition(pick_pos);
-            
-            m_menu_bar->HideMenus();
-            
-            vmxGUIMenuBarItem* item = m_menu_bar->GetPickedItem(pick_pos[0], pick_pos[1]);
-            
-            if(item)
-            {
-                int origin[2];
-                item->GetOriginOfTextActor(origin[0],origin[1]);
-                int size_of_menu[2];
-                item->m_menu.GetSize(size_of_menu[0],size_of_menu[1]);
-                item->m_menu.SetOrigin(origin[0],origin[1]-size_of_menu[1]);
-                //item->m_menu.SetPlacementToUpperLeft();
-                item->m_menu.SetVisibility(1);
-            }
-            else
-            {
-                //m_menu_bar->HideMenus();
-            }
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
 
 
 
@@ -214,11 +100,6 @@ vmxGUIMenuBar::vmxGUIMenuBar()
     
     m_class_name.Assign("vmxGUIMenuBar");
     
-//    m_left_button_down_callback = vtkSmartPointer<vmxGUIMenuBarInteractorLeftButtonDownCallback>::New();
-//    m_left_button_down_callback->SetTextInput(this);
-    m_left_button_up_callback = vtkSmartPointer<vmxGUIMenuBarInteractorLeftButtonUpCallback>::New();
-    m_left_button_up_callback->SetTextInput(this);
-    
     m_is_stretching_over_x_axis = 1;
     
     m_interactor = NULL;
@@ -286,7 +167,6 @@ vmxGUIMenuBarItem* vmxGUIMenuBar::GetPickedItem(int pos1, int pos2)
 
 void vmxGUIMenuBar::GetSize(int &output_size1, int &output_size2)
 {
-//    if(!m_interactor) return;
     
     if(m_items.IsEmpty() || !m_interactor)
     {
@@ -351,6 +231,32 @@ int vmxGUIMenuBar::IsVisible()
 }
 
 
+void vmxGUIMenuBar::OnLeftButtonUp()
+{
+    int pick_pos[2];
+    this->m_interactor->GetEventPosition(pick_pos);
+    
+    this->HideMenus();
+    
+    vmxGUIMenuBarItem* item = this->GetPickedItem(pick_pos[0], pick_pos[1]);
+    
+    if(item)
+    {
+        int origin[2];
+        item->GetOriginOfTextActor(origin[0],origin[1]);
+        int size_of_menu[2];
+        item->m_menu.GetSize(size_of_menu[0],size_of_menu[1]);
+        item->m_menu.SetOrigin(origin[0],origin[1]-size_of_menu[1]);
+        item->m_menu.SetVisibility(1);
+        
+        this->m_interactor->Render();
+    }
+    else
+    {
+    }
+}
+
+
 void vmxGUIMenuBar::SetColor(double r, double g, double b)
 {
     mxListIterator< vmxGUIMenuBarItem > it;
@@ -369,8 +275,6 @@ void vmxGUIMenuBar::SetFontSize(double font_size)
     mxListIterator< vmxGUIMenuBarItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
-        //    m_text_actor->GetTextProperty()->SetFontFamilyToCourier();
-        //    m_text_actor->GetTextProperty()->SetFontFamilyToTimes();
         it.GetElement().m_text_actor->GetTextProperty()->SetFontFamilyToArial();
         it.GetElement().m_text_actor->GetTextProperty()->SetFontSize(m_font_size);
     }
@@ -383,36 +287,28 @@ void vmxGUIMenuBar::SetInteractor(vtkRenderWindowInteractor *interactor)
     
     m_interactor = interactor;
     
-    m_interactor->AddObserver(vtkCommand::EndInteractionEvent, m_left_button_up_callback);
+    // No need to turn on the left button up listening, since it will be called when the bar menu is picked.
     
     mxListIterator< vmxGUIMenuBarItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         it.GetElement().m_menu.SetInteractor(interactor);
-        m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(it.GetElement().m_text_actor);
+        m_main_widget->GetRenderer_GUI()->AddActor2D(it.GetElement().m_text_actor);
     }
+}
+
+
+void vmxGUIMenuBar::SetMainWidget(vmxGUIMainWidget *main_widget)
+{
+    this->vmxGUIWidget::SetMainWidget(main_widget);
+    this->SetInteractor(main_widget->GetInteractor());
 }
 
 
 void vmxGUIMenuBar::SetMaximumSize(int max_size_x, int max_size_y)
 {
     m_maximum_size[1] = 30;
-    
-//    // Should check if the new size is different than the old one...
-//    //if(max_size_x!=m_maximum_size[0] || max_size_y!=m_maximum_size[1])
-//    if(max_size_y!=m_maximum_size[1])
-//    {
-//        m_maximum_size[0] = max_size_x;
-//        m_maximum_size[1] = max_size_y;
-//        
-////        // compute the max number of items member variable
-////        this->ComputeMaxNumberOfItemsInTextActor();
-//        
-//        // now perform resizing of the object.
-//        
-        this->ShowInputText();
-////        this->ShowSelectedItems();
-//    }
+    this->ShowInputText();
 }
 
 void vmxGUIMenuBar::SetOrigin(int origin1, int origin2)
@@ -434,7 +330,6 @@ void vmxGUIMenuBar::SetOrigin(int origin1, int origin2)
     // origin x value will change for each item
     int origin_x = origin1;
     
-    //mxListIterator< vmxGUIMenuBarItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         int size[2];
@@ -443,7 +338,6 @@ void vmxGUIMenuBar::SetOrigin(int origin1, int origin2)
         it.GetElement().m_text_actor->SetPosition(origin_x,origin2+max_y_size-size[1]);
         
         origin_x += size[0];
-        //cout<<endl<<"origin_x="<<origin_x<<endl;
     }
     
     m_placement = FIXED;
@@ -459,10 +353,10 @@ void vmxGUIMenuBar::SetVisibility(int is_visible)
     {
         it.GetElement().m_text_actor->SetVisibility(is_visible);
     }
+    
+    this->HideMenus();
 
     this->RedoPlacement();
-    
-    //vmxGUIObject::SetVisibility(is_visible);
 }
 
 

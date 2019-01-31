@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImage.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -94,7 +94,7 @@
 
 
 
-
+/// VTK level 4D image.
 
 template<class T>
 class vmxImage_API vmxImageT : public vmxImageDataT<T>
@@ -257,8 +257,6 @@ typedef vmxImageT<uint32_t> vmxImage32U;
 
 /// Defualt image class will have 16U (16-bit unsigned) type of elements.
 typedef vmxImage16U vmxImage;
-
-
 
 typedef mxDataObjectFactoryT<vmxImage8U> vmxImage8UFactory;
 typedef mxDataObjectFactoryT<vmxImage16U> vmxImage16UFactory;

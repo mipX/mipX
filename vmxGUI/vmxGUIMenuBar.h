@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxGUIMenuBar.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -18,7 +18,7 @@
 
 
 
-#if defined(vmxGUIMenuBar_USE_SOURCE_CODE) || defined(vmxCore_USE_SOURCE_CODE)
+#if defined(vmxGUIMenuBar_USE_SOURCE_CODE) || defined(vmxGUI_USE_SOURCE_CODE)
     #define vmxGUIMenuBar_API
 #else
     #if defined(_MSC_VER)
@@ -49,7 +49,7 @@
 #include "mxList.h"
 #include "mxString.h"
 #include "vmxGUIClipBoard.h"
-#include "vmxGUIObject.h"
+#include "vmxGUIWidget.h"
 #include "vmxGUIMenu.h"
 
 
@@ -67,66 +67,12 @@
 
 
 
-
-
 // Pre-declaration.
 class vmxGUIMenuBar;
 
 
 
-//class vmxGUIMenuBar_API vmxGUIMenuBarInteractorLeftButtonDownCallback : public vtkCommand
-//{
-//    
-//public:
-//    
-//    /// Pointer to text input that uses this callback.
-//    vmxGUIMenuBar *m_text_input;
-//    
-//    /// Constructor.
-//    vmxGUIMenuBarInteractorLeftButtonDownCallback();
-//    
-//    /// Destructor.
-//    ~vmxGUIMenuBarInteractorLeftButtonDownCallback();
-//    
-//    /// Initialize the text input linked to this callback
-//    void SetTextInput(vmxGUIMenuBar *text_input);
-//    
-//    /// Create new object instance.
-//    static vmxGUIMenuBarInteractorLeftButtonDownCallback* New();
-//    
-//    /// Method that executes when the callback is called.
-//    virtual void Execute(vtkObject *caller, unsigned long, void *);
-//};
-
-
-
-class vmxGUIMenuBar_API vmxGUIMenuBarInteractorLeftButtonUpCallback : public vtkCommand
-{
-    
-public:
-    
-    /// Pointer to text input that uses this callback.
-    vmxGUIMenuBar *m_menu_bar;
-    
-    /// Constructor.
-    vmxGUIMenuBarInteractorLeftButtonUpCallback();
-    
-    /// Destructor.
-    ~vmxGUIMenuBarInteractorLeftButtonUpCallback();
-    
-    /// Initialize the text input linked to this callback
-    void SetTextInput(vmxGUIMenuBar *menu_bar);
-    
-    /// Create new object instance.
-    static vmxGUIMenuBarInteractorLeftButtonUpCallback* New();
-    
-    /// Method that executes when the callback is called.
-    virtual void Execute(vtkObject *caller, unsigned long, void *);
-};
-
-
-
-
+/// Item of a menu bar.
 
 class vmxGUIMenuBar_API vmxGUIMenuBarItem
 {
@@ -173,17 +119,15 @@ public:
 
 
 
+/// VTK GUI menu bar widget.
 
-class vmxGUIMenuBar_API vmxGUIMenuBar : public vmxGUIObject
+class vmxGUIMenuBar_API vmxGUIMenuBar : public vmxGUIWidget
 {
     
 public:
     
     /// Pointer to clipboard this object uses.
     vmxGUIClipBoard *m_clip_board;
-    
-//    /// Description text.
-//    mxString m_description;
     
     /// Assigned VTK Render Window Interactor.
     vtkRenderWindowInteractor *m_interactor;
@@ -193,13 +137,6 @@ public:
     
     /// Actors containing the text of menu bar items.
     mxList< vmxGUIMenuBarItem > m_items;
-    
-//    /// Callback executed when the left button is pressed.
-//    vtkSmartPointer<vmxGUIMenuBarInteractorLeftButtonDownCallback> m_left_button_down_callback;
-    
-    /// Callback executed when the left button is released.
-    vtkSmartPointer<vmxGUIMenuBarInteractorLeftButtonUpCallback> m_left_button_up_callback;
-    
    
     
     
@@ -233,9 +170,24 @@ public:
     /// Get visibility of the object.
     int IsVisible();
     
-//    /// Set the description text that precedes the input
-//    void SetDescriptionText(const char *description) { m_description.Assign(description); };
+    /// Callback method executed the given event.
+    virtual void OnKeyPress() {};
     
+    /// Callback method executed the given event.
+    virtual void OnMouseMove() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonUp();
+    
+    /// Callback method executed the given event.
+    virtual void OnLeftButtonDown() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelForward() {};
+    
+    /// Callback method executed the given event.
+    virtual void OnMouseWheelBackward() {};
+
     /// Set size of font in the object.
     void SetFontSize(double font_size);
     
@@ -251,7 +203,10 @@ public:
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *interactor);
     
-    /// Set maximum size of the object. Re-implemented from vmxGUIObject.
+    /// Set the main widget and connect visualization objects contained within it.
+    void SetMainWidget(vmxGUIMainWidget *main_widget);
+    
+    /// Set maximum size of the object. Re-implemented from vmxGUIWidget.
     void SetMaximumSize(int max_size_x, int max_size_y);
     
     /// Set the origin (position) of the menu.

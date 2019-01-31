@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImagePlaneWidget.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -84,18 +84,5 @@ void vmxImagePlaneWidget::OnLeftButtonDown()
     {
         vtkImagePlaneWidget::OnLeftButtonDown();
     }
-    
-//    switch (this->LeftButtonAction)
-//    {
-//        case vtkImagePlaneWidget::VTK_CURSOR_ACTION:
-//            this->StartCursor();
-//            break;
-//        case vtkImagePlaneWidget::VTK_SLICE_MOTION_ACTION:
-//            this->StartSliceMotion();
-//            break;
-//        case vtkImagePlaneWidget::VTK_WINDOW_LEVEL_ACTION:
-//            this->StartWindowLevel();
-//            break;
-//    }
 }
 

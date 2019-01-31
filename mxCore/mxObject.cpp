@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxObject.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -19,12 +19,6 @@
 
 
 #include "mxObject.h"
-
-
-
-//// Definition of the static members
-//mxString mxObject::m_class_name;
-//mxString mxObject::m_class_descriptive_name;
 
 
 

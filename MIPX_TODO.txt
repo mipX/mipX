@@ -1,0 +1,6 @@
+MIPX TODO
+
+- Correct placement for extruding widgets
+- Implement whole screen placement to use for dialogs, file menu, ...
+- Finish the connection manager (separate search tree for receiver objects)
+-

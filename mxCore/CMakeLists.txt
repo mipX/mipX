@@ -8,6 +8,7 @@ PROJECT(TARGET_NAME)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/../mxStandard
     ${PROJECT_SOURCE_DIR}/../mxCore
 )
 
@@ -17,12 +18,14 @@ set( ${TARGET_NAME}_SOURCES
     mxDataObjectTree.cpp
     mxFunctionObject.cpp
     mxGeometry.cpp
+    mxGraph.cpp
     mxImage.cpp
     mxIndex.cpp
     mxObject.cpp
     mxPoint.cpp
     mxPosition.cpp
-    mxString.cpp
+    mxSkeleton.cpp
+    mxTable.cpp
     mxVoxel.cpp
 )
 
@@ -34,20 +37,19 @@ set( ${TARGET_NAME}_HEADERS
     mxDataObjectTree.h
     mxFunctionObject.h
     mxGeometry.h
+    mxGraph.h
     mxImage.h
     mxIndex.h
     mxObject.h
     mxPoint.h
     mxPosition.h
-    mxString.h
+    mxSkeleton.h
+    mxTable.h
     mxVoxel.h
 )
 
-set( ${TARGET_NAME}_TEMPLATES
-    mxArray.h
-    mxList.h
-    mxMatrix.h
-    mxRegularGrid.h
+set( ${TARGET_NAME}_LIBS
+    mxStandard
 )
 
 add_definitions( -DmxCurve_EXPORTS
@@ -56,19 +58,23 @@ add_definitions( -DmxCurve_EXPORTS
     -DmxFunctionObject_EXPORTS
     -DmxFunctionObjectProgressIndicator_EXPORTS
     -DmxGeometry_EXPORTS
+    -DmxGraph_EXPORTS
     -DmxImage_EXPORTS
     -DmxIndex_EXPORTS
     -DmxObject_EXPORTS
     -DmxPoint_EXPORTS
     -DmxPosition_EXPORTS
-    -DmxString_EXPORTS
+    -DmxSkeleton_EXPORTS
+    -DmxTable_EXPORTS
     -DmxVoxel_EXPORTS
 )
 
-add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_TEMPLATES})
+add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
 
-target_link_libraries( ${TARGET_NAME} )
+target_link_libraries(${TARGET_NAME}
+    ${${TARGET_NAME}_LIBS}
+)
 
-install( FILES ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_TEMPLATES} DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
+install( FILES ${${TARGET_NAME}_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include )
 install( TARGETS ${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 install( TARGETS ${TARGET_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )

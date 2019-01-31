@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxImagePlanes.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -47,7 +47,6 @@ vmxImagePlanesT<T>::vmxImagePlanesT()
 template<class T>
 vmxImagePlanesT<T>::~vmxImagePlanesT()
 {
-    //cout<<endl<<"vmxImagePlanesT<T>::~vmxImagePlanesT()"<<endl;
     if(this->m_interactor)
     {
         this->m_plane_S->EnabledOff();
@@ -145,19 +144,6 @@ int vmxImagePlanesT<T>::SetImage(vmxImageDataT<T> *input_image)
     this->m_index[3] = 0;
     
     
-//    //We will make a grayscale opaque table as a default table
-//    unsigned int min, max;
-//    this->m_image->GetVoxelValueFullRange(&min, &max);
-//    //this->m_image->GetVoxelMinimumAndMaximumValue(&min, &max);
-//    m_lookup_table->SetRange(min, max);
-//    //m_lookup_table->SetAlphaRange(1,1);//set the transparency to opaque
-//    //m_lookup_table->SetValueRange(0,1); // from black to white
-//    //m_lookup_table->SetSaturationRange(0.0, 0.0); // no color saturation
-//    //m_lookup_table->SetHueRange(0, 0.66666);
-//    //m_lookup_table->SetRampToLinear();
-//    m_lookup_table->Build();
-    
-    
     m_plane_S->SetInputData(input_image->GetVTKImageData(this->GetIndexTime()));
     m_plane_S->DisplayTextOn();
     m_plane_S->SetPlaneOrientationToZAxes();
@@ -191,10 +177,8 @@ int vmxImagePlanesT<T>::SetImage(vmxImageDataT<T> *input_image)
     //m_plane_C->SetInteractor(this->m_interactor);
     //m_plane_C->EnabledOn();
 
-
     return 1;
 }
-
 
 
 template<class T>
@@ -282,9 +266,7 @@ void vmxImagePlanesT<T>::SetMappingToOpaqueColor()
         }
     }
     this->BuildLookupTable(min,max, 1,1, 1,1, 1,1, 0,0.66);
-    //this->m_plane_S->SetLookupTable(this->m_lookup_table);
     if(this->m_interactor) this->m_interactor->Render();
-//    this->m_mapping = OPAQUE_COLOR;
 }
 
 
@@ -304,7 +286,6 @@ void vmxImagePlanesT<T>::SetMappingToTransparentColor()
 
     this->BuildLookupTable(min,max, 1,1, 0,1, 1,1, 0,0.66);
     if(this->m_interactor) this->m_interactor->Render();
-//    this->m_mapping = TRANSPARENT_COLOR;
 }
 
 
@@ -323,7 +304,6 @@ void vmxImagePlanesT<T>::SetMappingToOpaqueGrayScale()
     }
     this->BuildLookupTable(min,max, 0,1, 1,1, 0,0, 0,0.66);
     if(this->m_interactor) this->m_interactor->Render();
-//    this->m_mapping = OPAQUE_GRAY;
 }
 
 
@@ -343,7 +323,6 @@ void vmxImagePlanesT<T>::SetMappingToTransparentGrayScale()
 
     this->BuildLookupTable(min,max, 0,1, 0,1, 0,0, 0,0.66);
     if(this->m_interactor) this->m_interactor->Render();
-//    this->m_mapping = TRANSPARENT_GRAY;
 }
 
 
@@ -353,7 +332,6 @@ void vmxImagePlanesT<T>::SetMappingToTransparentBinary()
     this->BuildLookupTable(0,1, 1,1, 0,1, 1,1, 0,0.66);
     this->m_plane_S->SetLookupTable(this->m_lookup_table);
     if(this->m_interactor) this->m_interactor->Render();
-//    this->m_mapping = TRANSPARENT_BINARY;
 }
 
 

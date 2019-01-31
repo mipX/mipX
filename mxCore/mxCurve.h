@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxCurve.h
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -127,8 +127,9 @@ public:
     int LoadMatlabFile(const char *file_name);
     
     /// Leacy load functions to allow loading of earlier file types.
-    int Load_Legacy_SingleArrayFile_v3(const char *file_name);
     int Load_Legacy_SingleArrayFile_v2(const char *file_name);
+    int Load_Legacy_SingleArrayFile_v2a(const char *file_name);
+    int Load_Legacy_SingleArrayFile_v3(const char *file_name);
     
     /// Reset (empty the x and y arrays).
     virtual void Reset();

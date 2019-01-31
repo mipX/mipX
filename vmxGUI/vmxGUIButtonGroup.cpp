@@ -1,10 +1,10 @@
 /*=========================================================================
  
  Program:   mipx
- Module:    vmxButtonGroup.cpp
+ Module:    vmxGUIButtonGroup.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -27,95 +27,7 @@
 
 
 
-vmxButtonGroupInteractorLeftButtonUpCallback::vmxButtonGroupInteractorLeftButtonUpCallback()
-{
-    m_button_group = NULL;
-}
-
-
-vmxButtonGroupInteractorLeftButtonUpCallback::~vmxButtonGroupInteractorLeftButtonUpCallback()
-{
-    m_button_group = NULL;
-}
-
-
-void vmxButtonGroupInteractorLeftButtonUpCallback::SetTextInput(vmxButtonGroup *menu_bar)
-{
-    m_button_group = menu_bar;
-}
-
-
-vmxButtonGroupInteractorLeftButtonUpCallback* vmxButtonGroupInteractorLeftButtonUpCallback::New()
-{
-    return new vmxButtonGroupInteractorLeftButtonUpCallback;
-}
-
-
-void vmxButtonGroupInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_button_group)
-    {
-        if(m_button_group->m_interactor)
-        {
-            int pick_pos[2];
-            m_button_group->m_interactor->GetEventPosition(pick_pos);
-            vmxButtonGroupItem* item = m_button_group->GetPickedItem(pick_pos[0], pick_pos[1]);
-
-            if(item)
-            {
-                if(m_button_group->m_button_type == vmxButtonGroup::RADIO_BUTTON)
-                {
-                    m_button_group->UncheckAllItems();
-                    item->SetChecked(1);
-                    m_button_group->ShowInputText();
-                }
-                if(m_button_group->m_button_type == vmxButtonGroup::CHECK_BOX)
-                {
-                    if(item->m_is_checked) item->SetChecked(0);
-                    else item->SetChecked(1);
-                    m_button_group->ShowInputText();
-                }
-                if(m_button_group->m_button_type == vmxButtonGroup::PUSH_BUTTON)
-                {
-                    if(item->m_slot)
-                    {
-                        item->m_slot->Execute(m_button_group);
-                    }
-                }
-
-            }
-            
-//            int pick_pos[2];
-//            m_button_group->m_interactor->GetEventPosition(pick_pos);
-//            
-//            m_button_group->HideMenus();
-//            
-//            vmxButtonGroupItem* item = m_button_group->GetPickedItem(pick_pos[0], pick_pos[1]);
-//            
-//            if(item)
-//            {
-//                int origin[2];
-//                item->GetOriginOfTextActor(origin[0],origin[1]);
-//                int size_of_menu[2];
-//                item->m_menu.GetSize(size_of_menu[0],size_of_menu[1]);
-//                item->m_menu.SetOrigin(origin[0],origin[1]-size_of_menu[1]);
-//                item->m_menu.SetVisibility(1);
-//            }
-//            else
-//            {
-//                //m_button_group->HideMenus();
-//            }
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxButtonGroupItem::vmxButtonGroupItem()
+vmxGUIButtonGroupItem::vmxGUIButtonGroupItem()
 {
     m_slot = NULL;
     m_is_checked = 0;
@@ -125,12 +37,12 @@ vmxButtonGroupItem::vmxButtonGroupItem()
 }
 
 
-vmxButtonGroupItem::~vmxButtonGroupItem()
+vmxGUIButtonGroupItem::~vmxGUIButtonGroupItem()
 {
 }
 
 
-void vmxButtonGroupItem::GetOriginOfTextActor(int &output_origin1, int &output_origin2)
+void vmxGUIButtonGroupItem::GetOriginOfTextActor(int &output_origin1, int &output_origin2)
 {
     double *org = m_text_actor->GetPosition();
     output_origin1 = org[0];
@@ -138,17 +50,17 @@ void vmxButtonGroupItem::GetOriginOfTextActor(int &output_origin1, int &output_o
 }
 
 
-void vmxButtonGroupItem::GetSizeOfTextActor(int &output_size1, int &output_size2)
+void vmxGUIButtonGroupItem::GetSizeOfTextActor(int &output_size1, int &output_size2)
 {
     double size[2];
-    m_text_actor->GetSize(m_button_group->m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(), size);
+    m_text_actor->GetSize(m_button_group->GetMainWidget()->GetRenderer_GUI(), size);
     
     output_size1 = size[0];
     output_size2 = size[1];
 }
 
 
-int vmxButtonGroupItem::IsPicked(int pos1, int pos2)
+int vmxGUIButtonGroupItem::IsPicked(int pos1, int pos2)
 {
     int size[2];
     this->GetSizeOfTextActor(size[0],size[1]);
@@ -166,10 +78,10 @@ int vmxButtonGroupItem::IsPicked(int pos1, int pos2)
 }
 
 
-int vmxButtonGroupItem::ShowInputText()
+int vmxGUIButtonGroupItem::ShowInputText()
 {
     mxString text;
-    if(m_button_group->m_button_type == vmxButtonGroup::CHECK_BOX)
+    if(m_button_group->m_button_type == vmxGUIButtonGroup::CHECK_BOX)
     {
         text.Append(" [");
         if(m_is_checked) text.Append("x] ");
@@ -177,7 +89,7 @@ int vmxButtonGroupItem::ShowInputText()
         text.Append(m_text);
         text.Append(" ");
     }
-    if(m_button_group->m_button_type == vmxButtonGroup::RADIO_BUTTON)
+    if(m_button_group->m_button_type == vmxGUIButtonGroup::RADIO_BUTTON)
     {
         text.Append(" (");
         if(m_is_checked) text.Append("x) ");
@@ -185,7 +97,7 @@ int vmxButtonGroupItem::ShowInputText()
         text.Append(m_text);
         text.Append(" ");
     }
-    if(m_button_group->m_button_type == vmxButtonGroup::PUSH_BUTTON)
+    if(m_button_group->m_button_type == vmxGUIButtonGroup::PUSH_BUTTON)
     {
         text.Append(" |");
         text.Append(m_text);
@@ -203,59 +115,62 @@ int vmxButtonGroupItem::ShowInputText()
 
 
 
-vmxButtonGroup::vmxButtonGroup()
+vmxGUIButtonGroup::vmxGUIButtonGroup()
 {
-//    m_clip_board = NULL;
+    m_class_name.Assign("vmxGUIButtonGroup");
     
-    m_class_name.Assign("vmxButtonGroup");
-    
-    m_button_type = vmxButtonGroup::PUSH_BUTTON;
+    m_button_type = vmxGUIButtonGroup::PUSH_BUTTON;
     
     m_description_text.Assign(" ");
     
     m_description_text_actor = vtkSmartPointer<vtkTextActor>::New();
-    
-    m_left_button_up_callback = vtkSmartPointer<vmxButtonGroupInteractorLeftButtonUpCallback>::New();
-    m_left_button_up_callback->SetTextInput(this);
-    
-    m_is_stretching_over_x_axis = 0;
     
     m_interactor = NULL;
     m_font_size = 18;
 }
 
 
-vmxButtonGroup::~vmxButtonGroup()
+vmxGUIButtonGroup::~vmxGUIButtonGroup()
 {
 }
 
 
-vmxButtonGroup* vmxButtonGroup::New()
+vmxGUIButtonGroup* vmxGUIButtonGroup::New()
 {
-    return new vmxButtonGroup;
+    return new vmxGUIButtonGroup;
 }
 
 
-vmxButtonGroupItem* vmxButtonGroup::AddItem(const char *item_name, int is_checked)
+vmxGUIButtonGroupItem* vmxGUIButtonGroup::AddItem(const char *item_name, int is_checked)
 {
-    vmxButtonGroupItem *item = m_items.AddNewToEnd();
+    vmxGUIButtonGroupItem *item = m_items.AddNewToEnd();
     item->m_button_group = this;
     item->m_is_checked = is_checked;
     item->m_text.Assign(item_name);
     item->ShowInputText();
+    m_main_widget->GetRenderer_GUI()->AddActor2D(item->m_text_actor);
+
     return item;
 }
 
 
-void vmxButtonGroup::GetOrigin(int &origin1, int &origin2)
+void vmxGUIButtonGroup::GetOrigin(int &origin1, int &origin2)
 {
-    //m_items.GetBeginElement().GetOriginOfTextActor(origin1,origin2);
-    
     this->GetOriginOfDescriptionText(origin1,origin2);
+    
+    mxListIterator< vmxGUIButtonGroupItem > it;
+    for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
+    {
+        int org[2];
+        it.GetElement().GetOriginOfTextActor(org[0],org[1]);
+        if(origin1>org[0]) origin1 = org[0];
+        if(origin2>org[1]) origin2 = org[1];
+    }
+    
 }
 
 
-void vmxButtonGroup::GetOriginOfDescriptionText(int &origin1, int &origin2)
+void vmxGUIButtonGroup::GetOriginOfDescriptionText(int &origin1, int &origin2)
 {
     double *org = m_description_text_actor->GetPosition();
     origin1 = org[0];
@@ -263,9 +178,9 @@ void vmxButtonGroup::GetOriginOfDescriptionText(int &origin1, int &origin2)
 }
 
 
-vmxButtonGroupItem* vmxButtonGroup::GetPickedItem(int pos1, int pos2)
+vmxGUIButtonGroupItem* vmxGUIButtonGroup::GetPickedItem(int pos1, int pos2)
 {
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         int size[2];
@@ -286,7 +201,7 @@ vmxButtonGroupItem* vmxButtonGroup::GetPickedItem(int pos1, int pos2)
 }
 
 
-void vmxButtonGroup::GetSize(int &output_size1, int &output_size2)
+void vmxGUIButtonGroup::GetSize(int &output_size1, int &output_size2)
 {
     if(!m_interactor)
     {
@@ -297,8 +212,12 @@ void vmxButtonGroup::GetSize(int &output_size1, int &output_size2)
     // size should be determined solely from the size parameter of each item.
     this->GetSizeOfDescriptionText(output_size1,output_size2);
     
+    //cout<<"vmxGUIButtonGroup::GetSize(): description text size (x,y): "<<output_size1<<","<<output_size2<<endl;
+    //cout<<"vmxGUIButtonGroup::GetSize(): number of items: "<<m_items.GetNumberOfElements()<<endl;
+
+    
     //output_size1 = output_size2 = 0;
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         int size[2];
@@ -309,7 +228,7 @@ void vmxButtonGroup::GetSize(int &output_size1, int &output_size2)
 }
 
 
-void vmxButtonGroup::GetSizeOfDescriptionText(int &output_size1, int &output_size2)
+void vmxGUIButtonGroup::GetSizeOfDescriptionText(int &output_size1, int &output_size2)
 {
     if(!m_interactor)
     {
@@ -317,25 +236,31 @@ void vmxButtonGroup::GetSizeOfDescriptionText(int &output_size1, int &output_siz
         return;
     }
     double size_description_text[2];
-    m_description_text_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(), size_description_text);
+    m_description_text_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(), size_description_text);
 
     output_size1 = size_description_text[0];
     output_size2 = size_description_text[1];
 }
 
 
-int vmxButtonGroup::IsPicked(int pos1, int pos2)
+int vmxGUIButtonGroup::IsPicked(int pos1, int pos2)
 {
     if(!m_interactor)
     {
         return 0;
     }
     
+    //cout<<"vmxGUIButtonGroup::IsPicked() pos="<<pos1<<","<<pos2<<endl;
+    
     int size[2];
     this->GetSize(size[0],size[1]);
     
+    //cout<<"vmxGUIButtonGroup::IsPicked() size="<<size[0]<<","<<size[1]<<endl;
+    
     int origin[2];
     this->GetOrigin(origin[0],origin[1]);
+    
+    //cout<<"vmxGUIButtonGroup::IsPicked() origin="<<origin[0]<<","<<origin[1]<<endl;
     
     int end_pos1 = origin[0] + size[0];
     if(pos1<origin[0] || pos1>end_pos1) return 0;
@@ -347,40 +272,68 @@ int vmxButtonGroup::IsPicked(int pos1, int pos2)
 }
 
 
-int vmxButtonGroup::IsVisible()
+int vmxGUIButtonGroup::IsVisible()
 {
-//    if(m_items.IsEmpty())
-//    {
-//        return 0;
-//    }
-    
     return m_description_text_actor->GetVisibility();
 }
 
 
-void vmxButtonGroup::SetButtonTypeToCheckBox()
+void vmxGUIButtonGroup::OnLeftButtonUp()
 {
-    m_button_type = vmxButtonGroup::CHECK_BOX;
+    int pick_pos[2];
+    this->m_interactor->GetEventPosition(pick_pos);
+    vmxGUIButtonGroupItem* item = this->GetPickedItem(pick_pos[0], pick_pos[1]);
+    
+    if(item)
+    {
+        if(this->m_button_type == vmxGUIButtonGroup::RADIO_BUTTON)
+        {
+            this->UncheckAllItems();
+            item->SetChecked(1);
+            this->ShowInputText();
+            this->m_main_widget->GetInteractor()->Render();
+        }
+        if(this->m_button_type == vmxGUIButtonGroup::CHECK_BOX)
+        {
+            if(item->m_is_checked) item->SetChecked(0);
+            else item->SetChecked(1);
+            this->ShowInputText();
+            this->m_main_widget->GetInteractor()->Render();
+        }
+        if(this->m_button_type == vmxGUIButtonGroup::PUSH_BUTTON)
+        {
+            if(item->m_slot)
+            {
+                item->m_slot->Execute(this);
+            }
+        }
+    }
 }
 
 
-void vmxButtonGroup::SetButtonTypeToRadioButton()
+void vmxGUIButtonGroup::SetButtonTypeToCheckBox()
 {
-    m_button_type = vmxButtonGroup::RADIO_BUTTON;
+    m_button_type = vmxGUIButtonGroup::CHECK_BOX;
 }
 
 
-void vmxButtonGroup::SetButtonTypeToPushButton()
+void vmxGUIButtonGroup::SetButtonTypeToRadioButton()
 {
-    m_button_type = vmxButtonGroup::PUSH_BUTTON;
+    m_button_type = vmxGUIButtonGroup::RADIO_BUTTON;
 }
 
 
-void vmxButtonGroup::SetColor(double r, double g, double b)
+void vmxGUIButtonGroup::SetButtonTypeToPushButton()
+{
+    m_button_type = vmxGUIButtonGroup::PUSH_BUTTON;
+}
+
+
+void vmxGUIButtonGroup::SetColor(double r, double g, double b)
 {
     m_description_text_actor->GetTextProperty()->SetColor(r,g,b);
     
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         it.GetElement().m_text_actor->GetTextProperty()->SetColor(r,g,b);
@@ -388,13 +341,13 @@ void vmxButtonGroup::SetColor(double r, double g, double b)
 }
 
 
-void vmxButtonGroup::SetDescriptionText(const char *description_text)
+void vmxGUIButtonGroup::SetDescriptionText(const char *description_text)
 {
     m_description_text.Assign(description_text);
 }
 
 
-void vmxButtonGroup::SetFontSize(double font_size)
+void vmxGUIButtonGroup::SetFontSize(double font_size)
 {
     if(font_size<=0) return;
     m_font_size = font_size;
@@ -402,57 +355,42 @@ void vmxButtonGroup::SetFontSize(double font_size)
     m_description_text_actor->GetTextProperty()->SetFontFamilyToArial();
     m_description_text_actor->GetTextProperty()->SetFontSize(m_font_size);
     
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
-        //    m_text_actor->GetTextProperty()->SetFontFamilyToCourier();
-        //    m_text_actor->GetTextProperty()->SetFontFamilyToTimes();
         it.GetElement().m_text_actor->GetTextProperty()->SetFontFamilyToArial();
         it.GetElement().m_text_actor->GetTextProperty()->SetFontSize(m_font_size);
     }
 }
 
 
-void vmxButtonGroup::SetInteractor(vtkRenderWindowInteractor *interactor)
+void vmxGUIButtonGroup::SetInteractor(vtkRenderWindowInteractor *interactor)
 {
     if(!interactor) return;
     
     m_interactor = interactor;
-    
-    m_interactor->AddObserver(vtkCommand::EndInteractionEvent, m_left_button_up_callback);
-    
-    m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_description_text_actor);
-    
-    mxListIterator< vmxButtonGroupItem > it;
-    for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
-    {
-        m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(it.GetElement().m_text_actor);
-    }
 }
 
 
-void vmxButtonGroup::SetMaximumSize(int max_size_x, int max_size_y)
+void vmxGUIButtonGroup::SetMainWidget(vmxGUIMainWidget *main_widget)
+{
+    this->vmxGUIWidget::SetMainWidget(main_widget);
+
+    this->SetInteractor(main_widget->GetInteractor());
+    
+    main_widget->GetRenderer_GUI()->AddActor2D(this->m_description_text_actor);
+ 
+}
+
+
+void vmxGUIButtonGroup::SetMaximumSize(int max_size_x, int max_size_y)
 {
     m_maximum_size[1] = 30;
     
-//    // Should check if the new size is different than the old one...
-//    //if(max_size_x!=m_maximum_size[0] || max_size_y!=m_maximum_size[1])
-//    if(max_size_y!=m_maximum_size[1])
-//    {
-//        m_maximum_size[0] = max_size_x;
-//        m_maximum_size[1] = max_size_y;
-//        
-////        // compute the max number of items member variable
-////        this->ComputeMaxNumberOfItemsInTextActor();
-//        
-//        // now perform resizing of the object.
-//        
-        this->ShowInputText();
-////        this->ShowSelectedItems();
-//    }
+    this->ShowInputText();
 }
 
-void vmxButtonGroup::SetOrigin(int origin1, int origin2)
+void vmxGUIButtonGroup::SetOrigin(int origin1, int origin2)
 {
 //    int text_actor_size[2];
 //    this->GetSize(text_actor_size[0], text_actor_size[1]);
@@ -463,7 +401,7 @@ void vmxButtonGroup::SetOrigin(int origin1, int origin2)
     this->GetSizeOfDescriptionText(size_of_description_text_actor[0], size_of_description_text_actor[1]);
     
     int max_y_size = size_of_description_text_actor[1]; //int max_y_size = 0;
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         int size[2];
@@ -485,7 +423,7 @@ void vmxButtonGroup::SetOrigin(int origin1, int origin2)
         origin_x += size[0];
     }
     
-    //mxListIterator< vmxButtonGroupItem > it;
+    //mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         int size[2];
@@ -501,13 +439,13 @@ void vmxButtonGroup::SetOrigin(int origin1, int origin2)
 }
 
 
-void vmxButtonGroup::SetVisibility(int is_visible)
+void vmxGUIButtonGroup::SetVisibility(int is_visible)
 {
     this->ShowInputText();
     
     m_description_text_actor->SetVisibility(is_visible);
     
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         it.GetElement().m_text_actor->SetVisibility(is_visible);
@@ -519,11 +457,11 @@ void vmxButtonGroup::SetVisibility(int is_visible)
 }
 
 
-int vmxButtonGroup::ShowInputText()
+int vmxGUIButtonGroup::ShowInputText() // THIS IS LIKE AN UPDATE METHOD!!!!!!!!!!!!!
 {
     m_description_text_actor->SetInput(m_description_text.Get_C_String());
     
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         it.GetElement().ShowInputText();
@@ -533,9 +471,9 @@ int vmxButtonGroup::ShowInputText()
 }
 
 
-void vmxButtonGroup::UncheckAllItems()
+void vmxGUIButtonGroup::UncheckAllItems()
 {
-    mxListIterator< vmxButtonGroupItem > it;
+    mxListIterator< vmxGUIButtonGroupItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {
         it.GetElement().SetChecked(0);

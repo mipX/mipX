@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxDataObjectTree.h
  
-  Authors: Danilo Babin.
-  Copyright (c) Danilo Babin.
+  Authors: Danilo Babin, Hrvoje Leventic.
+  Copyright (c) Danilo Babin, Hrvoje Leventic.
   All rights reserved.
   See Copyright.txt
   
@@ -83,7 +83,10 @@ public:
     
     /// Get data object by its unique data object name. Fail returns NULL.
     mxDataObject* GetDataObject(const char *data_object_name);
-    
+
+    /// Get data object factories.
+    mxList< mxDataObjectFactory*>* GetDataObjectFactories() { return &m_data_object_factories; };
+
     /// Load/create multiple instances of data objects (it can load multiple classes). Returns the list of
     /// pointers to loaded objects.
     virtual mxList<mxDataObject*> Load(const char *file_names, const char *loading_class_name = NULL);

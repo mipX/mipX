@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    mxDataObject.h
  
-  Authors: Danilo Babin.
-  Copyright (c) Danilo Babin.
+  Authors: Danilo Babin, Hrvoje Leventic.
+  Copyright (c) Danilo Babin, Hrvoje Leventic.
   All rights reserved.
   See Copyright.txt
   
@@ -130,11 +130,17 @@ public:
     /// Get the properties widget of the object.
     virtual qmxDataObjectPropertiesWidget* GetPropertiesWidget();
     
+    /// Get the visibility of the object component for VTK visualization.
+    /// E.g. a 3D image has 3 visualization components: axial, sagittal and coronal planes.
+    virtual int GetVisibilityOfComponent(int component_index);
+    
     /// Check if the actor belongs to the object (used for calling the context menu).
     virtual int HasActor(vtkActor *actor);
     
     /// Internal method, to be used with caution!!!
-    void internalSetDataObjectFactory(mxDataObjectFactory *factory) { this->m_factory = factory; };
+    /// This method is used in Create() method of mxDataObjectFactory when creating a data object and setting
+    /// its pointer to its factory. The method is virtual, so it can be overridden to do some additional stuff if needed.
+    virtual void internalSetDataObjectFactory(mxDataObjectFactory *factory) { this->m_factory = factory; };
     
     /// Check if multiple objects can be displayed at the same time.
     int IsExclusiveVisibilityOn();

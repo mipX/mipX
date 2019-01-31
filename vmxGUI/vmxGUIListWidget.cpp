@@ -3,8 +3,8 @@
  Program:   mipx
  Module:    vmxGUIListWidget.cpp
  
- Authors: Danilo Babin.
- Copyright (c) Danilo Babin.
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
  All rights reserved.
  See Copyright.txt
  
@@ -24,500 +24,10 @@
 
 
 
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIListWidgetInteractorLeftButtonDownCallback::vmxGUIListWidgetInteractorLeftButtonDownCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-vmxGUIListWidgetInteractorLeftButtonDownCallback::~vmxGUIListWidgetInteractorLeftButtonDownCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonDownCallback::SetListWidget(vmxGUIListWidget *list_widget)
-{
-    m_is_active = 0;
-    m_list_widget = list_widget;
-}
-
-
-vmxGUIListWidgetInteractorLeftButtonDownCallback* vmxGUIListWidgetInteractorLeftButtonDownCallback::New()
-{
-    return new vmxGUIListWidgetInteractorLeftButtonDownCallback;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonDownCallback::Activate(int is_active)
-{
-    if(is_active)
-    {
-        if(m_is_active) return;
-        m_list_widget->m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, this);
-    }
-    else
-    {
-        if(!m_is_active) return;
-        m_list_widget->m_interactor->RemoveObservers(vtkCommand::LeftButtonPressEvent, this);
-    }
-    m_is_active = is_active;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonDownCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_list_widget)
-    {
-        if(m_list_widget->m_interactor)
-        {
-            //cout<<endl<<" down ";
-            
-            if(m_list_widget->GetClipBoard()) m_list_widget->GetClipBoard()->m_is_valid = 0;
-
-            /// Reset the picekd indexes to non-valid values.
-            m_list_widget->m_picked_item_index = -1;
-            m_list_widget->m_picked_check_box_index = -1;
-
-            
-            int pick_pos[2];
-            m_list_widget->m_interactor->GetEventPosition(pick_pos);
-            
-            m_list_widget->m_double_click_detector.OnLeftButtonDown(pick_pos[0], pick_pos[1],m_list_widget->m_interactor->GetControlKey());
-            
-            
-            int index = m_list_widget->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
-            if(index<0)
-            {
-                return;
-            }
-            m_list_widget->m_mouse_drag_detector.OnLeftButtonDown(pick_pos[0], pick_pos[1]);
-            
-            m_list_widget->m_item_selection_detector.OnLeftButtonDown(m_list_widget->m_interactor->GetControlKey(), m_list_widget->m_item_pointers[index]->m_is_selected, m_list_widget->IsMultipleItemsSelected());
-            
-            m_list_widget->m_picked_item_index = index;
-
-            
-            
-            if(m_list_widget->m_item_selection_detector.IsMultipleSelectionDetected())
-            {
-                // if multiple selection is detected (CTRL key is pressed), jus add/remove items from selection
-                m_list_widget->GetItem(index)->m_is_selected = !(m_list_widget->GetItem(index)->m_is_selected);
-            }
-            else
-            {
-                // If CTRL is not pressed, we need to check if a single selection is performed or a drag event of multiple selected items.
-                if(m_list_widget->m_item_selection_detector.IsSingleSelectionDetected())
-                {
-                    // If there is no drag for sure, just perform single selection
-                    m_list_widget->SelectSingleItem(index);
-                }
-            }
-            
-            m_list_widget->ListenForMouseMoveEvent(1);
-            m_list_widget->ListenForLeftButtonUpEvent(1);
-            
-            m_list_widget->ShowSelectedItems();
-            
-            int check_index = m_list_widget->GetPickedCheckBoxIndex(index,pick_pos[0],pick_pos[1]);
-            //cout<<"check_index = "<<check_index<<endl;
-            if(check_index>=0)
-            {
-                if(m_list_widget->m_items[index].m_checkboxes[check_index])
-                {
-                    m_list_widget->m_items[index].m_checkboxes[check_index] = 0;
-                }
-                else
-                {
-                    m_list_widget->m_items[index].m_checkboxes[check_index] = 1;
-                }
-                m_list_widget->m_picked_check_box_index = check_index;
-                m_list_widget->ShowTextItems();
-            }
-            
-//            // If double click was performed execute double click slot...
-//            if(m_list_widget->m_double_click_detector.IsDoubleClicked())
-//            {
-//                // this part executes on detected double click.
-//            }
-//            else
-//            {
-                // Execute the single mouse left click slot (if attached).
-                if(m_list_widget->GetItem(index)->m_mouse_left_click_slot)
-                {
-                    m_list_widget->GetItem(index)->m_mouse_left_click_slot->Execute(m_list_widget->GetItem(index), check_index);
-                }
-//            }
-            
-            m_list_widget->OnItemPicked();
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIListWidgetInteractorLeftButtonUpCallback::vmxGUIListWidgetInteractorLeftButtonUpCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-vmxGUIListWidgetInteractorLeftButtonUpCallback::~vmxGUIListWidgetInteractorLeftButtonUpCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonUpCallback::SetListWidget(vmxGUIListWidget *list_widget)
-{
-    m_is_active = 0;
-    m_list_widget = list_widget;
-}
-
-
-vmxGUIListWidgetInteractorLeftButtonUpCallback* vmxGUIListWidgetInteractorLeftButtonUpCallback::New()
-{
-    return new vmxGUIListWidgetInteractorLeftButtonUpCallback;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonUpCallback::Activate(int is_active)
-{
-    if(is_active)
-    {
-        if(m_is_active) return;
-        m_list_widget->m_interactor->AddObserver(vtkCommand::EndInteractionEvent, this);
-    }
-    else
-    {
-        if(!m_is_active) return;
-        m_list_widget->m_interactor->RemoveObservers(vtkCommand::EndInteractionEvent, this);
-    }
-    m_is_active = is_active;
-}
-
-
-void vmxGUIListWidgetInteractorLeftButtonUpCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_list_widget)
-    {
-        if(m_list_widget->m_interactor)
-        {
-            //cout<<endl<<" up ";
-            
-            int pick_pos[2];
-            m_list_widget->m_interactor->GetEventPosition(pick_pos);
-            
-            m_list_widget->m_mouse_drag_detector.OnLeftButtonUp(pick_pos[0], pick_pos[1]);
-            m_list_widget->m_item_selection_detector.OnLeftButtonUp();
-            m_list_widget->m_item_selection_detector.OnLeftButtonUp();
-            
-            
-            
-            //--- Execute slot or open submenu ---
-            //            vmxOpenFilesDialogItem *item = m_menu->GetItem(index);
-            //            if(item)
-            //            {
-            //                m_menu->HideAllSubMenus();
-            //                if(item->m_sub_menu)
-            //                {
-            //                    int *window_size = m_menu->m_interactor->GetRenderWindow()->GetSize();
-            //
-            //                    int origin[2];
-            //                    m_menu->GetOriginOfMenu(origin[0], origin[1]);
-            //                    int menu_size[2];
-            //                    m_menu->GetSizeOfMenu(menu_size[0],menu_size[1]);
-            //                    item->m_sub_menu->SetVisibility(1);
-            //                    int new_origin[2];
-            //                    new_origin[0] = origin[0]+menu_size[0];
-            //                    new_origin[1] = origin[1] + (menu_size[1]*index)/m_menu->GetNumberOfItems();
-            //
-            //                    int sub_menu_size[2];
-            //                    item->m_sub_menu->GetSizeOfMenu(sub_menu_size[0],sub_menu_size[1]);
-            //                    if(new_origin[1]+sub_menu_size[1]>window_size[1])
-            //                    {
-            //                        new_origin[1] = window_size[1] - sub_menu_size[1];
-            //                    }
-            //
-            //
-            //                    item->m_sub_menu->SetOrigin(new_origin[0], new_origin[1]);
-            //                }
-            //                else
-            //                {
-            //                    if(item->m_slot)
-            //                    {
-            //                        item->m_slot->Execute(m_menu);
-            //                    }
-            //                }
-            //            }
-            //            else
-            //            {
-            //                m_menu->HideAllSubMenus();
-            //            }
-            //------
-            
-            
-            // Turn off listening for mouse move and button up events. They will be turned on in button down
-            // event (as soon as left button is pressed).
-            m_list_widget->ListenForMouseMoveEvent(0);
-            m_list_widget->ListenForLeftButtonUpEvent(0);
-            m_list_widget->SetVisibilityOfDragEventActor(0);
-            m_list_widget->m_interactor->Render();
-
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIListWidgetInteractorMouseMoveCallback::vmxGUIListWidgetInteractorMouseMoveCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-vmxGUIListWidgetInteractorMouseMoveCallback::~vmxGUIListWidgetInteractorMouseMoveCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-void vmxGUIListWidgetInteractorMouseMoveCallback::SetListWidget(vmxGUIListWidget *list_widget)
-{
-    m_is_active = 0;
-    m_list_widget = list_widget;
-}
-
-
-vmxGUIListWidgetInteractorMouseMoveCallback* vmxGUIListWidgetInteractorMouseMoveCallback::New()
-{
-    return new vmxGUIListWidgetInteractorMouseMoveCallback;
-}
-
-
-void vmxGUIListWidgetInteractorMouseMoveCallback::Activate(int is_active)
-{
-    if(is_active)
-    {
-        if(m_is_active) return;
-        m_list_widget->m_interactor->AddObserver(vtkCommand::ModifiedEvent, this);
-    }
-    else
-    {
-        if(!m_is_active) return;
-        m_list_widget->m_interactor->RemoveObservers(vtkCommand::ModifiedEvent, this);
-    }
-    m_is_active = is_active;
-}
-
-
-void vmxGUIListWidgetInteractorMouseMoveCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    if(m_list_widget)
-    {
-        if(m_list_widget->m_interactor)
-        {
-            //cout<<endl<<" move2 ";
-            
-            int pick_pos[2];
-            m_list_widget->m_interactor->GetEventPosition(pick_pos);
-            
-            m_list_widget->m_mouse_drag_detector.OnMouseMove(pick_pos[0],pick_pos[1]);
-            m_list_widget->m_item_selection_detector.OnMouseMove(m_list_widget->m_mouse_drag_detector.IsDragging());
-            
-            //If drag is detected
-            if(m_list_widget->m_mouse_drag_detector.IsDragging())
-            {
-                //cout<<" drag ";
-                
-                // perform copying to clipboard of selected data.
-                m_list_widget->CopySelectedItemsToClipBoard();
-                m_list_widget->SetVisibilityOfDragEventActor(1);
-                m_list_widget->m_drag_actor->SetPosition(pick_pos[0],pick_pos[1]);
-                m_list_widget->m_interactor->Render();
-            }
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIListWidgetInteractorMouseWheelBackwardCallback::vmxGUIListWidgetInteractorMouseWheelBackwardCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-vmxGUIListWidgetInteractorMouseWheelBackwardCallback::~vmxGUIListWidgetInteractorMouseWheelBackwardCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelBackwardCallback::SetListWidget(vmxGUIListWidget *list_widget)
-{
-    m_is_active = 0;
-    m_list_widget = list_widget;
-}
-
-
-vmxGUIListWidgetInteractorMouseWheelBackwardCallback* vmxGUIListWidgetInteractorMouseWheelBackwardCallback::New()
-{
-    return new vmxGUIListWidgetInteractorMouseWheelBackwardCallback;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelBackwardCallback::Activate(int is_active)
-{
-    if(is_active)
-    {
-        if(m_is_active) return;
-        m_list_widget->m_interactor->AddObserver(vtkCommand::MouseWheelBackwardEvent, this);
-    }
-    else
-    {
-        if(!m_is_active) return;
-        m_list_widget->m_interactor->RemoveObservers(vtkCommand::MouseWheelBackwardEvent, this);
-    }
-    m_is_active = is_active;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelBackwardCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    //cout<<" wheel_backward ";
-    if(m_list_widget)
-    {
-        if(m_list_widget->m_interactor)
-        {
-            int pick_pos[2];
-            m_list_widget->m_interactor->GetEventPosition(pick_pos);
-            
-            int index = m_list_widget->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
-            if(index<0) return;
-            
-            int step = 4;
-            
-            m_list_widget->SetIndexOffset(m_list_widget->m_text_index_offset+step);
-            m_list_widget->ShowTextItems();
-            m_list_widget->ShowSelectedItems();
-//            m_list_widget->RedoPlacement();
-            m_list_widget->RepositionAfterResizing();
-            
-            m_list_widget->m_interactor->Render();
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
-vmxGUIListWidgetInteractorMouseWheelForwardCallback::vmxGUIListWidgetInteractorMouseWheelForwardCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-vmxGUIListWidgetInteractorMouseWheelForwardCallback::~vmxGUIListWidgetInteractorMouseWheelForwardCallback()
-{
-    m_is_active = 0;
-    m_list_widget = NULL;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelForwardCallback::SetListWidget(vmxGUIListWidget *list_widget)
-{
-    m_is_active = 0;
-    m_list_widget = list_widget;
-}
-
-
-vmxGUIListWidgetInteractorMouseWheelForwardCallback* vmxGUIListWidgetInteractorMouseWheelForwardCallback::New()
-{
-    return new vmxGUIListWidgetInteractorMouseWheelForwardCallback;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelForwardCallback::Activate(int is_active)
-{
-    if(is_active)
-    {
-        if(m_is_active) return;
-        m_list_widget->m_interactor->AddObserver(vtkCommand::MouseWheelForwardEvent, this);
-    }
-    else
-    {
-        if(!m_is_active) return;
-        m_list_widget->m_interactor->RemoveObservers(vtkCommand::MouseWheelForwardEvent, this);
-    }
-    m_is_active = is_active;
-}
-
-
-void vmxGUIListWidgetInteractorMouseWheelForwardCallback::Execute(vtkObject *caller, unsigned long, void *)
-{
-    //cout<<" wheel_forward ";
-    if(m_list_widget)
-    {
-        if(m_list_widget->m_interactor)
-        {
-            int pick_pos[2];
-            m_list_widget->m_interactor->GetEventPosition(pick_pos);
-            
-            int index = m_list_widget->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
-            if(index<0) return;
-            
-            int step = 4;
-            
-            m_list_widget->SetIndexOffset(m_list_widget->m_text_index_offset-step);
-            m_list_widget->ShowTextItems();
-            m_list_widget->ShowSelectedItems();
-//            m_list_widget->RedoPlacement();
-            m_list_widget->RepositionAfterResizing();
-            
-            m_list_widget->m_interactor->Render();
-        }
-    }
-}
-
-
-
-//-----------------------------------------------------------------------------------------------------
-
-
-
 vmxGUIListWidgetItem::vmxGUIListWidgetItem()
 {
     /// By default all items are controllers, i.e. they are all on level 0.
+    m_is_exclusively_checked = 0;
     m_is_controller = 1;
     m_is_selected = 0;
     m_mouse_left_click_slot = NULL;
@@ -566,20 +76,6 @@ int vmxGUIListWidgetItem::IsChecked(int checkbox_index)
 }
 
 
-//void vmxGUIListWidgetItem::SetNumberOfCheckBoxes(unsigned int number_of_check_boxes)
-//{
-//    if(number_of_check_boxes > vmxGUIListWidgetItem_max_number_of_checkboxes)
-//    {
-//        m_number_of_check_boxes = vmxGUIListWidgetItem_max_number_of_checkboxes;
-//    }
-//    else
-//    {
-//        m_number_of_check_boxes = number_of_check_boxes;
-//    }
-//}
-
-
-
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -591,16 +87,9 @@ vmxGUIListWidget::vmxGUIListWidget()
     
     m_class_name.Assign("vmxGUIListWidget");
     
-    m_left_button_down_callback = vtkSmartPointer<vmxGUIListWidgetInteractorLeftButtonDownCallback>::New();
-    m_left_button_down_callback->SetListWidget(this);
-    m_left_button_up_callback = vtkSmartPointer<vmxGUIListWidgetInteractorLeftButtonUpCallback>::New();
-    m_left_button_up_callback->SetListWidget(this);
-    m_mouse_move_callback = vtkSmartPointer<vmxGUIListWidgetInteractorMouseMoveCallback>::New();
-    m_mouse_move_callback->SetListWidget(this);
-    m_mouse_wheel_backward_callback = vtkSmartPointer<vmxGUIListWidgetInteractorMouseWheelBackwardCallback>::New();
-    m_mouse_wheel_backward_callback->SetListWidget(this);
-    m_mouse_wheel_forward_callback = vtkSmartPointer<vmxGUIListWidgetInteractorMouseWheelForwardCallback>::New();
-    m_mouse_wheel_forward_callback->SetListWidget(this);
+//    this->SetAccepting_LeftButtonDoubleClick_Event(1); // ADDED THIS !!!!!!!!!!!!!!!!!!!!!!!!!
+    this->SetAccepting_LeftButtonDrag_Event(1); // ADDED THIS !!!!!!!!!!!!!!!!!!!!!!!!!
+//    this->SetAccepting_LeftButtonDrop_Event(1); // ADDED THIS !!!!!!!!!!!!!!!!!!!!!!!!!
     
     
     m_number_of_items_in_text_actor = 0;
@@ -619,6 +108,10 @@ vmxGUIListWidget::vmxGUIListWidget()
     m_checkboxes_actor = vtkSmartPointer<vtkTextActor>::New();
    
     m_drag_actor = vtkSmartPointer<vtkTextActor>::New();
+    
+    m_last_selected_item = NULL;
+    m_last_selected_item_data = NULL;
+
 
 }
 
@@ -662,7 +155,6 @@ vmxGUIListWidgetItem* vmxGUIListWidget::AddItem(const char *item_text, vmxGUILis
     item->m_number_of_check_boxes = number_of_check_boxes;
     if(number_of_check_boxes>m_max_number_of_check_boxes) m_max_number_of_check_boxes = number_of_check_boxes;
     return item;
-    
 }
 
 
@@ -706,7 +198,6 @@ int vmxGUIListWidget::ComputeMaxNumberOfItemsInTextActor()
     if(!this->m_interactor) return 0;
     if(!this->m_interactor->GetRenderWindow()) return 0;
     if(!this->m_interactor->GetRenderWindow()->GetRenderers()) return 0;
-//    if(!this->m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()) return 0;
     
     vtkSmartPointer<vtkTextActor> test_actor = vtkSmartPointer<vtkTextActor>::New();
     test_actor->GetTextProperty()->SetFontSize(m_font_size);
@@ -718,7 +209,6 @@ int vmxGUIListWidget::ComputeMaxNumberOfItemsInTextActor()
     test_actor->SetInput(text.Get_C_String());
     
     test_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(),size);
-//    test_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(),size);
     
     for(m_text_actor_max_number_of_items = 0; m_text_actor_max_number_of_items<500; m_text_actor_max_number_of_items++)
     {
@@ -728,9 +218,7 @@ int vmxGUIListWidget::ComputeMaxNumberOfItemsInTextActor()
         test_actor->SetInput(text.Get_C_String());
         
         test_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(),size);
-//        test_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(),size);
     }
-    
     
     return 1;
 }
@@ -741,7 +229,6 @@ int vmxGUIListWidget::ComputeSelectionTextLine()
     if(!this->m_interactor) return 0;
     if(!this->m_interactor->GetRenderWindow()) return 0;
     if(!this->m_interactor->GetRenderWindow()->GetRenderers()) return 0;
-//    if(!this->m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()) return 0;
     if(this->m_item_pointers.IsEmpty()) return 0;//list_widget not built yet.
     
     vtkSmartPointer<vtkTextActor> selection_character_actor = vtkSmartPointer<vtkTextActor>::New();
@@ -758,7 +245,6 @@ int vmxGUIListWidget::ComputeSelectionTextLine()
         double size[2];
         
         selection_character_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(),size);
-//        selection_character_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(),size);
         if(size[0]>=actor_size[0]) break;
     }
     
@@ -859,8 +345,6 @@ int vmxGUIListWidget::GetPickedItemIndex(int pos1, int pos2)
     double a1 = (pos2-list_widget_origin[1]);
     if(a1<0) return -1;
     
-    //int number_of_items_in_text_actor = m_number_of_items_in_text_actor;
-    
     double a2 = ((double)list_widget_size[1])/((double)m_number_of_items_in_text_actor);
     item_index = a1/a2;
     
@@ -889,15 +373,61 @@ int vmxGUIListWidget::GetPickedItemIndex(int pos1, int pos2)
 }
 
 
+
+void vmxGUIListWidget::GetSelectedItems(mxArray<vmxGUIListWidgetItem*> &array_of_selected_items)
+{
+    int number_of_selected_items = 0;
+    for(int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->IsSelected())
+        {
+            number_of_selected_items++;
+        }
+    }
+    
+    array_of_selected_items.SetNumberOfElements(number_of_selected_items);
+    int n=0;
+    for(int i=0; i<m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
+    {
+        if(m_item_pointers[i]->IsSelected())
+        {
+            array_of_selected_items[n] = m_item_pointers[i];
+            n++;
+        }
+    }
+}
+
+
+void vmxGUIListWidget::GetSelectedItemsNames(mxArray<mxString> &array_of_selected_items_names)
+{
+    int number_of_selected_items = 0;
+    for(int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    {
+        if(m_item_pointers[i]->IsSelected())
+        {
+            number_of_selected_items++;
+        }
+    }
+    
+    array_of_selected_items_names.SetNumberOfElements(number_of_selected_items);
+    int n=0;
+    for(int i=0; i<m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
+    {
+        if(m_item_pointers[i]->IsSelected())
+        {
+            array_of_selected_items_names[n].Assign(m_item_pointers[i]->m_text);
+            n++;
+        }
+    }
+}
+
+
 int vmxGUIListWidget::GetSizeOfCheckBoxActor(int &output_size1, int &output_size2)
 {
     if(!m_interactor) return 0;
     
-//!!!!!!!!!!!!!!! REPLACE THE ...->GetFirstRenderer() WITH THE RENDERED FOR GUI WITHIN THE MAIN WIDGET (ALSO FOR MULTIPLE PLACES IN THI FILE) !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
     double size[2];
     m_checkboxes_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(), size);
-//    m_checkboxes_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(), size);
     
     if(size[0]==0) output_size1 = 1;
     else output_size1 = size[0];
@@ -936,7 +466,6 @@ int vmxGUIListWidget::GetSizeOfTextActor(int &output_size1, int &output_size2)
     
     double size[2];
     m_text_actor->GetSize(this->GetMainWidget()->GetRenderer_GUI(), size);
-//    m_text_actor->GetSize(m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer(), size);
     
     if(size[0]==0) output_size1 = 1;
     else output_size1 = size[0];
@@ -950,6 +479,20 @@ int vmxGUIListWidget::GetSizeOfTextActor(int &output_size1, int &output_size2)
 int vmxGUIListWidget::GetVisibility()
 {
     return m_text_actor->GetVisibility();
+}
+
+
+int vmxGUIListWidget::HasVTKActor2D(vtkActor2D *actor_2D)
+{
+    void *i = (void*) actor_2D;
+
+    void *text_actor = (void *) (this->m_text_actor);
+    if(text_actor==i) return 1;
+    
+    void *checkboxes_actor = (void *) (this->m_checkboxes_actor);
+    if(checkboxes_actor==i) return 1;
+    
+    return 0;
 }
 
 
@@ -1031,40 +574,205 @@ int vmxGUIListWidget::IsVisible()
 }
 
 
-//void vmxGUIListWidget::ListenForRenderWindowModifiedEvent(int is_listening)
-//{
-//    m_window_modified_callback->Activate(is_listening);
-//}
-
-
-void vmxGUIListWidget::ListenForLeftButtonDownEvent(int is_listening)
+void vmxGUIListWidget::OnKeyPress()
 {
-    m_left_button_down_callback->Activate(is_listening);
+    // do nothing.
+}
+
+void vmxGUIListWidget::OnMouseMove()
+{
+    //do nothing.
 }
 
 
-void vmxGUIListWidget::ListenForLeftButtonUpEvent(int is_listening)
+void vmxGUIListWidget::OnLeftButtonUp()
 {
-    m_left_button_up_callback->Activate(is_listening);
+    //cout<<" vmxGUIListWidget::OnLeftButtonUp() ";
+    
+    int pick_pos[2];
+    this->m_interactor->GetEventPosition(pick_pos);
+
+    this->m_item_selection_detector.OnLeftButtonUp();
+    
+    
+    // Turn off listening for button up events. They will be turned on in button down
+    // event (as soon as left button is pressed).
+    this->SetListeningFor_LeftButtonUp_Event(0);
+    this->SetVisibilityOfDragEventActor(0);
+    this->m_interactor->Render();
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ADDED THIS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //if(this->m_item_selection_detector.IsSingleSelectionDetected())
+    {
+        //this->GetConnectionManager();
+        this->GetConnectionManager()->Execute(ItemSelectedEvent, this);//, NULL);
+        
+//!!!!!!!! THERE SHOULD BE A SEPARATE CHECKING IF AN ITEM WAS ACTUALLY MODIFIED AND THE EVENT SHOULD ONLY THEN BE CALLED !!!!!!!!!!
+        this->GetConnectionManager()->Execute(ItemModifiedEvent, this);//, NULL);
+    }
 }
 
 
-void vmxGUIListWidget::ListenForMouseMoveEvent(int is_listening)
+void vmxGUIListWidget::OnLeftButtonDown()
 {
-    m_mouse_move_callback->Activate(is_listening);
+    //cout<<" vmxGUIListWidget::OnLeftButtonDown() ";
+    
+    if(this->GetClipBoard()) this->GetClipBoard()->m_is_valid = 0;
+    
+    /// Reset the picked indexes to non-valid values.
+    this->m_picked_item_index = -1;
+    this->m_picked_check_box_index = -1;
+    
+    
+    int pick_pos[2];
+    this->m_interactor->GetEventPosition(pick_pos);
+    
+    
+    
+    int index = this->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
+    if(index<0)
+    {
+        return;
+    }
+
+    
+    this->m_item_selection_detector.OnLeftButtonDown(this->m_interactor->GetControlKey(), this->m_item_pointers[index]->m_is_selected, this->IsMultipleItemsSelected());
+    
+    this->m_picked_item_index = index;
+    
+    
+    
+    if(this->m_item_selection_detector.IsMultipleSelectionDetected())
+    {
+        // if multiple selection is detected (CTRL key is pressed), jus add/remove items from selection
+        this->GetItem(index)->m_is_selected = !(this->GetItem(index)->m_is_selected);
+    }
+    else
+    {
+        // If CTRL is not pressed, we need to check if a single selection is performed or a drag event of multiple selected items.
+        if(this->m_item_selection_detector.IsSingleSelectionDetected())
+        {
+            // If there is no drag for sure, just perform single selection
+            this->SelectSingleItem(index);
+            this->m_last_selected_item = this->GetItem(index);
+            this->m_last_selected_item_data = this->GetItem(index)->GetData();
+        }
+    }
+    
+    this->SetListeningFor_LeftButtonUp_Event(1);
+    
+    this->ShowSelectedItems();
+    
+    int check_index = this->GetPickedCheckBoxIndex(index,pick_pos[0],pick_pos[1]);
+    if(check_index>=0)
+    {
+        if(this->m_items[index].m_checkboxes[check_index])
+        {
+            this->m_items[index].m_checkboxes[check_index] = 0;
+        }
+        else
+        {
+            this->m_items[index].m_checkboxes[check_index] = 1;
+        }
+        this->m_picked_check_box_index = check_index;
+        this->ShowTextItems();
+    }
+    
+    
+    // Execute the mouse left click slot (if attached).
+    if(this->GetItem(index)->m_mouse_left_click_slot)
+    {
+        this->GetItem(index)->m_mouse_left_click_slot->Execute(this->GetItem(index), check_index);
+    }
+
+    
+    // Call the on item picked event.
+    this->OnItemPicked();
+
 }
 
 
-void vmxGUIListWidget::ListenForMouseWheelBackwardEvent(int is_listening)
+
+void vmxGUIListWidget::OnLeftButtonDoubleClick()
 {
-    m_mouse_wheel_backward_callback->Activate(is_listening);
+    //            // If double click was performed execute double click slot...
+    //            if(m_list_widget->m_double_click_detector.IsDoubleClicked())
+    //            {
+    //                // this part executes on detected double click.
+    //            }
+    
+    // do nothing.
 }
 
 
-void vmxGUIListWidget::ListenForMouseWheelForwardEvent(int is_listening)
+void vmxGUIListWidget::OnLeftButtonDrag()
 {
-    m_mouse_wheel_forward_callback->Activate(is_listening);
+    //cout<<" vmxGUIListWidget::OnLeftButtonDrag() ";
+    
+    int pick_pos[2];
+    this->m_interactor->GetEventPosition(pick_pos);
+    
+   this->SetListeningFor_LeftButtonUp_Event(1);
+    
+    // perform copying to clipboard of selected data.
+    this->CopySelectedItemsToClipBoard();
+    this->SetVisibilityOfDragEventActor(1);
+    this->m_drag_actor->SetPosition(pick_pos[0],pick_pos[1]);
+    this->m_interactor->Render();
+
 }
+
+
+void vmxGUIListWidget::OnLeftButtonDrop()
+{
+    // do nothing.
+}
+
+
+void vmxGUIListWidget::OnMouseWheelForward()
+{
+    if(this->m_interactor)
+    {
+        int pick_pos[2];
+        this->m_interactor->GetEventPosition(pick_pos);
+        
+        int index = this->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
+        if(index<0) return;
+        
+        int step = 4;
+        
+        this->SetIndexOffset(this->m_text_index_offset-step);
+        this->ShowTextItems();
+        this->ShowSelectedItems();
+        this->RepositionAfterResizing();
+        
+        this->m_interactor->Render();
+    }
+}
+
+
+void vmxGUIListWidget::OnMouseWheelBackward()
+{
+    if(this->m_interactor)
+    {
+        int pick_pos[2];
+        this->m_interactor->GetEventPosition(pick_pos);
+        
+        int index = this->GetPickedItemIndex(pick_pos[0], pick_pos[1]);
+        if(index<0) return;
+        
+        int step = 4;
+        
+        this->SetIndexOffset(this->m_text_index_offset+step);
+        this->ShowTextItems();
+        this->ShowSelectedItems();
+        this->RepositionAfterResizing();
+        
+        this->m_interactor->Render();
+    }
+}
+
+
 
 
 void vmxGUIListWidget::Reset()
@@ -1076,13 +784,14 @@ void vmxGUIListWidget::Reset()
     m_picked_check_box_index = -1;
     m_text_index_offset = 0;
     
-//    m_selection_text_character = '_';
-//    m_selection_text_line.Assign(m_selection_text_character);
-    
     m_items.Reset();
     m_item_pointers.Reset();
     m_text_actor->SetInput("");
     m_checkboxes_actor->SetInput("");
+    
+    m_last_selected_item = NULL;
+    m_last_selected_item_data = NULL;
+
 
 }
 
@@ -1113,15 +822,6 @@ void vmxGUIListWidget::SetFontSize(double font_size)
 {
     if(font_size<=0) return;
     m_font_size = font_size;
-
-//    m_text_actor->GetTextProperty()->SetFontFamilyToCourier();
-//    m_checkboxes_actor->GetTextProperty()->SetFontFamilyToCourier();
-//    m_selected_text_actor->GetTextProperty()->SetFontFamilyToCourier();
-//    
-    
-//    m_text_actor->GetTextProperty()->SetFontFamilyToTimes();
-//    m_checkboxes_actor->GetTextProperty()->SetFontFamilyToTimes();
-//    m_selected_text_actor->GetTextProperty()->SetFontFamilyToTimes();
     
     m_text_actor->GetTextProperty()->SetFontFamilyToArial();
     m_checkboxes_actor->GetTextProperty()->SetFontFamilyToArial();
@@ -1164,31 +864,32 @@ void vmxGUIListWidget::SetInteractor(vtkRenderWindowInteractor *interactor)
     
     m_interactor = interactor;
     
-    //m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
-    m_interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_left_button_down_callback);
     
     this->GetMainWidget()->GetRenderer_GUI()->AddActor2D(m_text_actor);
     this->GetMainWidget()->GetRenderer_GUI()->AddActor2D(m_checkboxes_actor);
     this->GetMainWidget()->GetRenderer_GUI()->AddActor2D(m_selected_text_actor);
     this->GetMainWidget()->GetRenderer_GUI()->AddActor2D(m_drag_actor);
     
-//    m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_text_actor);
-//    m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_checkboxes_actor);
-//    m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_selected_text_actor);
-//    m_interactor->GetRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor2D(m_drag_actor);
-//    
     m_selected_text_actor->SetVisibility(0);
     m_drag_actor->SetVisibility(0);
     
     this->ComputeSelectionTextLine();
+}
 
+
+void vmxGUIListWidget::SetMainWidget(vmxGUIMainWidget *main_widget)
+{
+    this->vmxGUIWidget::SetMainWidget(main_widget);
+
+    this->SetClipBoard(main_widget->GetClipBoard());
+    this->SetInteractor(main_widget->GetInteractor());
+    
 }
 
 
 void vmxGUIListWidget::SetMaximumSize(int max_size_x, int max_size_y)
 {
     // Should check if the new size is different than the old one...
-    //if(max_size_x!=m_maximum_size[0] || max_size_y!=m_maximum_size[1])
     if(max_size_y!=m_maximum_size[1])
     {
         m_maximum_size[0] = max_size_x;
@@ -1198,7 +899,6 @@ void vmxGUIListWidget::SetMaximumSize(int max_size_x, int max_size_y)
         this->ComputeMaxNumberOfItemsInTextActor();
         
         // now perform resizing of the object.
-        
         this->ShowTextItems();
         this->ShowSelectedItems();
     }
@@ -1225,32 +925,29 @@ void vmxGUIListWidget::SetVisibility(int is_visible)
     this->m_text_actor->SetVisibility(is_visible);
     this->m_checkboxes_actor->SetVisibility(is_visible);
     this->m_selected_text_actor->SetVisibility(0);
-    //    this->m_drag_actor->SetVisibility(is_visible);
     
     // If the list_widget is not visible, it should not observe interaction events
     if(!is_visible)
     {
-        //m_interactor->GetRenderWindow()->RemoveObservers(vtkCommand::ModifiedEvent, m_window_modified_callback);
-        this->ListenForMouseMoveEvent(0);
-        this->ListenForLeftButtonUpEvent(0);
-        this->ListenForLeftButtonDownEvent(0);
-        this->ListenForMouseWheelBackwardEvent(0);
-        this->ListenForMouseWheelForwardEvent(0);
+        this->SetListeningFor_MouseMove_Event(0);
+        this->SetListeningFor_LeftButtonUp_Event(0);
+        this->SetListeningFor_LeftButtonDown_Event(0);
+        this->SetListeningFor_MouseWheelBackward_Event(0);
+        this->SetListeningFor_MouseWheelForward_Event(0);
     }
     else
     {
-        //m_interactor->GetRenderWindow()->AddObserver(vtkCommand::ModifiedEvent, m_window_modified_callback);
-        this->ListenForLeftButtonDownEvent(1);
+        this->SetListeningFor_LeftButtonDown_Event(1);
         
         if(m_number_of_items_in_text_actor<this->GetNumberOfItems())
         {
-            this->ListenForMouseWheelBackwardEvent(1);
-            this->ListenForMouseWheelForwardEvent(1);
+            this->SetListeningFor_MouseWheelBackward_Event(1);
+            this->SetListeningFor_MouseWheelForward_Event(1);
         }
         else
         {
-            this->ListenForMouseWheelBackwardEvent(0);
-            this->ListenForMouseWheelForwardEvent(0);
+            this->SetListeningFor_MouseWheelBackward_Event(0);
+            this->SetListeningFor_MouseWheelForward_Event(0);
         }
     }
     
@@ -1294,7 +991,6 @@ int vmxGUIListWidget::ShowSelectedItems()
         if(m_item_pointers[i]->m_is_selected)
         {
             selected_text.Append(m_selection_text_line);
-            //if(i!=0)
             if(i!=this->GetNumberOfItems()-1  && m!=m_text_actor_max_number_of_items-1)
             {
                 selected_text.Append("\n");
@@ -1302,7 +998,6 @@ int vmxGUIListWidget::ShowSelectedItems()
         }
         else
         {
-            //if(i!=0)
             if(i!=this->GetNumberOfItems()-1  && m!=m_text_actor_max_number_of_items-1)
             {
                 selected_text.Append("\n");
@@ -1364,13 +1059,13 @@ int vmxGUIListWidget::ShowTextItems()
     
     if(m_number_of_items_in_text_actor<this->GetNumberOfItems())
     {
-        this->ListenForMouseWheelBackwardEvent(1);
-        this->ListenForMouseWheelForwardEvent(1);
+        this->SetListeningFor_MouseWheelBackward_Event(1);
+        this->SetListeningFor_MouseWheelForward_Event(1);
     }
     else
     {
-        this->ListenForMouseWheelBackwardEvent(0);
-        this->ListenForMouseWheelForwardEvent(0);
+        this->SetListeningFor_MouseWheelBackward_Event(0);
+        this->SetListeningFor_MouseWheelForward_Event(0);
     }
     
     m_text_actor->SetInput(text.Get_C_String());
