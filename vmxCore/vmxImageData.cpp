@@ -301,21 +301,18 @@ int vmxImageDataT<T>::LoadPNGImages(const char *file_name_root, unsigned int num
     this->vmxImageDataT<T>::Reset();
     
     vtkSmartPointer<vtkStringArray> file_names = vtkSmartPointer<vtkStringArray>::New();
-    
-    mxString name_string;
-    name_string.Assign(file_name_root);
-    name_string.Append(".");
-    
+        
     for(int s=slice_start_index; s<=slice_end_index; s++)
     {
         mxString file_name;
-        file_name.Assign(name_string);
+        file_name.Assign(file_name_root);
         
         int temp = s;
         for(int d=number_of_digits-1; d>=0; d--)
         {
-            file_name.AppendNumber(temp/(10^d));
-            temp = temp % (10^(d));
+            //std::cout<<std::endl<<" temp="<<temp<<", d="<<d<<", 10^d="<<(pow (10, d));
+            file_name.AppendNumber(temp/ ((int)(pow (10, d))));
+            temp = temp % ((int)(pow (10, d)));
         }
         
         file_name.Append(".png");

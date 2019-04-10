@@ -17,6 +17,7 @@ set( ${TARGET_NAME}_SOURCES
     mxCurveProcessing.cpp
     mxGIP.cpp
     mxGraphProcessing.cpp
+    mxProfileProcessing.cpp
     mxSkeletonization.cpp
 )
 
@@ -25,6 +26,7 @@ set( ${TARGET_NAME}_HEADERS
     mxCurveProcessing.h
     mxGIP.h
     mxGraphProcessing.h
+    mxProfileProcessing.h
     mxSkeletonization.h
 )
 
@@ -36,6 +38,7 @@ add_definitions( -DmxBIP_EXPORTS
     -DmxCurveProcessing_EXPORTS
     -DmxGIP_EXPORTS
     -DmxGraphProcessing_EXPORTS
+    -DmxProfileProcessing_EXPORTS
     -DmxSkeletonization_EXPORTS
 )
 

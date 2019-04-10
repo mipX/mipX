@@ -497,7 +497,7 @@ void vmxGUIIconButtonGroup::SetOrigin(int origin1, int origin2)
         //cout<<endl<<"origin_x="<<origin_x<<endl;
     }
     
-    m_placement = vmxGUIBaseObject::FIXED;
+    m_placement = vmxGUIWidgetBase::FIXED; //vmxGUIBaseObject::FIXED;
 }
 
 

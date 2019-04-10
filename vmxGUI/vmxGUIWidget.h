@@ -104,7 +104,7 @@ enum vmxGUIEventID
     ConnectionCreatedEvent, ConnectionClosedEvent, DomainModifiedEvent, PropertyModifiedEvent,
     UpdateEvent, RegisterEvent, UnRegisterEvent, UpdateInformationEvent,
     SelectionChangedEvent, UpdatePropertyEvent,*/
-    ButtonOKClickedEvent, ButtonCancelClickedEvent,
+    ButtonClickedEvent, ButtonOKClickedEvent, ButtonCancelClickedEvent,
     ImageSliceChangeEvent, ImageSelectionChangeEvent, ImagePickedEvent,
     ItemSelectedEvent, ItemModifiedEvent,
     KeyPressEvent,
@@ -133,67 +133,67 @@ typedef int (*vmxGUISlotFunction)(vmxGUIConnection *connection);
 
 class vmxGUIConnection
 {
-private:
-    
+protected:
+
     /// Pointer to the main widget, the same for the whole class.
     static vmxGUIMainWidget *m_main_widget;
-    
+
     /// GUI objet that is triggering this connection.
     vmxGUIBaseObject *m_sender_object;
-    
+
     /// Trigger event ID number.
     vmxGUIEventID m_trigger_event_id;
-    
+
     /// GUI object that is being used when the connection is triggered.
     vmxGUIBaseObject *m_receiver_object;
-    
+
     //    /// A part of the GUI object that is being used when the connection is triggered.
     //    void *m_receiver_subobject;
-    
-    
+
+
     /// Object on which the slot is executed (object of the class that has the slot as a method).
     void *m_slot_caller_object;
-    
+
     /// Slot that will be executed when the connection is triggered
     vmxGUISlotFunction m_slot;
-    
+
 //    /// Trigger event.
 //    mxString m_trigger_event;
-    
+
 //    /// A part of the GUI object that from which the connection is triggered.
 //    void *m_sender_subobject;
-    
-    
+
+
 /// Define the max number of passed data elements for a connection.
 #define vmxGUIConnection_max_number_of_passed_data_elements 10
 
     /// Data that is being passed to the receiver.
     void **m_passed_address[vmxGUIConnection_max_number_of_passed_data_elements];
 
-    
+
     /// Data that is being passed to the receiver.
     void *m_passed_data[vmxGUIConnection_max_number_of_passed_data_elements];
 
 //    /// Description of the passed data.
 //    mxString
-    
+
     /// Data that is being passed to the receiver.
     double *m_passed_data_double[vmxGUIConnection_max_number_of_passed_data_elements];
-    
+
     /// Data that is being passed to the receiver.
     int *m_passed_data_int[vmxGUIConnection_max_number_of_passed_data_elements];
 
     /// Data that is being passed to the receiver.
     unsigned int *m_passed_data_unsigned_int[vmxGUIConnection_max_number_of_passed_data_elements];
-    
+
 //    /// Slot Function that is being passed to the receiver.
 //    vmxGUISlotFunction m_passed_slot_function;
-    
- 
 
-    
+
+
+
 public:
-    
+
     // Example use:
     // int Slot_PrintConnectionProperties(vmxGUIConnection *connection);
     // vmxGUIConnection::New(caller_object,LeftButtonDoubleClick,receiver_object,Slot_PrintConnectionProperties);
@@ -218,72 +218,79 @@ public:
         m_receiver_object = NULL;
         //m_receiver_subobject = NULL;
         m_slot = NULL;
-        
+
         m_slot_caller_object = NULL;
     };
-    
+
     /// Destructor.
     ~vmxGUIConnection() {};
-    
+
     /// To be used internally!
     static void internal_SetMainWidget(vmxGUIMainWidget *main_widget)
     {
         m_main_widget = main_widget;
     };
-    
+
     /// Create a new object instance.
 //    static vmxGUIConnection* New(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *receiver_subobject, vmxGUISlotFunction slot);
 //    static vmxGUIConnection* New(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot);
 
+    /// Create a new connection.
+    /// 'sender' is an object that catches some event and initiates the connection exectution (e.g. a push button will intiate some function when it is pressed).
+    /// 'trigger_event_id' is the event (signal) that triggers execution (e.g. pressing a button, selecting an item...).
+    /// 'receiver' is an object that receives this connection. It is not necessarily the object that calles the slot method (that is slot_caller_object).
+    ///  In case 'receiver' is not defined, sender is used as a receiver.
+    /// 'slot_caller_object' is an object that executes its static method (defined by 'slot').
+    /// 'slot' is the actual static method being executed.
     static vmxGUIConnection* New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot);
-    
+
 //    /// This is a special type of New method, where the receiver is the vmxGUIMainWidget. In fact, it is equal to setting sender as receiver object and
 //   /// vmxGUIMainWidget as receiver_subobject.
 //    static vmxGUIConnection* New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIMainWidget *receiver, vmxGUISlotFunction slot);
 //    static vmxGUIConnection* New(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIMainWidget *receiver, vmxGUISlotFunction slot);
 
-    
+
     /// Delete an object instance.
     static int Delete(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot);
     static int Delete(vmxGUIConnection *connection);
-    
+
     /// Get main widget.
     vmxGUIMainWidget* GetMainWidget() { return m_main_widget; };
-    
+
     /// Get GUI objet that is triggering this connection.
     vmxGUIBaseObject* GetSenderObject() { return m_sender_object; };
-    
+
     /// Get Trigger event ID number.
     vmxGUIEventID GetEventID() { return m_trigger_event_id; };
-    
+
 //    /// Get A part of the GUI object that from which the connection is triggered.
 //    void* GetSenderSubObject() { return m_sender_subobject; };
 
     /// Get data that is being passed to the receiver.
     void** GetPassedAddress(unsigned int i=0) { return m_passed_address[i]; };
 
-    
+
     /// Get data that is being passed to the receiver.
     void* GetPassedData(unsigned int i=0) { return m_passed_data[i]; };
 
     /// Get data that is being passed to the receiver.
     double* GetPassedDataDouble(unsigned int i=0) { return m_passed_data_double[i]; };
-    
+
     /// Get data that is being passed to the receiver.
     int* GetPassedDataInt(unsigned int i=0) { return m_passed_data_int[i]; };
 
     /// Get data that is being passed to the receiver.
     unsigned int* GetPassedDataUnsignedInt(unsigned int i=0) { return m_passed_data_unsigned_int[i]; };
-    
+
 //    /// Get Slot Function that is being passed to the receiver.
 //    vmxGUISlotFunction GetPassedSlotFunction(unsigned int i=0) { return m_passed_slot_function[i]; };
-    
+
     /// Get GUI object that is being used when the connection is triggered.
     vmxGUIBaseObject* GetReceiverObject() { return m_receiver_object; };
-    
+
 //    /// Get a part of the GUI object that is being used when the connection is triggered.
 //    void* GetReceiverSubObject() { return m_receiver_subobject; };
-    
+
     /// Get the Slot that will be executed when the connection is triggered.
     vmxGUISlotFunction GetSlotFunction() { return m_slot; };
 
@@ -298,31 +305,33 @@ public:
     {
         return m_slot(this);
     };
-    
+
     /// Print out the properties of this connection.
     void PrintSelf();
-    
+
 //    /// Set ptoperties of an existing connection object.
 //    void Set(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *receiver_subobject, vmxGUISlotFunction slot);
 
     /// Set data that is being passed to the receiver.
     void SetPassedAddress(void **passed_address, unsigned int i=0) { m_passed_address[i] = passed_address; };
-    
+
     /// Set data that is being passed to the receiver.
     void SetPassedData(void *passed_data, unsigned int i=0) { m_passed_data[i] = passed_data; };
-    
+
     /// Set data that is being passed to the receiver.
     void SetPassedDataDouble(double *passed_data, unsigned int i=0) { m_passed_data_double[i] = passed_data; };
-    
+
     /// Set data that is being passed to the receiver.
     void SetPassedDataInt(int *passed_data, unsigned int i=0) { m_passed_data_int[i] = passed_data; };
 
     /// Set data that is being passed to the receiver.
     void SetPassedDataUnsignedInt(unsigned int *passed_data, unsigned int i=0) { m_passed_data_unsigned_int[i] = passed_data; };
 
-    
+
 };
 
+
+//typedef vmxGUIConnection vmxGUISlotDataContainer;
 
 
 
@@ -375,38 +384,12 @@ public:
 
 
 
-
-
-
-
-/// Base calss of GUI objects. All objects/widgets inherit from this one.
+/// Base calss of GUI objects. All objects inherit from this class.
 
 class vmxGUIWidget_API vmxGUIBaseObject
 {
 public:
     
-    /// Predefined placement positions for object.
-    enum vmxGUIWidgetPlacement
-    {
-        RELATIVE, //'relative' means relative to window size in percentages.
-        FIXED, //'fixed' means positioned to given absolute coordinates.
-        LOWER_LEFT,
-        LOWER_CENTER,
-        LOWER_RIGHT,
-        CENTER_LEFT,
-        CENTER_CENTER,
-        CENTER_RIGHT,
-        UPPER_LEFT,
-        UPPER_CENTER,
-        UPPER_RIGHT,
-    };
-    
-    /// Predefined placement orders for object.
-    enum vmxGUIWidgetPlacementOrder
-    {
-        ABOVE, // 'above' means that the object will be placed above (on top) of other objects with the same placement.
-        BELOW, // 'below' means that the object will be placed below other objects with the same placement.
-    };
     
 protected:
     
@@ -416,9 +399,6 @@ protected:
     /// Pointer to clipboard this object uses.
     vmxGUIClipBoard *m_clip_board;
     
-    /// Pointer to the collection containing this object. If none the pointer is NULL (default).
-    vmxGUIWidgetCollection *m_collection;
-    
     /// Connections Manager for signal-slot calling.
     vmxGUIConnectionManager m_connection_manager;
     
@@ -427,17 +407,6 @@ protected:
     
     /// Object name string. It can happen that this name is not unique (depends how the higher level app handles object names).
     mxString m_object_name;
-    
-    /// Position (placement) of the list_widget. FREE is default.
-    vmxGUIWidgetPlacement m_placement;
-    
-    /// Position within the placement of the object. ABOVE is default.
-    /// 'above' means that the object will be placed above (on top) of other objects with the same placement.
-    /// 'below' means that the object will be placed bellow other objects with the same placement.
-    vmxGUIWidgetPlacementOrder m_placement_order;
-    
-    /// Indicates if the object stretches over the whole X axis.
-    int m_is_stretching_over_x_axis;
     
     /// Indicates if the object accepts a specific event. These events are forwarded (by interactor style) only
     /// to the object which is picked by the events. E.g. double click is forwarded only to the clicked object
@@ -454,8 +423,8 @@ protected:
     int m_is_listening_for_LeftButtonDown_event;
     int m_is_listening_for_MouseWheelForward_event;
     int m_is_listening_for_MouseWheelBackward_event;
-
-
+    
+    
     /// Use this method in constructor of child classes to set their class name.
     void SetClassName(const char *class_name);
     
@@ -469,8 +438,8 @@ public:
     /// Destructor.
     virtual ~vmxGUIBaseObject();
     
-//    /// Reset the object.
-//    virtual void Reset();
+    //    /// Reset the object.
+    //    virtual void Reset();
     
     /// Get class (type) unique name string.
     mxString GetClassName();
@@ -481,23 +450,10 @@ public:
         return m_clip_board;
     };
     
-    /// Get the pointer to the collection containing this object. If none the pointer is NULL (default).
-    vmxGUIWidgetCollection* GetCollection()
-    {
-        return m_collection;
-    };
-    
     /// Get the pointer to the manager of connections.
     vmxGUIConnectionManager* GetConnectionManager()
     {
         return &m_connection_manager;
-    };
-    
-    /// Get the array of all widgets contained within this one.
-    virtual mxArray<vmxGUIWidget*> GetWidgets()
-    {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::GetWidgets()!"<<endl;
-        mxArray<vmxGUIWidget*> empty_array; return empty_array;
     };
     
     /// Get the pointer to the main widget.
@@ -508,12 +464,6 @@ public:
     
     /// Get object name string. It can happen that this name is not unique (depends how the higher level app handles object names).
     mxString GetObjectName();
-    
-    /// Get the placement type for this object.
-    vmxGUIBaseObject::vmxGUIWidgetPlacement GetPlacement();
-    
-    /// Get the placement order for this object.
-    vmxGUIBaseObject::vmxGUIWidgetPlacementOrder GetPlacementOrder();
     
     /// Check if the given 2D VTK actor is contained in this object.
     virtual int HasVTKActor2D(vtkActor2D *actor_2D)
@@ -563,26 +513,26 @@ public:
     {
         return m_is_listening_for_MouseMove_event;
     };
-
+    
     /// Indicate if the object is listening for the given event.
     int IsListeningFor_LeftButtonUp_Event()
     {
         return m_is_listening_for_LeftButtonUp_event;
     };
-
+    
     /// Indicate if the object is listening for the given event.
     int IsListeningFor_LeftButtonDown_Event()
     {
         return m_is_listening_for_LeftButtonDown_event;
     };
-
+    
     /// Indicate if the object is listening for the given event.
     int IsListeningFor_MouseWheelForward_Event()
     {
         return m_is_listening_for_MouseWheelForward_event;
     };
-
-    /// Indicate if the object is listening for the given event.
+    
+    /// Indicates if the object is listening for the given event.
     int IsListeningFor_MouseWheelBackward_Event()
     {
         return m_is_listening_for_MouseWheelBackward_event;
@@ -601,9 +551,6 @@ public:
         cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::IsVisible()!"<<endl; return 0;
     };
     
-    /// Check if the object stretches over the whole X axis.
-    int IsStretchingOver_X_Axis();
-
     /// Callback method executed for the given event.
     virtual void OnKeyPress() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::OnKeyPress()!"<<endl; };
     virtual void OnMouseMove() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::OnMouseMove()!"<<endl; };
@@ -615,12 +562,6 @@ public:
     virtual void OnLeftButtonDrop() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::OnLeftButtonDrop()!"<<endl; };
     virtual void OnMouseWheelForward() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::OnMouseWheelForward()!"<<endl; };
     virtual void OnMouseWheelBackward() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::OnMouseWheelBackward()!"<<endl; };
-    
-    /// Set the pointer to the collection containing this object.
-    void SetCollection(vmxGUIWidgetCollection* collection)
-    {
-        m_collection = collection;
-    };
     
     /// Toggle on/off accepting of the given event.
     void SetAccepting_LeftButtonDoubleClick_Event(int is_accepting) { m_is_accepting_LeftButtonDoubleClick_event = is_accepting; };
@@ -636,16 +577,16 @@ public:
     
     /// Toggle on/off listening for the given event.
     void SetListeningFor_LeftButtonUp_Event(int is_listening);
-
+    
     /// Toggle on/off listening for the given event.
     void SetListeningFor_LeftButtonDown_Event(int is_listening);
     
     /// Toggle on/off listening for the given event.
     void SetListeningFor_MouseWheelForward_Event(int is_listening);
-
+    
     /// Toggle on/off listening for the given event.
     void SetListeningFor_MouseWheelBackward_Event(int is_listening);
-
+    
     /// Set the pointer to the main widget.
     virtual void SetMainWidget(vmxGUIMainWidget *main_widget)
     {
@@ -655,83 +596,212 @@ public:
     /// Set the object name. It can happen that this name is not unique (depends how the higher level app handles object names).
     void SetObjectName(const char *object_name);
     
+    /// Set visibility of the object.
+    virtual void SetVisibility(int is_visible);
+    //    {
+    //        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetVisibility()!"<<endl;
+    //    };
+    
+};
+
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+/// Base calss of GUI widdgets. All widgets inherit from this one.
+
+class vmxGUIWidget_API vmxGUIWidgetBase : public vmxGUIBaseObject
+{
+public:
+    
+    /// Predefined placement positions for object.
+    enum vmxGUIWidgetPlacement
+    {
+        RELATIVE, //'relative' means relative to window size in percentages.
+        FIXED, //'fixed' means positioned to given absolute coordinates.
+        LOWER_LEFT,
+        LOWER_CENTER,
+        LOWER_RIGHT,
+        CENTER_LEFT,
+        CENTER_CENTER,
+        CENTER_RIGHT,
+        UPPER_LEFT,
+        UPPER_CENTER,
+        UPPER_RIGHT,
+    };
+    
+    /// Predefined placement orders for object.
+    enum vmxGUIWidgetPlacementOrder
+    {
+        ABOVE, // 'above' means that the object will be placed above (on top) of other objects with the same placement.
+        BELOW, // 'below' means that the object will be placed below other objects with the same placement.
+    };
+    
+protected:
+    
+    /// Pointer to the collection containing this object. If none the pointer is NULL (default).
+    vmxGUIWidgetCollection *m_collection;
+    
+    /// Position (placement) of the list_widget. FREE is default.
+    vmxGUIWidgetPlacement m_placement;
+    
+    /// Position within the placement of the object. ABOVE is default.
+    /// 'above' means that the object will be placed above (on top) of other objects with the same placement.
+    /// 'below' means that the object will be placed bellow other objects with the same placement.
+    vmxGUIWidgetPlacementOrder m_placement_order;
+    
+    /// Indicates if the object stretches over the whole X axis.
+    int m_is_stretching_over_x_axis;
+    
+    /// Indicates if this object occupies GUI renderer.
+    int m_is_occupying_renderer;
+    
+    
+public:
+    
+    
+    /// Constructor.
+    vmxGUIWidgetBase();
+    
+    /// Destructor.
+    virtual ~vmxGUIWidgetBase();
+    
+//    /// Reset the object.
+//    virtual void Reset();
+    
+    /// Get the pointer to the collection containing this object. If none the pointer is NULL (default).
+    vmxGUIWidgetCollection* GetCollection()
+    {
+        return m_collection;
+    };
+    
+    /// Get the array of all widgets contained within this one.
+    virtual mxArray<vmxGUIWidget*> GetWidgets()
+    {
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::GetWidgets()!"<<endl;
+        mxArray<vmxGUIWidget*> empty_array; return empty_array;
+    };
+    
+    /// Get the placement type for this object.
+    vmxGUIWidgetBase::vmxGUIWidgetPlacement GetPlacement();
+    
+    /// Get the placement order for this object.
+    vmxGUIWidgetBase::vmxGUIWidgetPlacementOrder GetPlacementOrder();
+    
+    /// Indictes is this object occupies the whole GUI renderer.
+    int IsOccupayingRenderer()
+    {
+        return m_is_occupying_renderer;
+    };
+    
+    /// Check if the object stretches over the whole X axis.
+    int IsStretchingOver_X_Axis();
+
+    /// Callback method executed for the given event.
+    virtual void OnKeyPress() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnKeyPress()!"<<endl; };
+    virtual void OnMouseMove() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnMouseMove()!"<<endl; };
+    virtual void OnLeftButtonUp() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonUp()!"<<endl; };
+    virtual void OnLeftButtonDown() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonDown()!"<<endl; };
+    virtual void OnLeftButtonDoubleClick() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonDoubleClick()!"<<endl; };
+    virtual void OnLeftButtonSingleClick() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonSingleClick()!"<<endl; };
+    virtual void OnLeftButtonDrag() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonDrag()!"<<endl; };
+    virtual void OnLeftButtonDrop() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnLeftButtonDrop()!"<<endl; };
+    virtual void OnMouseWheelForward() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnMouseWheelForward()!"<<endl; };
+    virtual void OnMouseWheelBackward() { cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::OnMouseWheelBackward()!"<<endl; };
+    
+    /// Set the pointer to the collection containing this object.
+    void SetCollection(vmxGUIWidgetCollection* collection)
+    {
+        m_collection = collection;
+    };
+    
+    /// Set the object name. It can happen that this name is not unique (depends how the higher level app handles object names).
+    void SetObjectName(const char *object_name);
+    
     /// Set the order of object placement so that the object appears above existing object at the same placement.
     virtual void SetPlacementOrderToAbove()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementOrderToAbove()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementOrderToAbove()!"<<endl;
     };
     
     /// Set the order of object placement so that the object appears below existing object at the same placement.
     virtual void SetPlacementOrderToBelow()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementOrderToBelow()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementOrderToBelow()!"<<endl;
     };
     
     /// Place the object relative to the size of the render window.
     virtual void SetPlacementToRelative(unsigned int x_percent, unsigned int y_percent)
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToRelative(unsigned int, unsigned int)!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToRelative(unsigned int, unsigned int)!"<<endl;
     };
     
     /// Place the object in the cernter left side of the render window.
     virtual void SetPlacementToCenterCenter()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToCenterCenter()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToCenterCenter()!"<<endl;
     };
     
     /// Place the object in the cernter left side of the render window.
     virtual void SetPlacementToCenterLeft()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToCenterLeft()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToCenterLeft()!"<<endl;
     };
     
     /// Place the object in the cernter right side of the render window.
     virtual void SetPlacementToCenterRight()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToCenterRight()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToCenterRight()!"<<endl;
     };
     
     /// Place the object in the lower center of the render window.
     virtual void SetPlacementToLowerCenter()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToLowerCenter()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToLowerCenter()!"<<endl;
     };
     
     /// Place the object in the lower left corner of the render window.
     virtual void SetPlacementToLowerLeft()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToLowerLeft()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToLowerLeft()!"<<endl;
     };
     
     /// Place the object in the lower right corner of the render window.
     virtual void SetPlacementToLowerRight()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToLowerRight()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToLowerRight()!"<<endl;
     };
     
     /// Place the object in the upper center of the render window.
     virtual void SetPlacementToUpperCenter()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToUpperCenter()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToUpperCenter()!"<<endl;
     };
     
     /// Place the object in the upper left corner of the render window.
     virtual void SetPlacementToUpperLeft()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToUpperLeft()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToUpperLeft()!"<<endl;
     };
     
     /// Place the object in the upper right corner of the render window.
     virtual void SetPlacementToUpperRight()
     {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetPlacementToUpperRight()!"<<endl;
+        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetBase::SetPlacementToUpperRight()!"<<endl;
     };
     
     /// Set visibility of the object.
-    virtual void SetVisibility(int is_visible)
-    {
-        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetVisibility()!"<<endl;
-    };
+    virtual void SetVisibility(int is_visible);
+//    {
+//        cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIBaseObject::SetVisibility()!"<<endl;
+//    };
 
 };
 
@@ -744,7 +814,7 @@ public:
 
 /// Object class as parent of all widgets.
 
-class vmxGUIWidget_API vmxGUIWidget : public vmxGUIBaseObject
+class vmxGUIWidget_API vmxGUIWidget : public vmxGUIWidgetBase
 {
 
 protected:
@@ -874,10 +944,10 @@ public:
     
     /// Set visibility of the object. This method should be re-implemented
     /// in child class, but should call RedoPlacement() mehod within it!
-    virtual void SetVisibility(int is_visible)
-    {
-        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIWidget::SetVisibility()!"<<endl;
-    };
+    virtual void SetVisibility(int is_visible);
+//    {
+//        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIWidget::SetVisibility()!"<<endl;
+//    };
 };
 
 
@@ -889,13 +959,13 @@ public:
 
 /// Collection of widgets. Serves as a frame for widgets which are grouped togehter (e.g. for making more complex forms).
 
-class vmxGUIWidget_API vmxGUIWidgetCollection : public vmxGUIBaseObject
+class vmxGUIWidget_API vmxGUIWidgetCollection : public vmxGUIWidgetBase //vmxGUIBaseObject
 {
 
 protected:
     
     /// List of contained objects.
-    mxList<vmxGUIWidget*> m_objects;
+    mxList<vmxGUIWidget*> m_objects;//mxList<vmxGUIWidgetBase*> m_objects;
     
     /// Object within the collection that called the last event callback method.
     vmxGUIBaseObject *m_event_caller_object;
@@ -903,6 +973,8 @@ protected:
     /// Position at which event occured within the caller object (that belongs to this collection).
     int m_event_caller_object_position_of_event[2];
 
+    /// Indicates if the collection of widgets is visible.
+    int m_is_visible_collection;
 
 public:
 
@@ -931,6 +1003,13 @@ public:
         output_event_position1 = this->m_event_caller_object_position_of_event[0];
         output_event_position2 = this->m_event_caller_object_position_of_event[1];
     };
+    
+    /// Get visibility of this object.
+    virtual int IsVisible()
+    {
+        return m_is_visible_collection;
+    };
+
     
     /// Callback method executed for the given event.
     virtual void OnKeyPress()
@@ -1055,24 +1134,30 @@ public:
     double m_x;
     double m_y;
     double m_z;
+    double m_t;
     double m_v;
+    
+//    double m_world_x;
+//    double m_world_y;
+//    double m_world_z;
+//    double m_world_t;
     
     vmxGUIRendererPosition(){};
     ~vmxGUIRendererPosition(){};
 };
 
 
-class vmxGUIRendererIndex
-{
-public:
-    double m_x;
-    double m_y;
-    double m_z;
-    double m_v;
-    
-    vmxGUIRendererIndex(){};
-    ~vmxGUIRendererIndex(){};
-};
+//class vmxGUIRendererIndex
+//{
+//public:
+//    double m_x;
+//    double m_y;
+//    double m_z;
+//    double m_v;
+//
+//    vmxGUIRendererIndex(){};
+//    ~vmxGUIRendererIndex(){};
+//};
 
 
 
@@ -1086,7 +1171,7 @@ protected:
     /// Maximum number of picked positions in this renderer.
     static const int VMX_GUI_RENDERER_MAX_NUMBER_OF_PICKED_POSITIONS = 500;
     
-    ///Array of picked positions.
+    /// Array of picked positions.
     vmxGUIRendererPosition m_picked_poisitions[VMX_GUI_RENDERER_MAX_NUMBER_OF_PICKED_POSITIONS];
     
     /// Number of picked positions.
@@ -1241,7 +1326,8 @@ public:
 class vmxGUIWidget_API vmxGUIMainWidget
 {
 
-protected:
+//protected:
+public:
 
     /// Class (type) unique name string.
     mxString m_class_name;
@@ -1275,6 +1361,9 @@ protected:
 
     /// Renderer that will contain GUI objects.
     vtkSmartPointer<vtkRenderer> m_renderer_GUI;
+    
+    /// Pointer to the occupant of the GUI renderer (serves also as indicator - if NULL it means that the GUI renderer is not occupied).
+    vmxGUIWidgetBase *m_renderer_GUI_occupant; //vmxGUIBaseObject *m_renderer_GUI_occupant;
 
 //    /// Renderer that will contain 3D scene.
 //    vmxGUIRenderer3DTrackBallCamera m_renderer_3D;
@@ -1319,8 +1408,11 @@ protected:
     
 public:
     
+    /// List of widget objects that take the whole GUI screen.
+    mxList<vmxGUIWidgetBase*> m_exclusive_visibility_objects;
+    
     /// List of contained objects.
-    mxList<vmxGUIBaseObject*> m_objects;
+    mxList<vmxGUIWidgetBase*> m_objects; //mxList<vmxGUIBaseObject*> m_objects;
 
     
     
@@ -1379,10 +1471,10 @@ public:
     int GetRenderWindowSize(int &x_size, int &y_size);
     
     /// Get the object that contains the given 2D vtk actor. If none found, return NULL.
-    vmxGUIBaseObject* GetGUIObjectForVTKActor2D(vtkActor2D *actor);
+    vmxGUIWidgetBase* GetGUIObjectForVTKActor2D(vtkActor2D *actor); //vmxGUIBaseObject* GetGUIObjectForVTKActor2D(vtkActor2D *actor);
     
     /// Get the object falling under the given (mouse click) screen coordinates. If none found, return NULL.
-    vmxGUIBaseObject* GetGUIObjectForScreenCoordinates(int pos1, int pos2);
+    vmxGUIWidgetBase* GetGUIObjectForScreenCoordinates(int pos1, int pos2); //vmxGUIBaseObject* GetGUIObjectForScreenCoordinates(int pos1, int pos2);
     
     /// Get the size of the main widget (the internal render window size).
     void GetSize(int &size_x, int &size_y);

@@ -152,7 +152,7 @@ void mxString::AssignNumber(double number, int number_of_decimals)
     
     // Convert double to int and from it to string.
     mxString int_string_to_add;
-    for(unsigned int i=0; i<number_of_decimals+1; i++)
+    for(int i=0; i<number_of_decimals+1; i++)
     {
         int n = ((int) number);
         

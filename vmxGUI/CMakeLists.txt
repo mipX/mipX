@@ -78,7 +78,7 @@ add_definitions( -DvmxGUIButtonGroup_EXPORTS
     -DvmxGUIClipBoard_EXPORTS
     -DvmxGUIEventDetector_EXPORTS
     -DvmxGUIFilesDialog_EXPORTS
-    -DvmxGUIInput_EXPORTS
+    -DvmxGUIInputWidget_EXPORTS
     -DvmxGUIIconButtonGroup_EXPORTS
     -DvmxGUIInteractorStyle_EXPORTS
     #-DvmxGUIInteractorStyleImage_EXPORTS

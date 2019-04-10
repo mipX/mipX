@@ -58,7 +58,7 @@ vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID 
     connection->m_slot = slot;
     
     sender->GetConnectionManager()->AddConnection(connection);
-    receiver->GetConnectionManager()->AddConnection(connection);
+    if(sender!=receiver) receiver->GetConnectionManager()->AddConnection(connection);
     
     return connection;
 }
@@ -112,8 +112,11 @@ int vmxGUIConnection::Delete(vmxGUIConnection *connection)
 {
     if(!connection) return 0;
     
+    vmxGUIBaseObject *sender = connection->m_sender_object;
+    vmxGUIBaseObject *receiver = connection->m_receiver_object;
+    
     connection->m_sender_object->GetConnectionManager()->RemoveConnection(*connection);
-    connection->m_receiver_object->GetConnectionManager()->RemoveConnection(*connection);
+    if(sender!=receiver) connection->m_receiver_object->GetConnectionManager()->RemoveConnection(*connection);
 
     delete connection;
     return 1;
@@ -258,14 +261,10 @@ int vmxGUIConnectionManager::Execute(vmxGUIEventID event_id, vmxGUIBaseObject *s
 
 vmxGUIBaseObject::vmxGUIBaseObject()
 {
-    m_collection = NULL;
     m_clip_board = NULL;
     m_main_widget = NULL;
     m_class_name.Assign("vmxGUIBaseObject");
-    m_object_name.Assign("Unnamed");
-    m_is_stretching_over_x_axis = 0;
-    m_placement_order = ABOVE;
-    m_placement = RELATIVE;
+    m_object_name.Assign("Noname");
     
     m_is_accepting_LeftButtonDoubleClick_event = 0;
     m_is_accepting_LeftButtonSingleClick_event = 0;
@@ -295,24 +294,6 @@ mxString vmxGUIBaseObject::GetClassName()
 mxString vmxGUIBaseObject::GetObjectName()
 {
     return m_object_name;
-}
-
-
-vmxGUIBaseObject::vmxGUIWidgetPlacement vmxGUIBaseObject::GetPlacement()
-{
-    return m_placement;
-}
-
-
-vmxGUIBaseObject::vmxGUIWidgetPlacementOrder vmxGUIBaseObject::GetPlacementOrder()
-{
-    return m_placement_order;
-}
-
-
-int vmxGUIBaseObject::IsStretchingOver_X_Axis()
-{
-    return m_is_stretching_over_x_axis;
 }
 
 
@@ -409,6 +390,207 @@ void vmxGUIBaseObject::SetListeningFor_MouseWheelForward_Event(int is_listening)
 void vmxGUIBaseObject::SetObjectName(const char *object_name)
 {
     if(object_name) m_object_name.Assign(object_name);
+}
+
+
+void vmxGUIBaseObject::SetVisibility(int is_visible)
+{
+//    if(!m_is_occupying_renderer) return;
+//
+//    if(is_visible)
+//    {
+//        if(m_main_widget->m_renderer_GUI_occupant==NULL)
+//        {
+//            m_main_widget->m_renderer_GUI_occupant = this;
+//        }
+//    }
+//    else
+//    {
+//        if(m_main_widget->m_renderer_GUI_occupant==this)
+//        {
+//            m_main_widget->m_renderer_GUI_occupant = this;
+//        }
+//    }
+}
+
+
+
+//------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+vmxGUIWidgetBase::vmxGUIWidgetBase()
+{
+    m_collection = NULL;
+//    m_clip_board = NULL;
+//    m_main_widget = NULL;
+    m_class_name.Assign("vmxGUIWidgetBase");
+    m_object_name.Assign("Noname");
+    m_is_stretching_over_x_axis = 0;
+    m_is_occupying_renderer = 0;
+    m_placement_order = ABOVE;
+    m_placement = RELATIVE;
+    
+//    m_is_accepting_LeftButtonDoubleClick_event = 0;
+//    m_is_accepting_LeftButtonSingleClick_event = 0;
+//    m_is_accepting_LeftButtonDrag_event = 0;
+//    m_is_accepting_LeftButtonDrop_event = 0;
+//
+//    m_is_listening_for_KeyPress_event = 0;
+//    m_is_listening_for_MouseMove_event = 0;
+//    m_is_listening_for_LeftButtonUp_event = 0;
+//    m_is_listening_for_LeftButtonDown_event = 0;
+//    m_is_listening_for_MouseWheelForward_event = 0;
+//    m_is_listening_for_MouseWheelBackward_event = 0;
+}
+
+
+vmxGUIWidgetBase::~vmxGUIWidgetBase()
+{
+}
+
+
+//mxString vmxGUIWidgetBase::GetClassName()
+//{
+//    return m_class_name;
+//}
+//
+//
+//mxString vmxGUIWidgetBase::GetObjectName()
+//{
+//    return m_object_name;
+//}
+
+
+vmxGUIWidgetBase::vmxGUIWidgetPlacement vmxGUIWidgetBase::GetPlacement()
+{
+    return m_placement;
+}
+
+
+vmxGUIWidgetBase::vmxGUIWidgetPlacementOrder vmxGUIWidgetBase::GetPlacementOrder()
+{
+    return m_placement_order;
+}
+
+
+int vmxGUIWidgetBase::IsStretchingOver_X_Axis()
+{
+    return m_is_stretching_over_x_axis;
+}
+
+
+//void vmxGUIWidgetBase::SetListeningFor_KeyPress_Event(int is_listening)
+//{
+//    m_is_listening_for_KeyPress_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_KeyPress_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_KeyPress_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetListeningFor_LeftButtonDown_Event(int is_listening)
+//{
+//    m_is_listening_for_LeftButtonDown_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_LeftButtonDown_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_LeftButtonDown_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetListeningFor_LeftButtonUp_Event(int is_listening)
+//{
+//    m_is_listening_for_LeftButtonUp_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_LeftButtonUp_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_LeftButtonUp_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetListeningFor_MouseMove_Event(int is_listening)
+//{
+//    m_is_listening_for_MouseMove_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseMove_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseMove_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetListeningFor_MouseWheelBackward_Event(int is_listening)
+//{
+//    m_is_listening_for_MouseWheelBackward_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseWheelBackward_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseWheelBackward_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetListeningFor_MouseWheelForward_Event(int is_listening)
+//{
+//    m_is_listening_for_MouseWheelForward_event = is_listening;
+//    if(is_listening)
+//    {
+//        this->m_main_widget->GetInteractorStyle()->AddGUIWidgetToTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseWheelForward_event));
+//    }
+//    else
+//    {
+//        this->m_main_widget->GetInteractorStyle()->RemoveGUIWidgetFromTheListOfListeners(this, &(this->m_main_widget->GetInteractorStyle()->m_listeners_for_MouseWheelForward_event));
+//    }
+//}
+//
+//
+//void vmxGUIWidgetBase::SetObjectName(const char *object_name)
+//{
+//    if(object_name) m_object_name.Assign(object_name);
+//}
+
+
+void vmxGUIWidgetBase::SetVisibility(int is_visible)
+{
+    if(!m_is_occupying_renderer) return;
+    
+    if(is_visible)
+    {
+        if(m_main_widget->m_renderer_GUI_occupant==NULL)
+        {
+            m_main_widget->m_renderer_GUI_occupant = this;
+        }
+    }
+    else
+    {
+        if(m_main_widget->m_renderer_GUI_occupant==this)
+        {
+            m_main_widget->m_renderer_GUI_occupant = this;
+        }
+    }
 }
 
 
@@ -636,7 +818,7 @@ void vmxGUIWidget::SetMainWidget(vmxGUIMainWidget *main_widget)
     m_main_widget = main_widget;
     if(m_main_widget)
     {
-        vmxGUIBaseObject *obj = static_cast<vmxGUIBaseObject*>(this);
+        vmxGUIWidgetBase *obj = static_cast<vmxGUIWidgetBase*>(this); //vmxGUIBaseObject *obj = static_cast<vmxGUIBaseObject*>(this);
         
         m_main_widget->m_objects.AddToEnd(obj);
         m_clip_board = main_widget->GetClipBoard();
@@ -797,6 +979,27 @@ void vmxGUIWidget::SetStretchingOver_X_Axis(int is_stretching_over_x_axis)
 }
 
 
+void vmxGUIWidget::SetVisibility(int is_visible)
+{
+    if(!m_is_occupying_renderer) return;
+    
+    if(is_visible)
+    {
+        if(m_main_widget->m_renderer_GUI_occupant==NULL)
+        {
+            m_main_widget->m_renderer_GUI_occupant = this;
+        }
+    }
+    else
+    {
+        if(m_main_widget->m_renderer_GUI_occupant==this)
+        {
+            m_main_widget->m_renderer_GUI_occupant = this;
+        }
+    }
+}
+
+
 
 //------------------------------------------------------------------------------------------------------
 
@@ -808,6 +1011,7 @@ vmxGUIWidgetCollection::vmxGUIWidgetCollection()
     m_event_caller_object = NULL;
     m_event_caller_object_position_of_event[0] = -1;
     m_event_caller_object_position_of_event[1] = -1;
+    m_is_visible_collection = 0;
 }
 
 
@@ -863,6 +1067,12 @@ void vmxGUIWidgetCollection::Reset()
 void vmxGUIWidgetCollection::SetMainWidget(vmxGUIMainWidget *main_widget)
 {
     m_main_widget = main_widget;
+    
+    if(this->IsOccupayingRenderer())
+    {
+        vmxGUIWidgetBase* obj = static_cast<vmxGUIWidgetBase*>(this);
+        m_main_widget->m_exclusive_visibility_objects.AddToEnd(obj);
+    }
 }
 
 
@@ -999,6 +1209,8 @@ void vmxGUIWidgetCollection::SetPlacementToUpperRight()
 
 void vmxGUIWidgetCollection::SetVisibility(int is_visible)
 {
+    m_is_visible_collection = is_visible;
+    
     mxListIterator<vmxGUIWidget*> it;
     for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
     {
@@ -1182,6 +1394,8 @@ vmxGUIMainWidget::vmxGUIMainWidget()
     m_render_window_internal->SetNumberOfLayers(2);
     
     m_renderer_GUI->SetLayer(1);
+    
+    m_renderer_GUI_occupant = NULL;
     
 
     
@@ -1552,9 +1766,9 @@ int vmxGUIMainWidget::GetRenderWindowSize(int &x_size, int &y_size)
 }
 
 
-vmxGUIBaseObject* vmxGUIMainWidget::GetGUIObjectForVTKActor2D(vtkActor2D *actor)
+vmxGUIWidgetBase* vmxGUIMainWidget::GetGUIObjectForVTKActor2D(vtkActor2D *actor)
 {
-    mxListIterator<vmxGUIBaseObject*> it;
+    mxListIterator<vmxGUIWidgetBase*> it; //mxListIterator<vmxGUIBaseObject*> it;
     for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
     {
         if(it.GetElement()->HasVTKActor2D(actor)) return it.GetElement();
@@ -1563,9 +1777,9 @@ vmxGUIBaseObject* vmxGUIMainWidget::GetGUIObjectForVTKActor2D(vtkActor2D *actor)
 }
 
 
-vmxGUIBaseObject* vmxGUIMainWidget::GetGUIObjectForScreenCoordinates(int pos1, int pos2)
+vmxGUIWidgetBase* vmxGUIMainWidget::GetGUIObjectForScreenCoordinates(int pos1, int pos2)
 {
-    mxListIterator<vmxGUIBaseObject*> it;
+    mxListIterator<vmxGUIWidgetBase*> it; //mxListIterator<vmxGUIBaseObject*> it;
     for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
     {
         if(it.GetElement()->IsVisible())
@@ -1614,9 +1828,150 @@ void vmxGUIMainWidget::RedoPlacement()
     m_upper_right_objects.Reset();
     
     
-    // Populate the lists that indicate placements
+
+    // See if there is a single occupant of the renderer
+    if(m_renderer_GUI_occupant)
     {
-        mxListIterator<vmxGUIBaseObject*> it; //mxListIterator<vmxGUIWidget*> it;
+        if(!m_renderer_GUI_occupant->IsVisible())
+        {
+            m_renderer_GUI_occupant = NULL;
+        }
+    }
+    
+    if(!m_renderer_GUI_occupant)
+    {
+        mxListIterator<vmxGUIWidgetBase*> it; //mxListIterator<vmxGUIBaseObject*> it;
+        //for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
+        for(it.SetToBegin(m_exclusive_visibility_objects); it.IsValid(); it.MoveToNext())
+        {
+            cout<<endl<<it.GetElement()->GetClassName().Get_C_String()<<"  ";
+            cout<<"  is visible: "<<it.GetElement()->IsVisible()<<"  ";
+            cout<<"  occupies: "<<it.GetElement()->IsOccupayingRenderer();
+            
+            if(it.GetElement()->IsVisible() && it.GetElement()->IsOccupayingRenderer())
+            {
+                m_renderer_GUI_occupant = it.GetElement();
+                break;
+            }
+        }
+    }
+    
+    // Populate the lists that indicate placements
+    if(m_renderer_GUI_occupant)
+    {
+        // first temporarily remove all actors from GUI renderer
+        m_renderer_GUI->RemoveAllViewProps();
+        
+//        for(it.SetToBegin(m_exclusive_visibility_objects); it.IsValid(); it.MoveToNext())
+//        {
+//            cout<<endl<<it.GetElement()->GetClassName().Get_C_String()<<"  ";
+//            cout<<"  is visible: "<<it.GetElement()->IsVisible()<<"  ";
+//            cout<<"  occupies: "<<it.GetElement()->IsOccupayingRenderer();
+//
+//            if(it.GetElement()->IsVisible() && it.GetElement()->IsOccupayingRenderer())
+//            {
+//                m_renderer_GUI_occupant = it.GetElement();
+//                break;
+//            }
+//        }
+        
+        cout<<"   if(m_renderer_GUI_occupant)   ";
+        cout<<endl<<m_renderer_GUI_occupant->GetClassName().Get_C_String()<<"  ";
+        cout<<"  is visible: "<<m_renderer_GUI_occupant->IsVisible()<<"  ";
+        cout<<"  occupies: "<<m_renderer_GUI_occupant->IsOccupayingRenderer();
+        
+        mxArray<vmxGUIWidget*> array_of_widgets = m_renderer_GUI_occupant->GetWidgets();
+        for(unsigned int i=0; i<array_of_widgets.GetNumberOfElements(); i++)
+        {
+            cout<<" # ";
+            vmxGUIWidget *obj = array_of_widgets[i]; //vmxGUIWidget *obj = it.GetElement();
+            
+            for(int execute_once = 1; execute_once; execute_once =0)
+            {
+                if(obj->GetPlacement()==vmxGUIWidget::UPPER_LEFT)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_upper_left_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_upper_left_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+                
+                if(obj->GetPlacement()==vmxGUIWidget::LOWER_LEFT)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_lower_left_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_lower_left_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+                
+                if(obj->GetPlacement()==vmxGUIWidget::UPPER_CENTER)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_upper_center_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_upper_center_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+                
+                if(obj->GetPlacement()==vmxGUIWidget::LOWER_CENTER)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_lower_center_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_lower_center_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+                
+                if(obj->GetPlacement()==vmxGUIWidget::UPPER_RIGHT)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_upper_right_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_upper_right_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+                
+                if(obj->GetPlacement()==vmxGUIWidget::LOWER_RIGHT)
+                {
+                    if(obj->GetPlacementOrder()==vmxGUIWidget::ABOVE)
+                    {
+                        m_lower_right_objects.AddToEnd(obj);
+                    }
+                    else
+                    {
+                        m_lower_right_objects.AddToBegin(obj);
+                    }
+                    break;
+                }
+            }
+        }
+
+    }
+    else
+    {
+        mxListIterator<vmxGUIWidgetBase*> it; //mxListIterator<vmxGUIBaseObject*> it; //mxListIterator<vmxGUIWidget*> it;
         for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
         {
             mxArray<vmxGUIWidget*> array_of_widgets = it.GetElement()->GetWidgets();
@@ -1902,6 +2257,8 @@ void vmxGUIMainWidget::RedoPlacement()
         for(it.SetToBegin(m_upper_left_objects); it.IsValid(); it.MoveToNext())
         {
             vmxGUIWidget *obj = it.GetElement();
+            
+            cout<<endl<<" obj is visible= "<<obj->IsVisible()<<" ";
             
             if(obj->IsVisible())
             {

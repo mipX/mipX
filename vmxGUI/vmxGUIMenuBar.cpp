@@ -311,6 +311,7 @@ void vmxGUIMenuBar::SetMaximumSize(int max_size_x, int max_size_y)
     this->ShowInputText();
 }
 
+
 void vmxGUIMenuBar::SetOrigin(int origin1, int origin2)
 {
     int text_actor_size[2];

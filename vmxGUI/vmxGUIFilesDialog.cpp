@@ -42,6 +42,8 @@ vmxGUIFilesDialog::vmxGUIFilesDialog(vmxGUIMainWidget *main_widget)
     
     m_selection_type = OPEN_FILES;
     
+    // dialog will take the renderer to itself.
+    m_is_occupying_renderer = 1;
     
     this->SetMainWidget(main_widget);
     
@@ -495,10 +497,12 @@ int vmxGUIFilesDialog::DisplayFolder(const char *directory_path)
 
 
 
-int vmxGUIFilesDialog::OpenFiles(vmxGUISlotFunction open_files_slot, const char *directory_path)
+int vmxGUIFilesDialog::OpenFiles(vmxGUISlotFunction open_files_slot, vmxGUIConnection *connection, const char *directory_path)
 {
     m_slot_open_files = open_files_slot;
     m_selection_type = OPEN_FILES;
+    
+    m_connection_open_files = (*connection);
   
     //!!!!!!!! CHANGE THIS - CURRENTLY IT DOES NOT WORK !!!!!!!!!!!!!!!!!!!
 //    m_connection_open_files.Set(this,NULL,ButtonOKClickedEvent,this,NULL,m_slot_open_files);

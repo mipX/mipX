@@ -24,6 +24,7 @@ set( ${TARGET_NAME}_SOURCES
     mxObject.cpp
     mxPoint.cpp
     mxPosition.cpp
+    mxProfile.cpp
     mxSkeleton.cpp
     mxTable.cpp
     mxVoxel.cpp
@@ -43,6 +44,7 @@ set( ${TARGET_NAME}_HEADERS
     mxObject.h
     mxPoint.h
     mxPosition.h
+    mxProfile.h
     mxSkeleton.h
     mxTable.h
     mxVoxel.h
@@ -64,6 +66,7 @@ add_definitions( -DmxCurve_EXPORTS
     -DmxObject_EXPORTS
     -DmxPoint_EXPORTS
     -DmxPosition_EXPORTS
+    -DmxProfile_EXPORTS
     -DmxSkeleton_EXPORTS
     -DmxTable_EXPORTS
     -DmxVoxel_EXPORTS

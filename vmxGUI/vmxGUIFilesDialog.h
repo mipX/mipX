@@ -202,7 +202,7 @@ public:
     int DisplayFolder(const char *directory_path=NULL);
     
     /// Start the dialog for opening files.
-    int OpenFiles(vmxGUISlotFunction open_files_slot, const char *directory_path=NULL);
+    int OpenFiles(vmxGUISlotFunction open_files_slot, vmxGUIConnection *connection, const char *directory_path=NULL);
     
     /// Start the dialog for saving a file.
     int SaveFile(const char *directory_path=NULL);

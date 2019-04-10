@@ -178,6 +178,9 @@ public:
     /// Add a new item to the menu bar.
     vmxGUIButtonGroupItem* AddItem(const char *item_name, int is_checked = 0);
     
+    /// Gt array of checked items.
+    void GetCheckedItems(mxArray< vmxGUIButtonGroupItem* > &array_of_checked_items);
+    
     /// Get origin (position) of the whole object.
     void GetOrigin(int &origin1, int &origin2);
     

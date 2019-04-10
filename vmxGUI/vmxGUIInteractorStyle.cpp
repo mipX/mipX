@@ -307,7 +307,8 @@ void vmxGUIInteractorStyle::OnLeftButtonUp()
     
     // The event is forwarded to the object over which the mouse is positioned and...
     int is_event_picked_by_an_object = 0;
-    vmxGUIBaseObject *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]);
+    
+    vmxGUIWidgetBase *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]); //vmxGUIBaseObject *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]);
     if(picked_gui_object)
     {
         is_event_picked_by_an_object = 1;
@@ -435,7 +436,7 @@ void vmxGUIInteractorStyle::OnLeftButtonDown()
     
     // The event is forwarded to the object over which the mouse is positioned and...
     int is_event_picked_by_an_object = 0;
-    vmxGUIBaseObject *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]);
+    vmxGUIWidgetBase *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]); //vmxGUIBaseObject *picked_gui_object = m_main_widget->GetGUIObjectForScreenCoordinates(click_position[0], click_position[1]);
     if(picked_gui_object)
     {
         is_event_picked_by_an_object = 1;

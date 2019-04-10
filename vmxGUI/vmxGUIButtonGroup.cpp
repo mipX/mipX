@@ -154,6 +154,29 @@ vmxGUIButtonGroupItem* vmxGUIButtonGroup::AddItem(const char *item_name, int is_
 }
 
 
+void vmxGUIButtonGroup::GetCheckedItems(mxArray< vmxGUIButtonGroupItem* > &array_of_checked_items)
+{
+    int n=0;
+    mxListIterator< vmxGUIButtonGroupItem > it;
+    for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
+    {
+        if(it.GetElement().m_is_checked) n++;
+    }
+    
+    array_of_checked_items.SetNumberOfElements(n);
+    
+    int i=0;
+    for(it.SetToBegin(m_items), i=0; it.IsValid() && i<array_of_checked_items.GetNumberOfElements(); it.MoveToNext())
+    {
+        if(it.GetElement().m_is_checked)
+        {
+            array_of_checked_items[i] = it.GetElementAddress();
+            i++;
+        }
+    }
+}
+
+
 void vmxGUIButtonGroup::GetOrigin(int &origin1, int &origin2)
 {
     this->GetOriginOfDescriptionText(origin1,origin2);
@@ -307,6 +330,8 @@ void vmxGUIButtonGroup::OnLeftButtonUp()
                 item->m_slot->Execute(this);
             }
         }
+        //std::cout<<endl<<" vmxGUIButtonGroup::OnLeftButtonUp() called this->InvokeEvent()";
+        this->InvokeEvent(ButtonClickedEvent, this, item);
     }
 }
 

@@ -1,105 +1,209 @@
-#include <vtkSphereSource.h>
-#include <vtkMath.h>
-#include <vtkDoubleArray.h>
-#include <vtkDataArray.h>
-#include <vtkFieldData.h>
-#include <vtkPolyData.h>
+#include <vtkGenericDataObjectReader.h>
+#include <vtkStructuredPointsReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkXYPlotActor.h>
+#include <vtkImagePlaneWidget.h>
+#include <vtkImageData.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 
-int main(int, char *[])
+int main(int argc, char *argv[])
 {
-    vtkSmartPointer<vtkXYPlotActor> plot =
-    vtkSmartPointer<vtkXYPlotActor>::New();
-    plot->ExchangeAxesOff();
-    plot->SetLabelFormat( "%g" );
-    plot->SetXTitle( "Level" );
-    plot->SetYTitle( "Frequency" );
-    //plot->SetXValuesToIndex();
-    plot->SetXValuesToValue();
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  
+    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
     
-//    plot->SetDataObjectXComponent(0, 0);
-//    plot->SetDataObjectYComponent(0, 1);
-//    plot->SetDataObjectYComponent(1, 2);
-    //plot->SetDataObjectYComponent(0, 1);
-    
-    vtkSmartPointer<vtkDataObject> data =
-    vtkSmartPointer<vtkDataObject>::New();
-    
-    vtkSmartPointer<vtkFieldData> field =
-    vtkSmartPointer<vtkFieldData>::New();
-    
-    for (unsigned int i = 0 ; i < 2 ; i++)
-    {
-        vtkSmartPointer<vtkDoubleArray> array_s =
-        vtkSmartPointer<vtkDoubleArray>::New();
-        vtkSmartPointer<vtkDoubleArray> array_x =
-        vtkSmartPointer<vtkDoubleArray>::New();
-//        vtkSmartPointer<vtkFieldData> field =
-//        vtkSmartPointer<vtkFieldData>::New();
-        //vtkSmartPointer<vtkDataObject> data =
-        //vtkSmartPointer<vtkDataObject>::New();
-        
-        for (int b = 0; b < 30; b++)   /// Assuming an array of 30 elements
-        {
-            double val = vtkMath::Random(0.0,2.0);
-            //double tuple[2];
-            //tuple[0] = b-10;
-            //tuple[1] = val;
-            array_s->InsertValue(b, val);
-            //array_s->InsertTuple(b, tuple);
-            double x_val = b-10;
-            array_x->InsertValue(b, x_val);
-        }
-        field->AddArray(array_x);
-        field->AddArray(array_s);
-//        data->SetFieldData(field);
-        //plot->AddDataObjectInput(data);
-        
-        //connect index and X value array.
-        //plot->SetPointComponent(0, 0);
-        //plot->SetPointComponent(i, 2*i);
-//        plot->SetDataObjectXComponent(0, 0);
-        plot->SetDataObjectXComponent(i, 2*i);
+    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    renderWindowInteractor->SetRenderWindow(renderWindow);
 
-        // connect index and Y value array.
- //       plot->SetDataObjectYComponent(0, 1);
-        plot->SetDataObjectYComponent(i, 2*i+1);
-        
-        //plot->AddDataObjectInput(data);
-    }
-    data->SetFieldData(field);
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera> style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+    renderWindowInteractor->SetInteractorStyle(style);
     
-    plot->AddDataObjectInput(data);
+    // Read all the data from the file
+    vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
+    reader->SetFileName("/Users/danilobabin/Dropbox/-DIPn/-Teaching/Computer_Graphics/Computer_Graphics_2018_2019/Projects/Project_Cardiovascular_Visualization/Data/vessels_data.vtk");
+    reader->Update();
     
-    plot->SetPlotColor(1,1,1,0);
-    plot->SetPlotColor(1,0,1,0);
     
-    vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor(plot);
+    vtkSmartPointer<vtkImagePlaneWidget> w = vtkSmartPointer<vtkImagePlaneWidget>::New();
+    w->SetInputConnection(reader->GetOutputPort());
+    w->SetCurrentRenderer(renderer);
+    w->SetInteractor(renderWindowInteractor);
+    w->PlaceWidget();
+    w->SetPlaneOrientationToZAxes();
+    w->SetSliceIndex(0);
+    w->DisplayTextOn();
+    w->On();
     
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer( renderer );
-    renderWindow->SetSize(500,500);
+    renderWindowInteractor->Initialize();
+    renderWindow->Render();
     
-    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    interactor->SetRenderWindow( renderWindow );
     
-    // Initialize the event loop and then start it
-    interactor->Initialize();
-    interactor->Start();
+    renderWindowInteractor->Start();
     
     return EXIT_SUCCESS;
 }
 
+
+//#include <vtkPolyDataReader.h>
+//#include <vtkSmartPointer.h>
+//#include <vtkPolyDataMapper.h>
+//#include <vtkActor.h>
+//#include <vtkRenderWindow.h>
+//#include <vtkRenderer.h>
+//#include <vtkRenderWindowInteractor.h>
+//
+//int main ( int argc, char *argv[] )
+//{
+//    // Parse command line arguments
+//    if(argc != 2)
+//    {
+//        std::cerr << "Usage: " << argv[0]
+//        << " Filename(.vtk)" << std::endl;
+//        return EXIT_FAILURE;
+//    }
+//
+//    std::string filename = argv[1];
+//
+//    // Read all the data from the file
+//    vtkSmartPointer<vtkPolyDataReader> reader =
+//    vtkSmartPointer<vtkPolyDataReader>::New();
+//    reader->SetFileName(filename.c_str());
+//    reader->Update();
+//
+//    // Visualize
+//    vtkSmartPointer<vtkPolyDataMapper> mapper =
+//    vtkSmartPointer<vtkPolyDataMapper>::New();
+//    mapper->SetInputConnection(reader->GetOutputPort());
+//
+//    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+//    actor->SetMapper(mapper);
+//
+//    vtkSmartPointer<vtkRenderer> renderer =
+//    vtkSmartPointer<vtkRenderer>::New();
+//    vtkSmartPointer<vtkRenderWindow> renderWindow =
+//    vtkSmartPointer<vtkRenderWindow>::New();
+//    renderWindow->AddRenderer(renderer);
+//    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+//    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//    renderWindowInteractor->SetRenderWindow(renderWindow);
+//
+//    renderer->AddActor(actor);
+//    renderer->SetBackground(.3, .6, .3); // Background color green
+//
+//    renderWindow->Render();
+//    renderWindowInteractor->Start();
+//
+//    return EXIT_SUCCESS;
+//}
+
+
+//#include <vtkSphereSource.h>
+//#include <vtkMath.h>
+//#include <vtkDoubleArray.h>
+//#include <vtkDataArray.h>
+//#include <vtkFieldData.h>
+//#include <vtkPolyData.h>
+//#include <vtkSmartPointer.h>
+//#include <vtkPolyDataMapper.h>
+//#include <vtkActor.h>
+//#include <vtkRenderWindow.h>
+//#include <vtkRenderer.h>
+//#include <vtkRenderWindowInteractor.h>
+//#include <vtkXYPlotActor.h>
+//
+//int main(int, char *[])
+//{
+//    vtkSmartPointer<vtkXYPlotActor> plot =
+//    vtkSmartPointer<vtkXYPlotActor>::New();
+//    plot->ExchangeAxesOff();
+//    plot->SetLabelFormat( "%g" );
+//    plot->SetXTitle( "Level" );
+//    plot->SetYTitle( "Frequency" );
+//    //plot->SetXValuesToIndex();
+//    plot->SetXValuesToValue();
+//
+////    plot->SetDataObjectXComponent(0, 0);
+////    plot->SetDataObjectYComponent(0, 1);
+////    plot->SetDataObjectYComponent(1, 2);
+//    //plot->SetDataObjectYComponent(0, 1);
+//
+//    vtkSmartPointer<vtkDataObject> data =
+//    vtkSmartPointer<vtkDataObject>::New();
+//
+//    vtkSmartPointer<vtkFieldData> field =
+//    vtkSmartPointer<vtkFieldData>::New();
+//
+//    for (unsigned int i = 0 ; i < 2 ; i++)
+//    {
+//        vtkSmartPointer<vtkDoubleArray> array_s =
+//        vtkSmartPointer<vtkDoubleArray>::New();
+//        vtkSmartPointer<vtkDoubleArray> array_x =
+//        vtkSmartPointer<vtkDoubleArray>::New();
+////        vtkSmartPointer<vtkFieldData> field =
+////        vtkSmartPointer<vtkFieldData>::New();
+//        //vtkSmartPointer<vtkDataObject> data =
+//        //vtkSmartPointer<vtkDataObject>::New();
+//
+//        for (int b = 0; b < 30; b++)   /// Assuming an array of 30 elements
+//        {
+//            double val = vtkMath::Random(0.0,2.0);
+//            //double tuple[2];
+//            //tuple[0] = b-10;
+//            //tuple[1] = val;
+//            array_s->InsertValue(b, val);
+//            //array_s->InsertTuple(b, tuple);
+//            double x_val = b-10;
+//            array_x->InsertValue(b, x_val);
+//        }
+//        field->AddArray(array_x);
+//        field->AddArray(array_s);
+////        data->SetFieldData(field);
+//        //plot->AddDataObjectInput(data);
+//
+//        //connect index and X value array.
+//        //plot->SetPointComponent(0, 0);
+//        //plot->SetPointComponent(i, 2*i);
+////        plot->SetDataObjectXComponent(0, 0);
+//        plot->SetDataObjectXComponent(i, 2*i);
+//
+//        // connect index and Y value array.
+// //       plot->SetDataObjectYComponent(0, 1);
+//        plot->SetDataObjectYComponent(i, 2*i+1);
+//
+//        //plot->AddDataObjectInput(data);
+//    }
+//    data->SetFieldData(field);
+//
+//    plot->AddDataObjectInput(data);
+//
+//    plot->SetPlotColor(1,1,1,0);
+//    plot->SetPlotColor(1,0,1,0);
+//
+//    vtkSmartPointer<vtkRenderer> renderer =
+//    vtkSmartPointer<vtkRenderer>::New();
+//    renderer->AddActor(plot);
+//
+//    vtkSmartPointer<vtkRenderWindow> renderWindow =
+//    vtkSmartPointer<vtkRenderWindow>::New();
+//    renderWindow->AddRenderer( renderer );
+//    renderWindow->SetSize(500,500);
+//
+//    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+//    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//    interactor->SetRenderWindow( renderWindow );
+//
+//    // Initialize the event loop and then start it
+//    interactor->Initialize();
+//    interactor->Start();
+//
+//    return EXIT_SUCCESS;
+//}
+//
 
 
 //#include "vtkRenderer.h"
