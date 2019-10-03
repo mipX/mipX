@@ -78,10 +78,29 @@ public:
     void* m_owner_of_data;
     
     ///Constructor.
-    vmxGUIClipBoard(){};
+    vmxGUIClipBoard()
+    {
+        m_is_valid = 0;
+        m_owner_of_data = NULL;
+    };
     
     /// Destructor.
     ~vmxGUIClipBoard(){};
+    
+    /// Fetch the data from clipboard. It will set data_string to m_data_set, but it will also set indicator of validity to 0.
+    /// If data is not valid, return 0 and set data_string to empty string.
+    int FetchData(mxString *data_string)
+    {
+        if(m_is_valid)
+        {
+            data_string->Assign(m_data_text);
+            m_is_valid = 0;
+            return 1;
+        }
+        
+        data_string->Assign("");
+        return 0;
+    }
 };
 
 

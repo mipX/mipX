@@ -97,7 +97,7 @@ public:
         
         
         
-        
+        // Connect the 2 viewers
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[0], ImageSliceChangeEvent, m_array_of_image_renderers[1], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_SetIndexSlice);
             c->SetPassedDataInt((int*)(&(m_array_of_image_renderers[0]->m_index_slice)));

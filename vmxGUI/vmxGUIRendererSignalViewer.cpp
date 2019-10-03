@@ -402,6 +402,12 @@ void vmxGUIRendererSignalViewer::Update()
 
     m_plot_actor->SetXRange( xmin, xmax );
     m_plot_actor->SetYRange( ymin, ymax );
+    
+    if(!m_signals.IsEmpty())
+    {
+        m_plot_actor->SetXTitle( this->m_signals[0].m_X_label.Get_C_String() );
+        m_plot_actor->SetYTitle( this->m_signals[0].m_Y_label.Get_C_String() );
+    }
 
     m_renderer->AddActor(m_plot_actor);
 

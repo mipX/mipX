@@ -126,6 +126,9 @@ public:
     /// Create new object instance.
     static vmxGUIInputWidget* New();
     
+    /// Get list of items that have been entered to the widget. If none, list will be empty.
+    void GetInputItems(mxList< mxString > &items_list);
+    
     /// Get origin (position) of the whole object.
     void GetOrigin(int &origin1, int &origin2);
     

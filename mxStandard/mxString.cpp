@@ -493,6 +493,29 @@ int mxString::ExtractStrings(char start_character, char end_character, mxList<mx
 }
 
 
+int mxString::ExtractStrings(char separator_character, mxList<mxString> &output_list)
+{
+    if(this->IsEmpty()) return 0;
+    
+    output_list.Reset();
+    
+    mxString *ps = output_list.AddNewToEnd();
+    for(unsigned int i=0; i<this->GetNumberOfCharacters(); i++)
+    {
+        if( this->operator[](i) == separator_character )
+        {
+            ps = output_list.AddNewToEnd();
+        }
+        else
+        {
+            ps->Append( this->operator[](i) );
+        }
+    }
+    
+    return 1;
+}
+
+
 int mxString::ExtractCommonString(mxString &input, mxString &output)
 {
     if(this->IsEmpty() || input.IsEmpty()) return 0;
@@ -629,6 +652,21 @@ int mxString::PathLevelUp(mxString &output_dir)
         return 1;
     }
     return 0;
+}
+
+
+int mxString::PathLevels(mxList< mxString > &output_list_dirs)
+{
+    output_list_dirs.Reset();
+    
+    output_list_dirs.AddToEnd(*this);
+    mxString s;
+    while(this->PathLevelUp(s))
+    {
+        output_list_dirs.AddToBegin(s);
+    }
+    
+    return 1;
 }
 
 

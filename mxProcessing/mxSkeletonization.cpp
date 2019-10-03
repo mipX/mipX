@@ -24,6 +24,341 @@
 
 
 
+int mxSkeletonization::Backtrack(mxImage &input, mxIndex &higher_value_index, mxIndex &lower_value_index, mxList< mxIndex > &output)
+{
+    if(input.IsEmpty()) return 0;
+    if( higher_value_index.S() >= input.GetDimension_S() || higher_value_index.R() >= input.GetDimension_R() || higher_value_index.C() >= input.GetDimension_C() ) return 0;
+    if( higher_value_index.S() < 0 || higher_value_index.R() < 0 || higher_value_index.C() < 0 ) return 0;
+    if(input(higher_value_index.S(), higher_value_index.R(), higher_value_index.C()) == 0) return 0;
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+
+    
+    output.AddToBegin(higher_value_index);
+    for(int is_path_found = 0; !is_path_found; )
+    {
+        mxIndex p = output.GetBeginElement();// LeftEnd();
+        int sn, rn, cn;
+        //for(g.ForCoordinates_26_Neighbors(p.S(),p.R(),p.C()); g.Get_26_Neighbors(sn,rn,cn); )
+        for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+        {
+            if( input(sn,rn,cn) == input(p.S(),p.R(),p.C()) - 1 ) //if(temp(sn,rn,cn)==(temp(p.S(),p.R(),p.C()))-1)
+            {
+                if(lower_value_index.S()==sn && lower_value_index.R()==rn && lower_value_index.C()==cn) is_path_found = 1;
+                
+                p.SetIndex(sn,rn,cn);
+                output.AddToBegin(p);// LeftEnd(p(sn,rn,cn));
+                break;
+            }
+        }
+    }
+    
+    return 1;
+}
+
+
+
+int mxSkeletonization::Backtrack_Iterative(mxImage &input, mxIndex &start_index, mxImage &output)
+{
+//    if(input.IsEmpty()) return 0;
+//    if( higher_value_index.S() >= input.GetDimension_S() || higher_value_index.R() >= input.GetDimension_R() || higher_value_index.C() >= input.GetDimension_C() ) return 0;
+//    if( higher_value_index.S() < 0 || higher_value_index.R() < 0 || higher_value_index.C() < 0 ) return 0;
+//    if(input(higher_value_index.S(), higher_value_index.R(), higher_value_index.C()) == 0) return 0;
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+    
+    mxList< mxIndex > l;
+    l.AddToBegin(start_index);
+    output(start_index.S(),start_index.R(),start_index.C()) = input(start_index.S(),start_index.R(),start_index.C());
+    //for(int is_path_found = 0; !is_path_found; )
+    int is_path_found = 0;
+    
+    if(input(start_index.S(),start_index.R(),start_index.C())==1) is_path_found = 1;
+    
+    while(!l.IsEmpty() && !is_path_found)
+    {
+        mxIndex p = l.GetBeginElement();// LeftEnd();
+        int sn, rn, cn;
+        for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+        {
+            if( input(sn,rn,cn) == input(p.S(),p.R(),p.C()) - 1 ) //if(temp(sn,rn,cn)==(temp(p.S(),p.R(),p.C()))-1)
+            {
+                output(sn,rn,cn) = input(sn,rn,cn);
+                if(input(sn,rn,cn)==1)
+                {
+                    is_path_found = 1;
+                }
+                
+                p.SetIndex(sn,rn,cn);
+                l.AddToEnd(p);// LeftEnd(p(sn,rn,cn));
+                break;
+            }
+        }
+        l.DeleteBegin();
+    }
+    
+    return is_path_found;
+}
+
+
+
+//int mxSkeletonization::Backtrack(mxImage &input, mxIndex &start_index, mxArray< mxIndex > &output)
+//{
+//    if(input.IsEmpty()) return 0;
+//    if( start_index.S() >= input.GetDimension_S() || start_index.R() >= input.GetDimension_R() || start_index.C() >= input.GetDimension_C() ) return 0;
+//    if( start_index.S() < 0 || start_index.R() < 0 || start_index.C() < 0 ) return 0;
+//    if(input(start_index.S(), start_index.R(), start_index.C()) == 0) return 0;
+//
+//    output.SetNumberOfElements(input(start_index.S(), start_index.R(), start_index.C()));
+//
+//    int is_path_found = 0;
+//
+//    int i=0;
+//    output[i] = start_index; i++;
+//
+//    mxIndex p;
+//    p = start_index;
+//
+//    mxGeometry g;
+//    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+//
+//
+//    //output_path.AddToLeftEnd(p2);
+//    //while(!is_path_found)
+//    while(!input())
+//    {
+//        p = output[i-1]; //_path.GetLeftEnd();
+//        int sn, rn, cn;
+//        //for(g.ForCoordinates_26_Neighbors(p.S(),p.R(),p.C()); g.Get_26_Neighbors(sn,rn,cn); )
+//        for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+//        {
+//            if( input(sn,rn,cn) == input(p.S(),p.R(),p.C()) - 1 )
+//            {
+//                if(p1.S()==sn && p1.R()==rn && p1.C()==cn) is_path_found = 1;
+//
+//                output_path.AddToLeftEnd(p(sn,rn,cn));
+//                break;//g.ExitLoopAtNextFunctionCall();
+//            }
+//        }
+//    }
+//
+//    return 1;
+//
+//}
+
+
+
+int mxSkeletonization::ConvergeFromStartIndex(mxImage &input, mxIndex &start_index, mxImage &output)
+{
+    if(input.IsEmpty()) return 0;
+    if( start_index.S() >= input.GetDimension_S() || start_index.R() >= input.GetDimension_R() || start_index.C() >= input.GetDimension_C() ) return 0;
+    if( start_index.S() < 0 || start_index.R() < 0 || start_index.C() < 0 ) return 0;
+    if(input(start_index.S(), start_index.R(), start_index.C()) == 0) return 0;
+    
+    // Perform region growing with recording number of steps in the output image.
+    output.SetDimensionsAndPropertiesAs(&input);
+    output.FillInWith(0);
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+    
+    
+    mxList< mxIndex > l1, l2, *pl1, *pl2, *pl_temp;
+    pl1 = &l1;
+    pl2 = &l2;
+    l1.AddToBegin(start_index);//AddToLeftEnd
+    output(start_index.S(), start_index.R(), start_index.C()) = 1;
+    
+    mxIndex p;
+    int number_of_steps = 2;
+//    int is_point_found = 0;
+    //while(!is_point_found)
+    while(!pl1->IsEmpty())
+    {
+//        //If the list is empty at this point, the error occured, stop the function
+//        if(pl1->IsEmpty())
+//        {
+//            std::cout<<"BIP<T>::ShortestPathBetweenPointsInImage(): Destination Point unreachable!"<<endl;
+//            return 0;
+//        }
+        
+        while(!pl1->IsEmpty())
+        {
+            p = pl1->GetBeginElement();//GetLeftEnd
+            int sn,rn,cn;
+            //for(g.ForCoordinates_26_Neighbors(p.S(),p.R(),p.C()); g.Get_26_Neighbors(sn,rn,cn); )
+            for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+            {
+                if(input(sn,rn,cn)!=0 && output(sn,rn,cn)==0)
+                {
+//                    //If point is found, stop the growing
+//                    if(p2.S()==sn && p2.R()==rn && p2.C()==cn)
+//                    {
+//                        is_point_found = 1;
+//                        //g.ExitLoopAtNextFunctionCall();
+//                        break;
+//                    }
+                    p.SetIndex(sn, rn, cn);
+                    pl2->AddToEnd(p);//AddToRightEnd
+                    output(sn,rn,cn) = number_of_steps;
+                }
+            }
+            pl1->DeleteBegin();//DeleteLeftEnd
+        }
+        
+        //Exchange list pointers
+        pl_temp = pl1;
+        pl1 = pl2;
+        pl2 = pl_temp;
+        
+        number_of_steps++;
+    }
+    
+    return 1;
+}
+
+
+int mxSkeletonization::ConvergeFromStartIndex_Iterative(mxImage &input, mxIndex &start_index, mxImage &output)
+{
+    //if(input.IsEmpty()) return 0;
+    //if( start_index.S() >= input.GetDimension_S() || start_index.R() >= input.GetDimension_R() || start_index.C() >= input.GetDimension_C() ) return 0;
+    //if( start_index.S() < 0 || start_index.R() < 0 || start_index.C() < 0 ) return 0;
+    //if(input(start_index.S(), start_index.R(), start_index.C()) == 0) return 0;
+    
+    // We assume that the output is set to dimensions and properties of the input
+    // and that it was filled with 0 before the first iterative calling of this method.
+    //output.SetDimensionsAndPropertiesAs(&input);
+    //output.FillInWith(0);
+    
+    mxGeometry g;
+    g.SetDimensions(input.GetDimension_S(), input.GetDimension_R(), input.GetDimension_C());
+    
+    
+    mxList< mxIndex > l1, l2, *pl1, *pl2, *pl_temp;
+    pl1 = &l1;
+    pl2 = &l2;
+    l1.AddToBegin(start_index);//AddToLeftEnd
+    output(start_index.S(), start_index.R(), start_index.C()) = 1;
+    
+    mxIndex p;
+    int number_of_steps = 2;
+    //    int is_point_found = 0;
+    //while(!is_point_found)
+    while(!pl1->IsEmpty())
+    {
+        //        //If the list is empty at this point, the error occured, stop the function
+        //        if(pl1->IsEmpty())
+        //        {
+        //            std::cout<<"BIP<T>::ShortestPathBetweenPointsInImage(): Destination Point unreachable!"<<endl;
+        //            return 0;
+        //        }
+        
+        while(!pl1->IsEmpty())
+        {
+            p = pl1->GetBeginElement();//GetLeftEnd
+            int sn,rn,cn;
+            //for(g.ForCoordinates_26_Neighbors(p.S(),p.R(),p.C()); g.Get_26_Neighbors(sn,rn,cn); )
+            for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+            {
+                if(input(sn,rn,cn)!=0 && output(sn,rn,cn)==0)
+                {
+                    //                    //If point is found, stop the growing
+                    //                    if(p2.S()==sn && p2.R()==rn && p2.C()==cn)
+                    //                    {
+                    //                        is_point_found = 1;
+                    //                        //g.ExitLoopAtNextFunctionCall();
+                    //                        break;
+                    //                    }
+                    p.SetIndex(sn, rn, cn);
+                    pl2->AddToEnd(p);//AddToRightEnd
+                    output(sn,rn,cn) = number_of_steps;
+                }
+            }
+            pl1->DeleteBegin();//DeleteLeftEnd
+        }
+        
+        //Exchange list pointers
+        pl_temp = pl1;
+        pl1 = pl2;
+        pl2 = pl_temp;
+        
+        number_of_steps++;
+    }
+    
+    return 1;
+
+}
+
+
+int mxSkeletonization::ConvergeFromStartIndex(mxImage &input_output, mxIndex &start_index)
+{
+//    //if(input.IsEmpty()) return 0;
+//    //if( start_index.S() >= input.GetDimension_S() || start_index.R() >= input.GetDimension_R() || start_index.C() >= input.GetDimension_C() ) return 0;
+//    //if( start_index.S() < 0 || start_index.R() < 0 || start_index.C() < 0 ) return 0;
+//    //if(input(start_index.S(), start_index.R(), start_index.C()) == 0) return 0;
+//
+//
+//    mxGeometry g;
+//    g.SetDimensions(input_output.GetDimension_S(), input_output.GetDimension_R(), input_output.GetDimension_C());
+//
+//    mxList< mxIndex > l1, l2, *pl1, *pl2, *pl_temp;
+//    pl1 = &l1;
+//    pl2 = &l2;
+//    l1.AddToBegin(start_index);//AddToLeftEnd
+//    input_output(start_index.S(), start_index.R(), start_index.C()) = 1;
+//
+//    mxIndex p;
+//    int number_of_steps = 2;
+//    //    int is_point_found = 0;
+//    //while(!is_point_found)
+//    while(!pl1->IsEmpty())
+//    {
+//        //        //If the list is empty at this point, the error occured, stop the function
+//        //        if(pl1->IsEmpty())
+//        //        {
+//        //            std::cout<<"BIP<T>::ShortestPathBetweenPointsInImage(): Destination Point unreachable!"<<endl;
+//        //            return 0;
+//        //        }
+//
+//        while(!pl1->IsEmpty())
+//        {
+//            p = pl1->GetBeginElement();//GetLeftEnd
+//            int sn,rn,cn;
+//            //for(g.ForCoordinates_26_Neighbors(p.S(),p.R(),p.C()); g.Get_26_Neighbors(sn,rn,cn); )
+//            for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn, rn, cn); )
+//            {
+//                if(input(sn,rn,cn)!=0 && output(sn,rn,cn)==0)
+//                {
+//                    //                    //If point is found, stop the growing
+//                    //                    if(p2.S()==sn && p2.R()==rn && p2.C()==cn)
+//                    //                    {
+//                    //                        is_point_found = 1;
+//                    //                        //g.ExitLoopAtNextFunctionCall();
+//                    //                        break;
+//                    //                    }
+//                    p.SetIndex(sn, rn, cn);
+//                    pl2->AddToEnd(p);//AddToRightEnd
+//                    output(sn,rn,cn) = number_of_steps;
+//                }
+//            }
+//            pl1->DeleteBegin();//DeleteLeftEnd
+//        }
+//
+//        //Exchange list pointers
+//        pl_temp = pl1;
+//        pl1 = pl2;
+//        pl2 = pl_temp;
+//
+//        number_of_steps++;
+//    }
+//
+    return 1;
+
+}
+
+
 unsigned int mxSkeletonization::NumberOfNonZero_8_Neighbors(mxImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {	
     //This method will be used iteratively, so we do not perform input data validity check.
@@ -446,6 +781,127 @@ int mxSkeletonization::OrderedSkeletonization(mxImage &input, mxImage &output, u
             }
             
             list_of_nodes_to_be_deleted.DeleteBegin();
+        }
+    }
+    
+    return 1;
+}
+
+
+
+int mxSkeletonization::FilterMultipathsInNodeConnectedComponents(mxImage &input, mxImage &output, unsigned int t)
+{
+    if(input.IsEmpty()) return 0;
+    
+    // create an image that contains voxels that have more than 2 neighbors.
+    mxImage node_CC_image;
+    node_CC_image.SetDimensionsAndPropertiesAs(&input);
+    node_CC_image.FillInWith(0);
+    int n = 65535;
+    for(unsigned int s=0; s<node_CC_image.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<node_CC_image.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<node_CC_image.GetDimension_C(); c++)
+            {
+                if(input(t, s, r, c))
+                {
+                    if( this->NumberOfNonZero_26_Neighbors(input, t, s, r, c) > 2) node_CC_image(t, s, r, c) = n;
+                }
+            }
+        }
+    }
+    
+    // from the found voxels above, mark those that have a neighbor with 'number of neighboring voxels ==2' with n2 value.
+    mxGeometry g;
+    g.SetDimensions(node_CC_image.GetDimension_S(), node_CC_image.GetDimension_R(), node_CC_image.GetDimension_C());
+    
+    int n2 = n-1;
+    for(unsigned int s=0; s<node_CC_image.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<node_CC_image.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<node_CC_image.GetDimension_C(); c++)
+            {
+                if(node_CC_image(t, s, r, c)==n)
+                {
+                    int sn,rn,cn;
+                    for(g.For_26_Neighborhood(s,r,c); g.Get_26_Neighborhood(sn,rn,cn);)
+                    {
+                        if(input(t, sn, rn, cn)!=0 && node_CC_image(t, sn, rn, cn)==0)
+                        {
+                            node_CC_image(t,s,r,c) = n2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //perform converging
+    mxImage converged_image;
+    converged_image.SetDimensionsAndPropertiesAs(&input);
+    converged_image.FillInWith(0);
+    
+    for(unsigned int s=0; s<node_CC_image.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<node_CC_image.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<node_CC_image.GetDimension_C(); c++)
+            {
+                if(node_CC_image(t,s,r,c) == n2 && converged_image(t,s,r,c) == 0)
+                {
+                    mxIndex start_index;
+                    start_index.SetIndex(t,s,r,c);
+                    this->ConvergeFromStartIndex_Iterative(node_CC_image, start_index, converged_image);
+                }
+            }
+        }
+    }
+
+    
+    //perform backtracking
+    mxImage backtracked_image;
+    backtracked_image.SetDimensionsAndPropertiesAs(&input);
+    backtracked_image.FillInWith(0);
+    
+    for(unsigned int s=0; s<backtracked_image.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<backtracked_image.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<backtracked_image.GetDimension_C(); c++)
+            {
+                if(node_CC_image(t,s,r,c) == n2 )//&& converged_image(t,s,r,c) != 0)
+                {
+                    mxIndex start_index;
+                    start_index.SetIndex(t,s,r,c);
+                    this->Backtrack_Iterative(converged_image, start_index, backtracked_image);
+                }
+            }
+        }
+    }
+    
+    
+    //perform pasting to output image
+    //mxImage backtracked_image;
+    output.SetDimensionsAndPropertiesAs(&input);
+    output.FillInWith(0);
+    
+    for(unsigned int s=0; s<output.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<output.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<output.GetDimension_C(); c++)
+            {
+                if(input(t,s,r,c))
+                {
+                    if(converged_image(t,s,r,c)==0) output(t,s,r,c) = input(t,s,r,c);
+                    else
+                    {
+                        if(backtracked_image(t,s,r,c)) output(t,s,r,c) = input(t,s,r,c);
+                    }
+                }
+            }
         }
     }
     

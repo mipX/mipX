@@ -371,6 +371,9 @@ public:
     /// Reset the objectto state just after construction.
     void Reset();
     
+    ///// Save to file.
+    //void SaveToFile(const char *file_name);
+    
     /// Set number of time instances.
     int SetNumberOfTimeSeries(int number_of_time_instances) { return m_graphs.SetNumberOfElements(number_of_time_instances); };
     

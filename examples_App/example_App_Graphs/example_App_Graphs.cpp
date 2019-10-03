@@ -22,19 +22,22 @@
  The example shows the use of skeletonization and graph building and visualization methods.
  
  This example demonstrates the basic use of data list widget to construct data objects. The advantage is that the user can
- visualy manipulate the data using the data list widget.
+ visualy manipulate the data using the data list widget. Higher level application functionalities are not included here.
  
  */
 
 
 #include "mxBIP.h"
 #include "mxGeometry.h"
+#include "mxGraph.h"
+#include "mxGraphProcessing.h"
 #include "mxSkeletonization.h"
+#include "mxSkeleton.h"
+
+#include "vmxGraph.h"
 #include "vmxImage.h"
 #include "vmxMesh.h"
-#include "mxGraph.h"
-#include "vmxGraph.h"
-#include "mxGraphProcessing.h"
+
 #include "vmxAppWidget.h"
 
 
@@ -59,7 +62,6 @@ int main()
     unsigned int dimension_s = 100, dimension_r = 100, dimension_c = 100;
     
     
-    cout<<"Try 16U";
     
     // Create an image using the data list widget. The data list widget assigns to the image the
     // interactor of the main widget.
@@ -83,22 +85,17 @@ int main()
     }
 
     
-    vimg16->SetVisibility(1);
-    vimg16->SaveToVTK16UFile("/Users/danilobabin/-DIP_IMAGES/test_image_mipx.vtk");
-    cout<<" OK ";
-    
 
     // Create an image using the data list widget. The data list widget assigns to the image the
     // interactor of the main widget.
     vmxImage16U *vimg16_2 = static_cast<vmxImage16U*> (v_tree->Create("vmxImage16U","distance_transformed"));
     
     mxBIP bip;
-    //if(!bip.DistanceTransformForSphere(*vimg16, *vimg16, *vimg16_2)) cout<<"mxBIP::DistanceTransformForSphere() returned 0 (fail)!"<<endl;
+
 
     if(!bip.ProfileVolumeTransformForSphere(*vimg16, *vimg16, *vimg16_2))
         cout<<"mxBIP::DistanceTransformForSphere() returned 0 (fail)!"<<endl;
    
-    vimg16_2->SetVisibility(1);
     
   
     cout<<"  Distance transform done  ";
@@ -108,12 +105,8 @@ int main()
     // interactor of the main widget.
     vmxImage16U *vimg16_3 = static_cast<vmxImage16U*> (v_tree->Create("vmxImage16U","skeletonized"));
 
-    //mxSkeletonizationX skel;
-    //mxSkeletonizationT skel;
     mxSkeletonization skel;
-    //skel.OrderedSkeletonization(*vimg16_2, *vimg16_3);
     skel.OrderedSkeletonization(*vimg16_2, *vimg16_3);
-    vimg16_3->SetVisibility(1);
     
     
     
@@ -125,12 +118,8 @@ int main()
 
     // Create a mesh using the data list widget.
     vmxMesh *mesh = static_cast<vmxMesh*> (v_tree->Create("vmxMesh","skeletonization_mesh"));
-    //mesh->CreatePolyData(vimg, 50);
     mesh->CreatePolyData(vimg16_3, 1);
     mesh->CreateActorByLookupTableScalarColoring(0,255);
-    mesh->SetVisibility(1);
-    //mesh->SetColor(1,0,0);
-    //mesh->SaveToSTLFiles("/Users/danilobabin/-DIP_IMAGES/test_mesh.stl");
     
     
     
@@ -148,18 +137,18 @@ int main()
     
     mxGraphProcessing gp;
     gp.CreateGraphFromImage((*vimg16_3), (*graph));
-    //graph->AddEdge(graph->AddVertex(0,0,0), graph->AddVertex(10,10,10));
+    
     
     graph->Update();
     graph->SetTimeIndex(0);
-    graph->SetVisibility(1);
+
 
     std::cout<<"  n_of_Vertices="<<graph->GetNumberOfVertices()<<"  n_of_Edges="<<graph->GetNumberOfEdges()<<std::endl;
     
     
+//    graph->ExportMeshToSTL("graph_mesh.stl");
+//    graph->ExportMeshToVTK("graph_mesh.vtk");
 
-
-//    main_widget.GetRenderer_3D()->SetPickMarkerVisibility(1);
     
    
     // Start the interaction. This will call the Render() method of the render window and Start() method of the interactor.

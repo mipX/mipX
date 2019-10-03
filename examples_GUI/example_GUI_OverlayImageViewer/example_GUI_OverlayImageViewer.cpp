@@ -22,7 +22,7 @@
 /*
  
  This example illustrates viewing of images by overlaying one image on another.
- Scrolling through one image will (using the system of connections) scroll through the other image.
+ Scrolling through the image will change the overlay automatically.
  
  */
 
@@ -64,7 +64,10 @@ public:
         
 
         vtkSmartPointer<vtkGenericDataObjectReader> reader2 = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-        reader2->SetFileName("/Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/Wavelocity/InterScanner_UZGent/Volunteer02_M32Y/data/trueFisp.vtk");
+        mxString file_name;
+        file_name.Assign(MIPX_FILES_DATA_PATH);
+        file_name.Append("aorta_trufisp_sag.vtk");
+        reader2->SetFileName(file_name.Get_C_String());
         reader2->Update();
 
 
@@ -74,10 +77,7 @@ public:
         
         vtkSmartPointer< vtkImageData > image2 = vtkSmartPointer< vtkImageData >::New();
         image2->DeepCopy(reader2->GetOutput());
-//CreateTestImage02(image1, 60, 50, 40);
-        
-        
-        
+        //CreateTestImage02(image1, 60, 50, 40);
         
         
         m_image_renderer = new vmxGUIRendererImageViewer(this);
@@ -85,12 +85,10 @@ public:
         
         m_image_renderer->SetImageData(image1);
         m_image_renderer->SetOverlayedImageData(image2);
-        //m_image_renderer->SetDirectionToSagittal();
-        //m_image_renderer->SetDirectionToCoronal();
         m_image_renderer->SetDirectionToTransversal();
         m_image_renderer->SetMappingToGrayScale();
         m_image_renderer->FitImageToScreen();
-        m_image_renderer->SetOverlayedImageMappingToBinary(255);
+        m_image_renderer->SetOverlayedImageMappingToBinary(60);
     };
     
     

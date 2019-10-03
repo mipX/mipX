@@ -16,4 +16,5 @@ add_subdirectory( example_GUI_OverlayImageViewer )
 add_subdirectory( example_GUI_ParallelImageViewer )
 add_subdirectory( example_GUI_SignalViewer )
 add_subdirectory( example_GUI_TableViewer )
-add_subdirectory( example_GUI_Widgets )
+
+#add_subdirectory( example_GUI_Widgets )

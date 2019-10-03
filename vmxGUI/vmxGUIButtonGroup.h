@@ -164,6 +164,8 @@ public:
     /// List of items in the group.
     mxList< vmxGUIButtonGroupItem > m_items;
    
+    /// Pointer to the last pushed item.
+    vmxGUIButtonGroupItem *m_last_pushed_item;
     
     
     /// Constructor.
@@ -189,6 +191,9 @@ public:
     
     /// For given input positions, get the picked item. If none return NULL.
     vmxGUIButtonGroupItem* GetPickedItem(int pos1, int pos2);
+    
+    /// Get last pushed item.
+    vmxGUIButtonGroupItem* GetPushedItem(){ return m_last_pushed_item; };
     
     /// Get size of the whole object (all actors together).
     void GetSize(int &output_size1, int &output_size2);

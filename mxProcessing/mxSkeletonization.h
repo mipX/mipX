@@ -56,6 +56,37 @@ class mxSkeletonization_API mxSkeletonization : public mxFunctionObject
     
 public:
 
+    /// For a converged skeletonized input image and given starting voxel 'start_index', make an output path as an array of indexes
+    /// by backtracking (decrementing each step by 1) till a voxel with value 1 is found.
+    int Backtrack(mxImage &input, mxIndex &higher_value_index, mxIndex &lower_value_index, mxList< mxIndex > &output);
+
+    
+    /// For a converged skeletonized input image and given starting voxel 'start_index', make an output path as an array of indexes
+    /// by backtracking (decrementing each step by 1) till a voxel with value 1 is found.
+    /// For this iterative version, output MUST BE set to right size and filled with 0 before iterative calling of the method.
+    int Backtrack_Iterative(mxImage &input, mxIndex &start_index, mxImage &output);
+
+    
+//    /// For a converged skeletonized input image and given starting voxel 'start_index', make an output path as an array of indexes
+//    /// by backtracking (decrementing each step by 1) till a voxel with value 1 is found.
+//    int Backtrack(mxImage &input, mxIndex &start_index, mxArray< mxIndex > &output);
+    
+    /// For a skeletonized input image and a given non-zero voxel in the input with indexes start_index, makes an output
+    /// image where each non-zero voxel has a value of step distance from the start_index.
+    /// Combine this method with backtracking to get shortest paths.
+    int ConvergeFromStartIndex(mxImage &input, mxIndex &start_index, mxImage &output);
+    
+    /// For a skeletonized input image and a given non-zero voxel in the input with indexes start_index, makes an output
+    /// image where each non-zero voxel has a value of step distance from the start_index.
+    /// Combine this method with backtracking to get shortest paths.
+    /// For this iterative version, output MUST BE set to right size and filled with 0 before iterative calling of the method.
+    int ConvergeFromStartIndex_Iterative(mxImage &input, mxIndex &start_index, mxImage &output);
+
+    /// For a skeletonized input_output image and a given non-zero voxel in the input_output with indexes start_index,
+    /// changes non-zero voxel values in input_output image such that each non-zero voxel has a value of step distance from the start_index.
+    /// Combine this method with backtracking to get shortest paths.
+    int ConvergeFromStartIndex(mxImage &input_output, mxIndex &start_index);
+    
 	/// Number of foreground 8-neighbors.
 	unsigned int NumberOfNonZero_8_Neighbors(mxImage &image, unsigned int t, unsigned int s, unsigned int r, unsigned int c);
 
@@ -79,6 +110,11 @@ public:
 	/// 'repetition_scale' indicates how many values (intensities) before the current are being processed with the current.
 	int OrderedSkeletonization(mxImage &input, mxImage &output, unsigned int t=0);
 
+    /// Input is skeletonized image, output is skeletonized image where for each node connected component multiple paths within the component have been removed.
+    int FilterMultipathsInNodeConnectedComponents(mxImage &input, mxImage &output, unsigned int t=0);
+
+
+    
 };
 
 

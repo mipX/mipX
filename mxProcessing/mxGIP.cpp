@@ -32,14 +32,69 @@ mxGIP::~mxGIP()
 }
 
 
+int mxGIP::CompactValues(mxImage &input, mxImage &output)
+{
+    mxArray<int> histogram;
+    if(!this->Histogram(input,histogram)) return 0;
+    
+    
+    mxArray<int> map_values;
+    map_values.SetNumberOfElements(histogram.GetNumberOfElements());
+    map_values.FillInWith(0);
+    
+    int distinct_value = 0;
+    for(int i=0; i<histogram.GetNumberOfElements(); i++)
+    {
+        if(histogram[i]>0)
+        {
+            map_values[i] = distinct_value;
+            distinct_value++;
+        }
+    }
+    
+    output.SetDimensionsAndPropertiesAs(&input);
+    
+    for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
+    {
+        output[i] = map_values[(input[i])];
+    }
+    
+    return 1;
+}
+
+
+//int mxGIP::Histogram(mxImage &input, mxArray<int> &output)
+//{
+//    if(input.IsEmpty()) return 0;
+//
+//    //mxImageScalar minimum_value, maximum_value;
+//    uint64_t minimum_value, maximum_value;
+//    input.GetVoxelValueFullRange(minimum_value, maximum_value);
+//
+//    //std::cout<<"minimum_value, maximum_value"<<minimum_value<<","<<maximum_value<<" ";
+//
+//    unsigned int value_full_range = ((int)maximum_value) - ((int)minimum_value) + 1;
+//
+//    output.SetNumberOfElements(value_full_range);
+//    output.FillInWith(0);
+//
+//    for(unsigned int i=0; i<input.GetNumberOfDataElements(); i++)
+//    {
+//        output[input[i]-minimum_value] += 1;
+//    }
+//
+//    return 1;
+//}
+
+
 int mxGIP::Histogram(mxImage &input, mxArray<int> &output)
 {
     if(input.IsEmpty()) return 0;
     
     //mxImageScalar minimum_value, maximum_value;
     uint64_t minimum_value, maximum_value;
-    input.GetVoxelValueFullRange(minimum_value, maximum_value);
-   
+    input.GetVoxelMinAndMaxValues(minimum_value, maximum_value);
+    
     //std::cout<<"minimum_value, maximum_value"<<minimum_value<<","<<maximum_value<<" ";
     
     unsigned int value_full_range = ((int)maximum_value) - ((int)minimum_value) + 1;

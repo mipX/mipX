@@ -78,14 +78,26 @@ int vmxImageT<T>::CopyFromDataObject(mxDataObject *data_object)
 template<class T>
 int vmxImageT<T>::Copy(vmxImageT<T> *image)
 {
-    if(!this->vmxImageDataT<T>::Copy(image)) return 0;
-    return (this->m_image_planes.SetImage(this));
+    //std::cout<<std::endl<<" vmxImageT<T>::Copy(vmxImageT<T> *image) was called!";
+    
+    if(!image) return 0;
+    
+    this->SetDimensionsAndPropertiesAs(image);
+    for(unsigned int i=0; i<image->GetNumberOfDataElements(); i++)
+    {
+        this->m_grid[i] = image->m_grid[i];
+    }
+    
+//    if(!this->vmxImageDataT<T>::Copy(image)) return 0;
+//    return (this->m_image_planes.SetImage(this));
+    return 1;
 }
 
 
 template<class T>
 int vmxImageT<T>::Copy(vmxImageDataT<T> *image)
 {
+    //std::cout<<std::endl<<" vmxImageT<T>::Copy(vmxImageDataT<T> *image) was called!";
     if(!this->vmxImageDataT<T>::Copy(image)) return 0;
     return (this->m_image_planes.SetImage(this));
 }
@@ -94,6 +106,7 @@ int vmxImageT<T>::Copy(vmxImageDataT<T> *image)
 template<class T>
 int vmxImageT<T>::Copy(mxImageT<T> *image)
 {
+    //std::cout<<std::endl<<" vmxImageT<T>::Copy(mxImageT<T> *image) was called!";
     if(!this->vmxImageDataT<T>::Copy(image)) return 0;
     return (this->m_image_planes.SetImage(this));
 }
@@ -133,6 +146,24 @@ template<class T>
 unsigned int vmxImageT<T>::GetIndex_T()
 {
     return (this->m_image_planes.GetIndexTime());
+}
+
+
+template<class T>
+int vmxImageT<T>::GetVisibilityOfComponent(int component_index)
+{
+    if(component_index==0)
+    {
+        return this->GetImagePlanes()->GetVisibilityOf_S_Plane();
+    }
+    if(component_index==1)
+    {
+        return this->GetImagePlanes()->GetVisibilityOf_R_Plane();
+    }
+    if(component_index==2)
+    {
+        return this->GetImagePlanes()->GetVisibilityOf_C_Plane();
+    }
 }
 
 
@@ -180,16 +211,18 @@ void vmxImageT<T>::Reset()
 
 
 template<class T>
-int vmxImageT<T>::SetIndex_S(unsigned int index)
+void vmxImageT<T>::SetIndex_S(unsigned int index)
 {
-    return (this->m_image_planes.SetIndex_S(index));
+    //return (this->m_image_planes.SetIndex_S(index));
+    this->m_image_planes.SetIndex_S(index);
 }
 
 
 template<class T>
-int vmxImageT<T>::SetIndex_T(unsigned int index)
+void vmxImageT<T>::SetIndex_T(unsigned int index)
 {
-    return (this->m_image_planes.SetIndex_T(index));
+    //return (this->m_image_planes.SetIndex_T(index));
+    this->m_image_planes.SetIndex_T(index);
 }
 
 

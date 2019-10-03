@@ -131,6 +131,21 @@ vmxGUIMenuBarItem* vmxGUIMenuBar::AddItem(const char *item_name)
 }
 
 
+vmxGUIMenuBarItem* vmxGUIMenuBar::GetItem(const char *item_name)
+{
+    mxListIterator< vmxGUIMenuBarItem > it;
+    for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
+    {
+        if(it.GetElementAddress()->m_text == item_name)
+        {
+            vmxGUIMenuBarItem* item = it.GetElementAddress();
+            return item;
+        }
+    }
+    return NULL;
+}
+
+
 void vmxGUIMenuBar::GetOrigin(int &origin1, int &origin2)
 {
     if(m_items.IsEmpty())
@@ -259,6 +274,9 @@ void vmxGUIMenuBar::OnLeftButtonUp()
 
 void vmxGUIMenuBar::SetColor(double r, double g, double b)
 {
+    m_color_r = r;
+    m_color_g = g;
+    m_color_b = b;
     mxListIterator< vmxGUIMenuBarItem > it;
     for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
     {

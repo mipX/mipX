@@ -45,13 +45,28 @@
 #include "mxDataObjectTree.h"
 #include "mxScopedPointer.h"
 
+#include "vmxCurve.h"
+#include "vmxGraph.h"
+#include "vmxImage.h"
+#include "vmxMesh.h"
+#include "vmxPointList.h"
+#include "vmxProfile.h"
+#include "vmxSkeleton.h"
+#include "vmxTable.h"
+
+
 #include "vmxGUIRenderer3DTrackballCamera.h"
 #include "vmxGUIWidget.h"
 #include "vmxGUIListWidget.h"
+#include "vmxGUIMenuBar.h"
+#include "vmxGUIMenu.h"
+
+#include "vmxAppFunctionInterface.h"
+#include "vmxAppFunctionWidget.h"
 
 class vmxAppDataListWidget;
 class vmxAppMainWidget;
-
+class vmxAppFunctionWidget;
 
 
 //-------------------------------------------------------------------------------------------
@@ -213,7 +228,15 @@ protected:
 
     /// Pointer to the actual used 3D renderer. It points to either the default or the user specified 3D renderer.
     vmxGUIRenderer *m_renderer_3D;
+    
+    /// Menu bar of the main app.
+    mxScopedPointer< vmxGUIMenuBar > m_menu_bar;
 
+    /// Function widget that is used for initialization of functions.
+    mxScopedPointer< vmxAppFunctionWidget > m_function_widget;
+    
+    /// command for default renderer 3D.
+    vtkTextActor *m_command_seeds_to_point_list;
     
 public:
     
@@ -223,17 +246,20 @@ public:
     /// Destructor.
     virtual ~vmxAppMainWidget();
     
-    /// Get renderer for the 3D scene.
-    vmxAppDataListWidget* GetDataListWidget()
-    {
-        return m_data_list_widget;
-    };
+    /// Get data list widget.
+    vmxAppDataListWidget* GetDataListWidget() { return m_data_list_widget; };
+    
+    /// Get function widget.
+    vmxAppFunctionWidget* GetFunctionWidget() { return m_function_widget; };
     
     /// Get renderer for the 3D scene.
-    vmxGUIRenderer* GetRenderer_3D()
-    {
-        return m_renderer_3D;
-    };
+    vmxGUIRenderer* GetRenderer_3D() { return m_renderer_3D; };
+    
+    /// Load function factory.
+    int LoadFunctionFactory(vmxAppFunctionFactoryInterface *function_factory);
+
+    /// Load a list of function factories.
+    void LoadFunctionFactoryList(vmxAppFunctionFactoryList *list_of_function_factories);
     
     /// Register a viewer in the main app.
     void RegisterViewer(vmxAppViewer *viewer);
@@ -244,8 +270,16 @@ public:
     /// Use default 3D renderer with trackball camera interaction list widget (there will not be a user specified one).
     void SetRenderer3DToDefaultTrackballCamera();
 
-    
+    /// Slot used to intiate the function.
+    static int Slot_InitiateFunction(vmxGUIConnection *connection);
+
+    /// Slot used to set data objects' time and slice index for 3D renderer.
+    static int Slot_SetIndexTimeAndSliceForDefaultRenderer3D(vmxGUIConnection *connection);
+
+    ///Slot used to extend the on left button up functionality (for on-screen commands).
+    static int Slot_OnLeftButtonUpForDefaultRenderer3D(vmxGUIConnection *connection);
 };
+
 
 
 

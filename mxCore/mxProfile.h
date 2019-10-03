@@ -115,7 +115,7 @@ public:
 /// Image Profile class.
 /// Use SetGridDimensions() and SetVectorDimensions() before all other methods to setup the profile.
 
-class mxProfile_API mxProfile
+class mxProfile_API mxProfile : public mxDataObject
 {
 public:
     

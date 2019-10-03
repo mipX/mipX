@@ -127,6 +127,8 @@ vmxGUIButtonGroup::vmxGUIButtonGroup()
     
     m_interactor = NULL;
     m_font_size = 18;
+    
+    m_last_pushed_item = NULL;
 }
 
 
@@ -325,6 +327,7 @@ void vmxGUIButtonGroup::OnLeftButtonUp()
         }
         if(this->m_button_type == vmxGUIButtonGroup::PUSH_BUTTON)
         {
+            m_last_pushed_item = item;
             if(item->m_slot)
             {
                 item->m_slot->Execute(this);

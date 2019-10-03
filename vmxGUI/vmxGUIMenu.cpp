@@ -33,6 +33,7 @@ vmxGUIMenuItem::vmxGUIMenuItem()
     m_slot = NULL;
     m_menu = NULL;
     m_sub_menu = NULL;
+    m_data = NULL;
     
     m_number_of_check_boxes = 0;
     for(unsigned int i=0; i<m_number_of_check_boxes; i++)
@@ -78,6 +79,8 @@ vmxGUIMenu::vmxGUIMenu()
     m_clip_board = NULL;
     
     m_menu = this;
+    
+    m_picked_item = NULL;
     
     m_placement_relative_percentages[0] = m_placement_relative_percentages[1] = 0;
 
@@ -220,6 +223,21 @@ int vmxGUIMenu::CopySelectedItemsToClipBoard()
 void vmxGUIMenu::GetColor(double &r, double &g, double &b)
 {
     m_text_actor->GetTextProperty()->GetColor(r,g,b);
+}
+
+
+vmxGUIMenuItem* vmxGUIMenu::GetItem(const char *item_name)
+{
+    mxListIterator<vmxGUIMenuItem> it;
+    for(it.SetToBegin(m_items); it.IsValid(); it.MoveToNext())
+    {
+        if(it.GetElementAddress()->m_text == item_name)
+        {
+            vmxGUIMenuItem *item = it.GetElementAddress();
+            return item;
+        }
+    }
+    return NULL;
 }
 
 
@@ -512,6 +530,8 @@ void vmxGUIMenu::OnLeftButtonUp()
     if(item)
     {
         this->HideAllSubMenus();
+        
+        m_picked_item = item;
         
         if(item->m_sub_menu)
         {

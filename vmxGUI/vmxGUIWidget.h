@@ -123,6 +123,11 @@ unsigned long int event = vmxGUI_user_event_index; \
 vmxGUI_user_event_index = vmxGUI_user_event_index + 1; \
 
 
+/// Define a string that is used to separate items in a string listing.
+static const char *vmxGUIItemSeparationString = ", ";
+static const char vmxGUIItemSeparationChar1 = ',';
+static const char vmxGUIItemSeparationChar2 = ' ';
+
 
 /// Type definition of Slot function with connection object as input argument. With this type declaration,the slot is eather a global function or a static method within a class.
 typedef int (*vmxGUISlotFunction)(vmxGUIConnection *connection);
@@ -140,6 +145,9 @@ protected:
 
     /// GUI objet that is triggering this connection.
     vmxGUIBaseObject *m_sender_object;
+    
+    /// Object which is not GUI object, that is triggering this connection.
+    void *m_sender_non_gui_object;
 
     /// Trigger event ID number.
     vmxGUIEventID m_trigger_event_id;
@@ -147,21 +155,11 @@ protected:
     /// GUI object that is being used when the connection is triggered.
     vmxGUIBaseObject *m_receiver_object;
 
-    //    /// A part of the GUI object that is being used when the connection is triggered.
-    //    void *m_receiver_subobject;
-
-
     /// Object on which the slot is executed (object of the class that has the slot as a method).
     void *m_slot_caller_object;
 
     /// Slot that will be executed when the connection is triggered
     vmxGUISlotFunction m_slot;
-
-//    /// Trigger event.
-//    mxString m_trigger_event;
-
-//    /// A part of the GUI object that from which the connection is triggered.
-//    void *m_sender_subobject;
 
 
 /// Define the max number of passed data elements for a connection.
@@ -170,12 +168,8 @@ protected:
     /// Data that is being passed to the receiver.
     void **m_passed_address[vmxGUIConnection_max_number_of_passed_data_elements];
 
-
     /// Data that is being passed to the receiver.
     void *m_passed_data[vmxGUIConnection_max_number_of_passed_data_elements];
-
-//    /// Description of the passed data.
-//    mxString
 
     /// Data that is being passed to the receiver.
     double *m_passed_data_double[vmxGUIConnection_max_number_of_passed_data_elements];
@@ -185,9 +179,6 @@ protected:
 
     /// Data that is being passed to the receiver.
     unsigned int *m_passed_data_unsigned_int[vmxGUIConnection_max_number_of_passed_data_elements];
-
-//    /// Slot Function that is being passed to the receiver.
-//    vmxGUISlotFunction m_passed_slot_function;
 
 
 
@@ -204,8 +195,8 @@ public:
     vmxGUIConnection()
     {
         m_sender_object = NULL;
-        //m_sender_subobject = NULL;
-        //m_trigger_event.Assign(" ");
+        m_sender_non_gui_object = NULL;
+        
         for(int i=0; i<vmxGUIConnection_max_number_of_passed_data_elements; i++)
         {
             m_passed_address[i] = NULL;
@@ -214,11 +205,8 @@ public:
             m_passed_data_int[i] = NULL;
             m_passed_data_unsigned_int[i] = NULL;
         }
-        //m_passed_slot_function = NULL;
         m_receiver_object = NULL;
-        //m_receiver_subobject = NULL;
         m_slot = NULL;
-
         m_slot_caller_object = NULL;
     };
 
@@ -237,12 +225,17 @@ public:
 
     /// Create a new connection.
     /// 'sender' is an object that catches some event and initiates the connection exectution (e.g. a push button will intiate some function when it is pressed).
+    /// 'sender_non_gui_object' is an object usually contained in the 'sender' or that contains the 'sender' which is not GUI object and that initiates connection exectution.
+    ///  Default value is NULL, which means that there is no sender non-gui object info.
     /// 'trigger_event_id' is the event (signal) that triggers execution (e.g. pressing a button, selecting an item...).
     /// 'receiver' is an object that receives this connection. It is not necessarily the object that calles the slot method (that is slot_caller_object).
     ///  In case 'receiver' is not defined, sender is used as a receiver.
     /// 'slot_caller_object' is an object that executes its static method (defined by 'slot').
     /// 'slot' is the actual static method being executed.
+    static vmxGUIConnection* New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, void *sender_non_gui_object, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot);
     static vmxGUIConnection* New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot);
+    
+    //static vmxGUIConnection* New(vmxGUIBaseObject *sender, void *sender_subobject,  vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot);
 
 //    /// This is a special type of New method, where the receiver is the vmxGUIMainWidget. In fact, it is equal to setting sender as receiver object and
 //   /// vmxGUIMainWidget as receiver_subobject.
@@ -253,7 +246,7 @@ public:
     /// Delete an object instance.
     static int Delete(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot);
     static int Delete(vmxGUIConnection *connection);
-
+    
     /// Get main widget.
     vmxGUIMainWidget* GetMainWidget() { return m_main_widget; };
 
@@ -263,12 +256,11 @@ public:
     /// Get Trigger event ID number.
     vmxGUIEventID GetEventID() { return m_trigger_event_id; };
 
-//    /// Get A part of the GUI object that from which the connection is triggered.
-//    void* GetSenderSubObject() { return m_sender_subobject; };
+    /// Get the sender non-GUI object from which the connection is triggered.
+    void* GetSenderNonGUIObject() { return m_sender_non_gui_object; };
 
     /// Get data that is being passed to the receiver.
     void** GetPassedAddress(unsigned int i=0) { return m_passed_address[i]; };
-
 
     /// Get data that is being passed to the receiver.
     void* GetPassedData(unsigned int i=0) { return m_passed_data[i]; };
@@ -297,9 +289,12 @@ public:
     /// Get the Object on which the slot is executed (object of the class that has the slot as a method).
     void* GetSlotCallerObject() { return m_slot_caller_object; };
 
-    /// Check if this connection is equal to the input one (all memeber variables have to be equal).
+    /// Check if this connection is equal to the input one (all member variables have to be equal).
     int IsEqualTo(vmxGUIConnection &connection);
 
+    /// Check if this connection is equal to the input one (all member variables have to be equal).
+    int IsEqualTo(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot);
+    
     /// Execute the slot function.
     int Execute()
     {
@@ -354,6 +349,9 @@ private:
     mxArray< mxList< vmxGUIConnection* > > m_connections_by_event_id;
     
     
+    // vmxGUIBaseObject *m_sender;
+    
+    
 public:
     
     /// Constructor.
@@ -364,6 +362,10 @@ public:
     
     /// Add a newly created connection to the list of connections.
     void AddConnection(vmxGUIConnection *connection);
+    
+//!!!!!!!!!!!!!!!!! CONNECTION MANAGER IS BOUND TO SENDER OBJECT, SO IT SHOULD NOT HAVE TO TAKE sender_object AS INPUT OR TO CHECK ITS SENDER OBJECT WHEN EXECUTING SLOT !!!!!!!!!!!!!!!!!!!
+    /// Get connection with the given properties and return its pointer. If none found, return NULL.
+    vmxGUIConnection* GetConnection(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot);
     
     /// Get connection
     void GetConnection(vmxGUIEventID event_id, vmxGUIBaseObject *sender_object);
@@ -944,10 +946,10 @@ public:
     
     /// Set visibility of the object. This method should be re-implemented
     /// in child class, but should call RedoPlacement() mehod within it!
-    virtual void SetVisibility(int is_visible);
-//    {
-//        cout<<this->m_class_name.Get_C_String()<<" called vmxGUIWidget::SetVisibility()!"<<endl;
-//    };
+    virtual void SetVisibility(int is_visible)
+    {
+        std::cout<<std::endl<<this->m_class_name.Get_C_String()<<" called vmxGUIWidget::SetVisibility()! ";
+    };
 };
 
 
@@ -1065,6 +1067,8 @@ public:
         cout<<"Object '"<<this->m_object_name<<"' of type "<<this->m_class_name<<" called vmxGUIWidgetCollection::OnMouseWheelBackward()!"<<endl;
     };
 
+    /// Remove a widget from the collection.
+    virtual int RemoveWidget(vmxGUIWidget *widget);
 
     /// Reset the object.
     virtual void Reset();
@@ -1137,27 +1141,9 @@ public:
     double m_t;
     double m_v;
     
-//    double m_world_x;
-//    double m_world_y;
-//    double m_world_z;
-//    double m_world_t;
-    
     vmxGUIRendererPosition(){};
     ~vmxGUIRendererPosition(){};
 };
-
-
-//class vmxGUIRendererIndex
-//{
-//public:
-//    double m_x;
-//    double m_y;
-//    double m_z;
-//    double m_v;
-//
-//    vmxGUIRendererIndex(){};
-//    ~vmxGUIRendererIndex(){};
-//};
 
 
 
@@ -1176,21 +1162,9 @@ protected:
     
     /// Number of picked positions.
     int m_number_of_picked_positions;
-    
-//    /// Array of picked positions.
-//    mxArray< vmxGUIRendererPosition > m_picked_poisitions;
-    
-//    /// Class name for this renderer.
-//    mxString m_class_name;
-    
-//    /// Name as an identifier for this renderer.
-//    mxString m_object_name;
-    
-//    /// Relative coordinates (x,y) of the renderer in the render window. Range [0,1].
-//    double m_relative_coordinates[2];
-//
-//    /// Relative size (x,y) of the renderer in the render window. Range [0,1].
-//    double m_relative_size[2];
+        
+    /// Font size of the text written on the renderer.
+    int m_font_size;
 
     /// Indicates if the renderer is visible.
     int m_is_visible;
@@ -1201,6 +1175,29 @@ protected:
     /// Indicates if this renderer captures the event that was detected. E.g. if it captures events, then the left_button_up event
     /// will not be forwarded to an object seen in the renderer scene, but will be used only by the renderer itself.
     int m_is_capturing_event;
+    
+//    /// Text actor for slice and time index info.
+//    vtkSmartPointer<vtkTextActor> m_text_actor;
+    
+//    /// Text actor for seeds manipulation methods.
+//    vtkSmartPointer<vtkTextActor> m_text_actor_seeds_clear;
+//    vtkSmartPointer<vtkTextActor> m_text_actor_seeds_add;
+//    vtkSmartPointer<vtkTextActor> m_text_actor_seeds_to_point_list;
+//
+//    /// Text actor for view reset.
+//    vtkSmartPointer<vtkTextActor> m_text_actor_view_reset;
+    
+    /// List of text actors used for command in the renderer.
+    mxList< vtkSmartPointer< vtkTextActor > > m_command_text_actors;
+    
+    /// X coordinate of the text actors for commands.
+    int m_command_text_actor_coordinate_x;
+    
+    /// Separator value for the text actors of commands.
+    int m_command_text_actor_separator;
+    
+    /// Color of the text actors of commands.
+    double m_command_text_actor_color_RGB[3];
     
     
 public:
@@ -1220,6 +1217,9 @@ public:
 //    /// Get relative size of the renderer in the render window. Range of values [0,1].
 //    void GetRelativeSize(double &x, double &y) { x = m_relative_size[0]; y = m_relative_size[1]; };
     
+    /// Add a new command text actor to the list of commands.
+    vtkTextActor* AddCommand(const char *command_text);
+    
     /// Add the picked position to the array of picked positions.
     virtual void AddPickPosition(double x, double y, double z, double v);
     
@@ -1228,6 +1228,12 @@ public:
 
     /// Clear the array of picked positions.
     void ClearLastPickedPosition();
+    
+    /// Get command text actor for the given command text. If none return NULL.
+    vtkTextActor* GetCommand(const char *command_text);
+    
+    /// Get command text actor for the given screen coordinates. If none return NULL.
+    vtkTextActor* GetCommand(int screen_coordinate_x, int screen_coordinate_y);
     
     /// Get the last picked position.
     int GetLastPickedPosition(double &x, double &y, double &z, double &v);

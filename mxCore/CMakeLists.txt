@@ -20,9 +20,11 @@ set( ${TARGET_NAME}_SOURCES
     mxGeometry.cpp
     mxGraph.cpp
     mxImage.cpp
+    mxImageSliceTag.cpp
     mxIndex.cpp
     mxObject.cpp
     mxPoint.cpp
+    mxPointList.cpp
     mxPosition.cpp
     mxProfile.cpp
     mxSkeleton.cpp
@@ -40,9 +42,11 @@ set( ${TARGET_NAME}_HEADERS
     mxGeometry.h
     mxGraph.h
     mxImage.h
+    mxImageSliceTag.h
     mxIndex.h
     mxObject.h
     mxPoint.h
+    mxPointList.h
     mxPosition.h
     mxProfile.h
     mxSkeleton.h
@@ -62,9 +66,11 @@ add_definitions( -DmxCurve_EXPORTS
     -DmxGeometry_EXPORTS
     -DmxGraph_EXPORTS
     -DmxImage_EXPORTS
+    -DmxImageSliceTag_EXPORTS
     -DmxIndex_EXPORTS
     -DmxObject_EXPORTS
     -DmxPoint_EXPORTS
+    -DmxPointList_EXPORTS
     -DmxPosition_EXPORTS
     -DmxProfile_EXPORTS
     -DmxSkeleton_EXPORTS

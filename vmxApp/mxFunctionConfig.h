@@ -63,7 +63,7 @@ public:
     /// Text shown for this input.
     mxString m_text;
     
-    /// Maximum (limit) number of data object that this input can accept.
+    /// Maximum (limit) number of data object that this input can accept. The actual number of input object must be equal or lower than this one.
     unsigned int m_max_number_of_data_objects;
     
     /// Constructor.

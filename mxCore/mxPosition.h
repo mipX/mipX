@@ -66,6 +66,18 @@ public:
     /// Destructor.
     ~mxPosition();
     
+    /// Addition of coordinates: new_s = this->S() + p.S(); the same for R and C.
+    void Addition(double s, double r, double c);
+    
+    /// Subtraction of coordinates.
+    void Subtraction(double s, double r, double c);
+    
+    /// Division of coordinates: new_s = this->S() / n; the same for R and C.
+    void Division(double n);
+    
+    /// Multiplication of coordinates: new_s = this->S() * n; the same for R and C.
+    void Multiplication(double n);
+    
     /// Copy of input positions.
     void CopyFrom(mxPosition &position);
     
@@ -111,6 +123,12 @@ public:
     
     /// Reset the positions to 0 values.
     void Reset();
+    
+    /// Set the distance between this position and input_pos. This position will be translated on the line defined by the positions,
+    /// only the distance is adjusted.
+    /// For direction' =  0, the direction of the vector defined by p2 and this position stays the same, otherwise it is inverted
+    /// (this means that the new position of this position will be at the other side of the line defined by input_pos and this position).
+    int SetDistanceFromPosition(mxPosition &input_pos, double new_distance, int direction = 0);
     
     /// Set 2D positions from the given array.
     int SetPositions2D(int *cr);

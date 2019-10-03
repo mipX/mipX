@@ -23,6 +23,7 @@ endif()
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../mxCore
+    ${PROJECT_SOURCE_DIR}/../mxProcessing
     ${PROJECT_SOURCE_DIR}/../mxStandard
     ${PROJECT_SOURCE_DIR}/../vmxCore
     ${PROJECT_SOURCE_DIR}/../vmxGUI
@@ -31,9 +32,15 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 set( ${TARGET_NAME}_SOURCES
     mxDataContainer.cpp
     mxFunctionConfig.cpp
+    vmxAppDataLoader.cpp
+    vmxAppFunctionWidget.cpp
     vmxAppHistogramViewer.cpp
     vmxAppImageViewer.cpp
     vmxAppOrthogonalImageViewer.cpp
+    vmxAppProcessGraph.cpp
+    vmxAppProcessImage.cpp
+    vmxAppProcessPointList.cpp
+    vmxAppReportWidget.cpp
     vmxAppSignalViewer.cpp
     vmxAppTableViewer.cpp
     vmxAppWidget.cpp
@@ -42,9 +49,16 @@ set( ${TARGET_NAME}_SOURCES
 set( ${TARGET_NAME}_HEADERS
     mxDataContainer.h
     mxFunctionConfig.h
+    vmxAppDataLoader.h
+    vmxAppFunctionInterface.h
+    vmxAppFunctionWidget.h
     vmxAppHistogramViewer.h
     vmxAppImageViewer.h
     vmxAppOrthogonalImageViewer.h
+    vmxAppProcessGraph.h
+    vmxAppProcessImage.h
+    vmxAppProcessPointList.h
+    vmxAppReportWidget.h
     vmxAppSignalViewer.h
     vmxAppTableViewer.h
     vmxAppWidget.h
@@ -52,21 +66,67 @@ set( ${TARGET_NAME}_HEADERS
 
 set( ${TARGET_NAME}_LIBS
     mxCore
+    mxProcessing
     mxStandard
     vmxCore
     vmxGUI
 )
 
 add_definitions( -DmxDataContainer_EXPORTS
+    -DvmxAppDataLoader_EXPORTS
     -DmxFunctionConfig_EXPORTS
     -DvmxAppDataListWidget_EXPORTS
+    -DvmxAppFunctionWidget_EXPORTS
     -DvmxAppHistogramViewer_EXPORTS
     -DvmxAppImageViewer_EXPORTS
     -DvmxAppOrthogonalImageViewer_EXPORTS
     -DvmxAppSignalViewer_EXPORTS
+    -DvmxAppReportWidget_EXPORTS
     -DvmxAppTableViewer_EXPORTS
     -DvmxAppWidget_EXPORTS
 )
+
+
+
+option(MIPX_BUILD_LOADER_MATLAB "Build MATLAB file loader")
+if(MIPX_BUILD_LOADER_MATLAB)
+    include_directories( ${LIBMATIO_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/../xmxLoaderMatlab
+    )
+    set( ${TARGET_NAME}_LIBS
+        ${${TARGET_NAME}_LIBS}
+        ${LIBMATIO_LIBS}
+        xmxLoaderMatlab
+    )
+endif()
+
+option(MIPX_BUILD_LOADER_NIFTI "Build NIFTI file loader")
+if(MIPX_BUILD_LOADER_NIFTI)
+    include_directories( ${NIFTICLIB_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/../xmxLoaderNifti
+    )
+    set( ${TARGET_NAME}_LIBS
+        ${${TARGET_NAME}_LIBS}
+        ${NIFTICLIB_LIBS}
+        xmxLoaderNifti
+    )
+endif()
+
+
+
+option(MIPX_BUILD_LOADER_DICOM "Build DICOM file loader")
+if(MIPX_BUILD_LOADER_DICOM)
+    include_directories( ${GDCM_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/../xmxLoaderDicom
+    )
+    set( ${TARGET_NAME}_LIBS
+        ${${TARGET_NAME}_LIBS}
+        ${GDCM_LIBS}
+        xmxLoaderDicom
+    )
+endif()
+
+
 
 
 if(MIPX_USE_VTK_WITH_QT)

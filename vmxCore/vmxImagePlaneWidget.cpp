@@ -83,6 +83,7 @@ void vmxImagePlaneWidget::OnLeftButtonDown()
     if(m_is_double_clicked)
     {
         vtkImagePlaneWidget::OnLeftButtonDown();
+        //rwi->LeftButtonPressEvent();
     }
 }
 

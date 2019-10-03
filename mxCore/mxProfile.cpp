@@ -192,6 +192,17 @@ void mxProfile::SetGridDimensions(int s, int r, int c)
     }
     
     m_grid.SetDimensions(s,r,c);
+    
+    for(int s=0; s<this->m_grid.GetNumberOfSlices(); s++)
+    {
+        for(int r=0; r<this->m_grid.GetNumberOfRows(); r++)
+        {
+            for(int c=0; c<this->m_grid.GetNumberOfColumns(); c++)
+            {
+                this->m_grid(s,r,c) = NULL;
+            }
+        }
+    }
 }
 
 
@@ -402,6 +413,7 @@ int mxProfile::LoadFromFile(const char *file_name)
 	if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
 	int c = atoi(text_line);
     this->SetGridDimensions(s,r,c); //m_grid.SetDimensions(s,r,c);
+    std::cout<<std::endl<<" Loaded grid dimensions: "<<this->GetGridDimensions_T()<<", "<<this->GetGridDimensions_S()<<", "<<this->GetGridDimensions_R()<<", "<<this->GetGridDimensions_C();
 	if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
 	if(text_line[0]!='p') { input_file.close(); return 0; }
 	if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
@@ -411,7 +423,8 @@ int mxProfile::LoadFromFile(const char *file_name)
 	if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
 	c = atoi(text_line);
     this->SetVectorDimensions(s,r,c);
-	
+    std::cout<<std::endl<<" Loaded vector dimensions: "<<this->GetVectorDimensions_T()<<", "<<this->GetVectorDimensions_S()<<", "<<this->GetVectorDimensions_R()<<", "<<this->GetVectorDimensions_C();
+    
 	// Load vector labels
 	if(!input_file.getline(text_line, amount_of_characters_to_load)) { input_file.close(); return 0; }
 	if(text_line[0]!='r') { input_file.close(); return 0; }

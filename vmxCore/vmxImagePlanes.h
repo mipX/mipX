@@ -121,6 +121,11 @@ protected:
     /// The interactor to which the object is assigned. Currently only a single interactor is supported.
     vtkWeakPointer<vtkRenderWindowInteractor> m_interactor;
     
+    /// Visibility of each plane.
+    int m_visibility_of_plane_S;
+    int m_visibility_of_plane_R;
+    int m_visibility_of_plane_C;
+    
     
 public:
     
@@ -156,6 +161,15 @@ public:
 
     /// Get image plane widget for C (slices) direction.
     vmxImagePlaneWidget* GetPlaneWidget_C();
+    
+    /// Get plane visibility.
+    int GetVisibilityOf_S_Plane() { return m_visibility_of_plane_S; };
+    
+    /// Get plane visibility.
+    int GetVisibilityOf_R_Plane() { return m_visibility_of_plane_R; };
+
+    /// Get plane visibility.
+    int GetVisibilityOf_C_Plane() { return m_visibility_of_plane_C; };
     
     /// Set input image for visualization.
     int SetImage(vmxImageDataT<T> *input_image);

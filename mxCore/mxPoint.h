@@ -42,10 +42,12 @@
     #define mxPoint_H
 
 
-
+#include "mxArray.h"
+#include "mxString.h"
 #include "mxPosition.h"
 
 
+#define mxPoint_NUMBER_OF_VALUES 15
 
 /// Point class representing positions with a value.
 
@@ -55,7 +57,7 @@ class mxPoint_API mxPoint : public mxPosition
 protected:
     
     /// Value assigned to this point.
-	double m_value;
+	double m_value[mxPoint_NUMBER_OF_VALUES];
 
 public:
 
@@ -68,6 +70,9 @@ public:
     /// Copy from input point.
     void CopyFrom(mxPoint &point);
     
+    /// Get (maximum) number of values that can be stored in the point.
+    int GetNumberOfValues() { return mxPoint_NUMBER_OF_VALUES; };
+    
     /// Check if the 2D positions (r,c) are equal to the given input positions.
     int IsEqualValueAndPositionIn_2D(mxPoint &point);
     
@@ -77,11 +82,21 @@ public:
     /// Check if the 4D positions (t,s,r,c) are equal to the given input positions.
     int IsEqualValueAndPositionIn_4D(mxPoint &point);
     
+    /// Print out the point and only values for indexes that are in the input array.
+    void Print(std::ostream &o, mxArray<int> &indexes_of_values_for_printing);
+    
+    /// Print out the point and only values for indexes that are in the input array.
+    void Print(std::stringstream &o, mxArray<int> &indexes_of_values_for_printing);
+    
+    /// Read the point from an input string.
+    /// The string should be of type: '(0,1.1,3,2.1){7.7,5,0,0,0,0,0,0,0,0,0}'
+    int ReadFromString(const char *position_string);
+    
     /// Set point value.
-    void SetValue(double value);
+    void SetValue(double value, unsigned int index = 0);
     
 	/// Get point value.
-    double& V();
+    double& V(unsigned int index = 0);
 	
 	/// Copy from input point.
 	mxPoint& operator =(mxPoint &point);

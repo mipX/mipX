@@ -19,10 +19,7 @@
 
 /*
  
- This example shows display of tables.
- 
- This example demonstrates the basic use of data list widget to construct data objects. The advantage is that the user can
- visualy manipulate the data using the data list widget.
+ This example shows creation and display of multi-sheet tables.
  
  */
 
@@ -33,9 +30,7 @@
 #include "vmxTable.h"
 
 #include "vmxAppWidget.h"
-//#include "vmxAppImageViewer.h"
 #include "vmxAppTableViewer.h"
-//#include "vmxImage.h"
 
 #include <vtkMath.h>
 
@@ -125,16 +120,7 @@ public:
         cout<<endl<<table2->GetSheet(0)->GetSheetAsString().Get_C_String()<<endl;
 
         
-       
-//        m_table_viewer.AddInputTable(table);
-        //image_viewer.GetRenderer(0)->SetMappingToGrayScale();
-        //image_viewer.SetInputImage(image);
-        //image_viewer.GetRenderer()->FitImageToScreen();
-        
-//        vmxGUIConnection *connection = vmxGUIConnection::New(image_viewer3.GetRenderer(), KeyPressEvent,
-//                                                             this, MainApp::Slot_RecalculateImage);
-//        connection->SetPassedData(this);
-        
+
     };
     
     

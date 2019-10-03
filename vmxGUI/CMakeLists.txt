@@ -27,6 +27,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set( ${TARGET_NAME}_SOURCES
+    tinyfiledialogs.c
     vmxGUIButtonGroup.cpp
     vmxGUIFilesDialog.cpp
     vmxGUIIconButtonGroup.cpp
@@ -48,6 +49,8 @@ set( ${TARGET_NAME}_SOURCES
 )
 
 set( ${TARGET_NAME}_HEADERS
+    tinydir.h
+    tinyfiledialogs.h
     vmxGUIButtonGroup.h
     vmxGUIClipBoard.h
     vmxGUIEventDetector.h

@@ -131,6 +131,9 @@ public:
     int Load_Legacy_SingleArrayFile_v2a(const char *file_name);
     int Load_Legacy_SingleArrayFile_v3(const char *file_name);
     
+    /// Load curve from a raw file. Each line in the file contains y and x value in the given order.
+    int LoadRawFile(const char *file_name);
+    
     /// Reset (empty the x and y arrays).
     virtual void Reset();
     

@@ -546,6 +546,69 @@ int mxCurve::LoadMatlabFile(const char *file_name)
 }
 
 
+int mxCurve::LoadRawFile(const char *file_name)
+{
+    std::ifstream file;
+    file.open(file_name,std::ios::binary);
+    if(!file)
+    {
+        std::cout<<"mxCurve::LoadRawFile() : Error opening file: "<<file_name<<std::endl;
+        return 0;
+    }
+    
+    const unsigned int amount_of_characters_to_load = 1000000;
+    char text_buffer[amount_of_characters_to_load];
+    
+    mxList< double > x_list, y_list;;
+    
+    while(file.getline(text_buffer, amount_of_characters_to_load))
+    {
+        mxString text_string;
+        text_string.Assign(text_buffer);
+        mxList< double > list;
+        text_string.ExtractNumbers(list);
+        if(list.GetNumberOfElements()!=2)
+        {
+            std::cout<<"mxCurve::LoadRawFile():  error reading X and Y values!"<<std::endl;
+            file.close();
+            return 0;
+        }
+        
+        x_list.AddToEnd(list.GetEndElement());
+        y_list.AddToEnd(list.GetBeginElement());
+
+    }
+    
+    this->SetNumberOfSamples(x_list.GetNumberOfElements());
+    
+    // if x values are in ascending order...
+    if(x_list.GetEndElement()>x_list.GetBeginElement())
+    {
+        int i=0;
+        mxListIterator< double > it_x, it_y;
+        for(it_x.SetToBegin(x_list), it_y.SetToBegin(y_list), i=0; it_x.IsValid() && it_y.IsValid(); it_x.MoveToNext(), it_y.MoveToNext(), i++)
+        {
+            this->Set(i, it_x.GetElement(), it_y.GetElement());
+        }
+    }
+    // if x values are in descending order...
+    else
+    {
+        int i=0;
+        mxListIterator< double > it_x, it_y;
+        for(it_x.SetToEnd(x_list), it_y.SetToEnd(y_list), i=0; it_x.IsValid() && it_y.IsValid(); it_x.MoveToPrevious(), it_y.MoveToPrevious(), i++)
+        {
+            this->Set(i, it_x.GetElement(), it_y.GetElement());
+        }
+    }
+    
+    
+    file.close();
+    return 1;
+
+}
+
+
 void mxCurve::Reset()
 {
     // Do not reset the labels, if they need to be changed, it will be done with set label methods.

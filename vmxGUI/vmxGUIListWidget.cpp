@@ -262,7 +262,7 @@ int vmxGUIListWidget::CopySelectedItemsToClipBoard()
         if(m_item_pointers[i]->m_is_selected)
         {
             m_clip_board->m_data_text.Append(m_item_pointers[i]->m_text);
-            m_clip_board->m_data_text.Append(";");
+            m_clip_board->m_data_text.Append(vmxGUIItemSeparationString);
         }
     }
     m_clip_board->m_is_valid = 1;

@@ -64,7 +64,10 @@ public:
         
 
         vtkSmartPointer<vtkGenericDataObjectReader> reader2 = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-        reader2->SetFileName("/Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/Wavelocity/InterScanner_UZGent/Volunteer02_M32Y/data/trueFisp.vtk");
+        mxString file_name;
+        file_name.Assign(MIPX_FILES_DATA_PATH);
+        file_name.Append("aorta_trufisp_sag.vtk");
+        reader2->SetFileName(file_name.Get_C_String());
         reader2->Update();
 
 
@@ -80,10 +83,12 @@ public:
         this->AddRenderer(m_image_renderer);
         
         m_image_renderer->SetImageData(image1);
-        m_image_renderer->SetDirectionToSagittal();
         //m_image_renderer->SetDirectionToCoronal();
-        //m_image_renderer->SetDirectionToTransversal();
-        m_image_renderer->SetMappingToColor();//m_image_renderer->SetMappingToGrayScale();
+        //m_image_renderer->SetDirectionToSagittal();
+        m_image_renderer->SetDirectionToTransversal();
+        //m_image_renderer->SetMappingToGrayScale();
+        //m_image_renderer->SetMappingToColor();
+        
         m_image_renderer->FitImageToScreen();
         
 

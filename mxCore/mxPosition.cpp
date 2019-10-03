@@ -24,7 +24,7 @@
 
 mxPosition::mxPosition()
 {
-	this->m_positions[0] = this->m_positions[1] = this->m_positions[2] = this->m_positions[2] = 0;
+	this->m_positions[0] = this->m_positions[1] = this->m_positions[2] = this->m_positions[3] = 0;
 }
 
 
@@ -32,6 +32,39 @@ mxPosition::~mxPosition()
 {
     this->Reset();
 }
+
+
+void mxPosition::Addition(double s, double r, double c)
+{
+    this->S() += s;
+    this->R() += r;
+    this->C() += c;
+}
+
+
+void mxPosition::Subtraction(double s, double r, double c)
+{
+    this->S() -= s;
+    this->R() -= r;
+    this->C() -= c;
+}
+
+
+void mxPosition::Division(double n)
+{
+    this->S() = this->S() / n;
+    this->R() = this->R() / n;
+    this->C() = this->C() / n;
+}
+
+
+void mxPosition::Multiplication(double n)
+{
+    this->S() = this->S() * n;
+    this->R() = this->R() * n;
+    this->C() = this->C() * n;
+}
+
 
 
 void mxPosition::CopyFrom(mxPosition &position)
@@ -148,8 +181,35 @@ double& mxPosition::T()
 
 void mxPosition::Reset()
 {
-    this->m_positions[0] = this->m_positions[1] = this->m_positions[2] = this->m_positions[2] = 0;
+    this->m_positions[0] = this->m_positions[1] = this->m_positions[2] = this->m_positions[3] = 0;
 }
+
+
+int mxPosition::SetDistanceFromPosition(mxPosition &input_pos, double new_distance, int direction)
+{
+    if(new_distance<0) return 0;
+    
+    double ds = this->S() - input_pos.S();
+    double dr = this->R() - input_pos.R();
+    double dc = this->C() - input_pos.C();
+    double old_distance = this->DistanceEuclidean(input_pos);
+    double ratio = new_distance / old_distance;
+    
+    if(direction==0)
+    {
+        this->S() = input_pos.S() + ratio*ds;
+        this->R() = input_pos.R() + ratio*dr;
+        this->C() = input_pos.C() + ratio*dc;
+    }
+    else
+    {
+        this->S() = input_pos.S() - ratio*ds;
+        this->R() = input_pos.R() - ratio*dr;
+        this->C() = input_pos.C() - ratio*dc;
+    }
+    return 1;
+}
+
 
 
 void mxPosition::SetPosition(int t_position, int s_position, int r_position, int c_position)

@@ -96,3 +96,25 @@ std::ostream& operator<<(std::ostream &o, mxVoxel &voxel)
 	o<<"["<<voxel.S()<<","<<voxel.R()<<","<<voxel.C()<<"]{"<<voxel.V()<<"}";
     return o;
 }
+
+
+int mxVoxel::ReadFromString(const char *s)
+{
+    mxString bds, bds_coordinates;
+    bds.Append(s);
+    bds.ExtractString('[', ']', bds_coordinates);
+    mxList< int > l;
+    bds_coordinates.ExtractNumbers(l);
+    if(l.GetNumberOfElements()!=3) return 0;
+    this->S() = l.GetBeginElement();
+    this->R() = l[1];
+    this->C() = l.GetEndElement();
+    
+    mxString s_value;
+    bds.ExtractString('{', '}', s_value);
+    s_value.ExtractNumbers(l);
+    if(l.GetNumberOfElements()!=1) return 0;
+    this->V() = l.GetBeginElement();
+    
+    return 1;
+}

@@ -6,6 +6,8 @@ set( TARGET_NAME example_App_Graphs )
 
 PROJECT(${TARGET_NAME})
 
+include (InstallRequiredSystemLibraries)
+
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
@@ -17,19 +19,9 @@ if(MIPX_USE_VTK_WITH_QT)
     qt5_wrap_ui(UISrcs ${UI_FILES} )
 endif()
 
-
-#add_definitions( -DmxCore_USE_SOURCE_CODE
-#    -DvmxCore_USE_SOURCE_CODE
-#)
-
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/../../mxCore
-    ${PROJECT_SOURCE_DIR}/../../mxStandard
-    ${PROJECT_SOURCE_DIR}/../../mxProcessing
-    ${PROJECT_SOURCE_DIR}/../../vmxApp
-    ${PROJECT_SOURCE_DIR}/../../vmxCore
-    ${PROJECT_SOURCE_DIR}/../../vmxGUI
+    ${MIPX_HEADER_DIRS}
 )
 
 set( ${TARGET_NAME}_SOURCES
@@ -40,12 +32,7 @@ set( ${TARGET_NAME}_HEADERS
 )
 
 set( ${TARGET_NAME}_LIBS
-    mxCore
-    mxStandard
-    mxProcessing
-    vmxApp
-    vmxCore
-    vmxGUI
+    ${MIPX_LIBS}
 )
 
 set( MACOSX_RESOURCE_FILES ${CMAKE_SOURCE_DIR}/Files/Icons/mipx_icon_mipx.png )

@@ -31,28 +31,29 @@ void vmxGUIConnection::PrintSelf()
 {
     cout<<endl;
     cout<<" Sender object: type = "<<m_sender_object->GetClassName().Get_C_String()<<", name = "<<m_sender_object->GetObjectName().Get_C_String()<<endl;
-    //cout<<" Sender sub-object: address = "<<m_sender_subobject<<endl;
-    //cout<<" Trigger event: "<<m_trigger_event.Get_C_String()<<endl;
+    cout<<" Sender non-GUI object: address = "<<m_sender_non_gui_object<<endl;
     cout<<" Trigger event ID: "<<m_trigger_event_id<<endl;
     cout<<" Receiver object: type = "<<m_receiver_object->GetClassName().Get_C_String()<<", name = "<<m_receiver_object->GetObjectName().Get_C_String()<<endl;
-    //cout<<" Receiver sub-object: address = "<<m_receiver_subobject<<endl;
+    cout<<" Slot caller object: address = "<<m_slot_caller_object<<endl;
     cout<<" Slot: address = "<<((void*)m_slot)<<endl;
     cout<<" Passed data: address = "<<((void*)m_passed_data)<<endl;
     cout<<" Passed data int: address = "<<((void*)m_passed_data_int)<<endl;
-    //cout<<" Passed slot: address = "<<((void*)m_passed_slot_function)<<endl;
 }
 
 
-vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot)
+vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, void *sender_non_gui_object, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot)
 {
     if(!sender) return NULL;
     if(!receiver) return NULL;
     
+    // Check if this connection already exists and if it does, just return pointer to it (no need to create another one).
+    vmxGUIConnection *c = sender->GetConnectionManager()->GetConnection(sender,trigger_event_id,receiver,slot);
+    if(c) return c;
+    
     vmxGUIConnection* connection = new vmxGUIConnection();
     connection->m_sender_object = sender;
-    //connection->m_sender_subobject = sender_subobject;
+    connection->m_sender_non_gui_object = sender_non_gui_object;
     connection->m_receiver_object = receiver;
-    //connection->m_receiver_subobject = receiver_subobject;
     connection->m_trigger_event_id = trigger_event_id;
     connection->m_slot_caller_object = slot_caller_object;
     connection->m_slot = slot;
@@ -64,28 +65,10 @@ vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID 
 }
 
 
-//vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot)
-//{
-//    return vmxGUIConnection::New(sender, sender_subobject, trigger_event_id, receiver, NULL, slot);
-//}
-//
-//
-//vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot)
-//{
-//    return vmxGUIConnection::New(sender, NULL, trigger_event_id, receiver, NULL, slot);
-//}
-//
-//
-//vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIMainWidget *receiver, vmxGUISlotFunction slot)
-//{
-//    return vmxGUIConnection::New(sender, NULL, trigger_event_id, sender, receiver, slot);
-//}
-//
-//
-//vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, void *sender_subobject, vmxGUIEventID trigger_event_id, vmxGUIMainWidget *receiver, vmxGUISlotFunction slot)
-//{
-//    return vmxGUIConnection::New(sender, sender_subobject, trigger_event_id, sender, receiver, slot);
-//}
+vmxGUIConnection* vmxGUIConnection::New(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, void *slot_caller_object, vmxGUISlotFunction slot)
+{
+    return vmxGUIConnection::New(sender, trigger_event_id, NULL, receiver, slot_caller_object, slot);
+}
 
 
 int vmxGUIConnection::Delete(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot)
@@ -125,17 +108,16 @@ int vmxGUIConnection::Delete(vmxGUIConnection *connection)
 
 int vmxGUIConnection::IsEqualTo(vmxGUIConnection &connection)
 {
-    if(m_receiver_object != connection.m_receiver_object) return 0;
-    if(m_sender_object != connection.m_sender_object) return 0;
-    if(m_trigger_event_id != connection.m_trigger_event_id) return 0;
-    if(m_slot != connection.m_slot) return 0;
-    //if(m_receiver_subobject != connection.m_receiver_subobject) return 0;
-    //if(m_sender_subobject != connection.m_sender_subobject) return 0;
-    //if(m_trigger_event != connection.m_trigger_event) return 0;
-//    if(m_passed_data != connection.m_passed_data) return 0;
-//    if(m_passed_slot_function != connection.m_passed_slot_function) return 0;
-    
-    
+    return this->IsEqualTo(connection.m_sender_object, connection.m_trigger_event_id, connection.m_receiver_object, connection.m_slot);
+}
+
+
+int vmxGUIConnection::IsEqualTo(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot)
+{
+    if(m_receiver_object != receiver) return 0;
+    if(m_sender_object != sender) return 0;
+    if(m_trigger_event_id != trigger_event_id) return 0;
+    if(m_slot != slot) return 0;
     return 1;
 }
 
@@ -180,6 +162,21 @@ vmxGUIConnectionManager::~vmxGUIConnectionManager()
 void vmxGUIConnectionManager::AddConnection(vmxGUIConnection *connection)
 {
     m_connections_by_event_id[connection->GetEventID()].AddToEnd(connection);
+}
+
+
+vmxGUIConnection* vmxGUIConnectionManager::GetConnection(vmxGUIBaseObject *sender, vmxGUIEventID trigger_event_id, vmxGUIBaseObject *receiver, vmxGUISlotFunction slot)
+{
+    mxListIterator< vmxGUIConnection* > it;
+    for(it.SetToBegin(m_connections_by_event_id[trigger_event_id]); it.IsValid(); it.MoveToNext())
+    {
+        if(it.GetElement()->IsEqualTo(sender,trigger_event_id,receiver,slot))
+        {
+            vmxGUIConnection* c = it.GetElement();
+            return c;
+        }
+    }
+    return NULL;
 }
 
 
@@ -864,7 +861,7 @@ void vmxGUIWidget::SetPlacementToRelative(unsigned int x_percent, unsigned int y
     }
     
     
-    cout<<this->m_class_name.Get_C_String()<<": x_min="<<x_min<<", x_max="<<x_max<<", y_min="<<y_min<<", y_max="<<y_max<<endl;
+    //cout<<this->m_class_name.Get_C_String()<<": x_min="<<x_min<<", x_max="<<x_max<<", y_min="<<y_min<<", y_max="<<y_max<<endl;
 
     
     int window_size[2];
@@ -896,8 +893,8 @@ void vmxGUIWidget::SetPlacementToRelative(unsigned int x_percent, unsigned int y
         }
     }
 
-    cout<<this->m_class_name.Get_C_String()<<": widget_size[0]="<<widget_size[0]<<", widget_size[1]="<<widget_size[1]<<endl;
-    cout<<this->m_class_name.Get_C_String()<<": origin[0]="<<origin[0]<<", origin[1]="<<origin[1]<<endl;
+    //cout<<this->m_class_name.Get_C_String()<<": widget_size[0]="<<widget_size[0]<<", widget_size[1]="<<widget_size[1]<<endl;
+    //cout<<this->m_class_name.Get_C_String()<<": origin[0]="<<origin[0]<<", origin[1]="<<origin[1]<<endl;
     
     this->SetOrigin(origin[0],origin[1]);
     
@@ -979,25 +976,25 @@ void vmxGUIWidget::SetStretchingOver_X_Axis(int is_stretching_over_x_axis)
 }
 
 
-void vmxGUIWidget::SetVisibility(int is_visible)
-{
-    if(!m_is_occupying_renderer) return;
-    
-    if(is_visible)
-    {
-        if(m_main_widget->m_renderer_GUI_occupant==NULL)
-        {
-            m_main_widget->m_renderer_GUI_occupant = this;
-        }
-    }
-    else
-    {
-        if(m_main_widget->m_renderer_GUI_occupant==this)
-        {
-            m_main_widget->m_renderer_GUI_occupant = this;
-        }
-    }
-}
+//void vmxGUIWidget::SetVisibility(int is_visible)
+//{
+//    if(!m_is_occupying_renderer) return;
+//
+//    if(is_visible)
+//    {
+//        if(m_main_widget->m_renderer_GUI_occupant==NULL)
+//        {
+//            m_main_widget->m_renderer_GUI_occupant = this;
+//        }
+//    }
+//    else
+//    {
+//        if(m_main_widget->m_renderer_GUI_occupant==this)
+//        {
+//            m_main_widget->m_renderer_GUI_occupant = this;
+//        }
+//    }
+//}
 
 
 
@@ -1048,6 +1045,25 @@ mxArray<vmxGUIWidget*> vmxGUIWidgetCollection::GetWidgets()
         a[i] = it.GetElement();
     }
     return a;
+}
+
+
+int vmxGUIWidgetCollection::RemoveWidget(vmxGUIWidget *widget)
+{
+    if(!widget) return 0;
+    
+    // First check if the widget is already in the list, if not, add it.
+    mxListNode<vmxGUIWidget*> *node = mxListFunctions::GetNodeWithElement(m_objects, widget);
+    if(node)
+    {
+        widget->SetVisibility(0);
+        m_objects.DeleteNode(node);
+        widget->SetCollection(NULL);
+        //if(!widget->GetMainWidget()) widget->SetMainWidget(this->m_main_widget);
+        return 1;
+    }
+    
+    return 0;
 }
 
 
@@ -1211,9 +1227,12 @@ void vmxGUIWidgetCollection::SetVisibility(int is_visible)
 {
     m_is_visible_collection = is_visible;
     
+    //std::cout<<std::endl<<"vmxGUIWidgetCollection::SetVisibility():"<<std::endl;
+    
     mxListIterator<vmxGUIWidget*> it;
     for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
     {
+        //std::cout<<it.GetElement()->GetClassName().Get_C_String()<<" ";
         it.GetElement()->SetVisibility(is_visible);
     }
 }
@@ -1235,11 +1254,27 @@ vmxGUIRenderer::vmxGUIRenderer()
     m_is_visible = 1;
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_is_capturing_event = 0;
-    
     m_number_of_picked_positions = 0;
+    m_font_size = 16;
     
-    /// Array of picked positions.
-    mxArray< vmxGUIRendererPosition > m_picked_poisitions;
+    m_command_text_actor_separator = 3;
+    m_command_text_actor_coordinate_x = 0 + m_command_text_actor_separator;
+    m_command_text_actor_color_RGB[0] = 1;
+    m_command_text_actor_color_RGB[1] = 1;
+    m_command_text_actor_color_RGB[2] = 1;
+    
+//    int separator = 3;
+//    int x_position = 0 + separator;
+//    
+//    int i = 0;
+//    m_text_actor = vtkSmartPointer<vtkTextActor>::New();
+//    m_text_actor->SetInput(" ");
+//    m_text_actor->SetPosition(x_position, i*(m_font_size+separator));
+//    m_text_actor->GetTextProperty()->SetFontSize ( m_font_size );
+//    m_text_actor->GetTextProperty()->SetColor ( 1.0, 0.0, 0.0 );
+//    m_renderer->AddActor2D( m_text_actor );
+//    i++;
+    
 }
 
 
@@ -1251,6 +1286,19 @@ vmxGUIRenderer::~vmxGUIRenderer()
 vtkRenderer* vmxGUIRenderer::GetVTKRenderer()
 {
     return m_renderer;
+}
+
+
+vtkTextActor* vmxGUIRenderer::AddCommand(const char *command_text)
+{
+    *(this->m_command_text_actors.AddNewToEnd()) = vtkSmartPointer<vtkTextActor>::New();
+    vtkTextActor *ta = m_command_text_actors.GetEndElement().GetPointer();
+    ta->SetInput(command_text);
+    ta->SetPosition(m_command_text_actor_coordinate_x, (m_command_text_actors.GetNumberOfElements()-1)*(m_font_size+m_command_text_actor_separator));
+    ta->GetTextProperty()->SetFontSize(m_font_size);
+    ta->GetTextProperty()->SetColor(m_command_text_actor_color_RGB[0], m_command_text_actor_color_RGB[1], m_command_text_actor_color_RGB[2]);
+    m_renderer->AddActor2D( ta );
+    return ta;
 }
 
 
@@ -1271,6 +1319,55 @@ void vmxGUIRenderer::ClearLastPickedPosition()
 {
     if(m_number_of_picked_positions==0) return;
     m_number_of_picked_positions--;
+}
+
+
+vtkTextActor* vmxGUIRenderer::GetCommand(const char *command_text)
+{
+    mxString s;
+    s.Assign(command_text);
+    mxListIterator< vtkSmartPointer< vtkTextActor > > it;
+    for(it.SetToBegin(m_command_text_actors); it.IsValid(); it.MoveToNext())
+    {
+        vtkTextActor *ta = it.GetElement().GetPointer();
+        if(s == ta->GetInput())
+        {
+            return ta;
+        }
+    }
+    return NULL;
+}
+
+
+vtkTextActor* vmxGUIRenderer::GetCommand(int screen_coordinate_x, int screen_coordinate_y)
+{
+    int renderer_pos[2];
+    renderer_pos[0] = m_renderer->GetViewport()[0] * ((double)this->GetMainWidget()->GetRenderWindow()->GetSize()[0]);
+    renderer_pos[1] = m_renderer->GetViewport()[1] * ((double)this->GetMainWidget()->GetRenderWindow()->GetSize()[1]);
+    
+    int event_local[2];
+    event_local[0] = screen_coordinate_x - renderer_pos[0];
+    event_local[1] = screen_coordinate_y - renderer_pos[1];
+
+    mxListIterator< vtkSmartPointer< vtkTextActor > > it;
+    for(it.SetToBegin(m_command_text_actors); it.IsValid(); it.MoveToNext())
+    {
+        vtkTextActor *ta = it.GetElement().GetPointer();
+        
+        double size[2];
+        ta->GetSize(m_renderer, size);
+        
+        if(event_local[0] >= ta->GetPosition()[0] && event_local[0] <= ta->GetPosition()[0] + size[0])
+        {
+            //std::cout<<std::endl<<" 2 ";
+            if(event_local[1] >= ta->GetPosition()[1] && event_local[1] <= ta->GetPosition()[1] + size[1])
+            {
+                //std::cout<<std::endl<<"Reset view";
+                return ta;
+            }
+        }
+    }
+    return NULL;
 }
 
 
@@ -1804,7 +1901,7 @@ void vmxGUIMainWidget::RedoPlacement()
     int window_size[2];
     if(!this->GetRenderWindowSize(window_size[0], window_size[1])) return;
     
-    cout<<endl<<" vmxGUIMainWidget::RedoPlacement() "<<endl;
+    //cout<<endl<<" vmxGUIMainWidget::RedoPlacement() "<<endl;
     
     m_left_x_extent[0] = 0;
     m_left_x_extent[1] = window_size[0]-1;
@@ -1844,9 +1941,9 @@ void vmxGUIMainWidget::RedoPlacement()
         //for(it.SetToBegin(m_objects); it.IsValid(); it.MoveToNext())
         for(it.SetToBegin(m_exclusive_visibility_objects); it.IsValid(); it.MoveToNext())
         {
-            cout<<endl<<it.GetElement()->GetClassName().Get_C_String()<<"  ";
-            cout<<"  is visible: "<<it.GetElement()->IsVisible()<<"  ";
-            cout<<"  occupies: "<<it.GetElement()->IsOccupayingRenderer();
+            //cout<<endl<<it.GetElement()->GetClassName().Get_C_String()<<"  ";
+            //cout<<"  is visible: "<<it.GetElement()->IsVisible()<<"  ";
+            //cout<<"  occupies: "<<it.GetElement()->IsOccupayingRenderer();
             
             if(it.GetElement()->IsVisible() && it.GetElement()->IsOccupayingRenderer())
             {
@@ -1875,15 +1972,15 @@ void vmxGUIMainWidget::RedoPlacement()
 //            }
 //        }
         
-        cout<<"   if(m_renderer_GUI_occupant)   ";
-        cout<<endl<<m_renderer_GUI_occupant->GetClassName().Get_C_String()<<"  ";
-        cout<<"  is visible: "<<m_renderer_GUI_occupant->IsVisible()<<"  ";
-        cout<<"  occupies: "<<m_renderer_GUI_occupant->IsOccupayingRenderer();
+        //cout<<"   if(m_renderer_GUI_occupant)   ";
+        //cout<<endl<<m_renderer_GUI_occupant->GetClassName().Get_C_String()<<"  ";
+        //cout<<"  is visible: "<<m_renderer_GUI_occupant->IsVisible()<<"  ";
+        //cout<<"  occupies: "<<m_renderer_GUI_occupant->IsOccupayingRenderer();
         
         mxArray<vmxGUIWidget*> array_of_widgets = m_renderer_GUI_occupant->GetWidgets();
         for(unsigned int i=0; i<array_of_widgets.GetNumberOfElements(); i++)
         {
-            cout<<" # ";
+            //cout<<" # ";
             vmxGUIWidget *obj = array_of_widgets[i]; //vmxGUIWidget *obj = it.GetElement();
             
             for(int execute_once = 1; execute_once; execute_once =0)
@@ -2258,7 +2355,7 @@ void vmxGUIMainWidget::RedoPlacement()
         {
             vmxGUIWidget *obj = it.GetElement();
             
-            cout<<endl<<" obj is visible= "<<obj->IsVisible()<<" ";
+            //cout<<endl<<" obj is visible= "<<obj->IsVisible()<<" ";
             
             if(obj->IsVisible())
             {

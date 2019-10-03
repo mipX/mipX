@@ -34,6 +34,10 @@ vmxImagePlanesT<T>::vmxImagePlanesT()
     this->m_plane_R = vtkSmartPointer<vmxImagePlaneWidget>::New();
     this->m_plane_C = vtkSmartPointer<vmxImagePlaneWidget>::New();
     
+    this->m_visibility_of_plane_S = 0;
+    this->m_visibility_of_plane_R = 0;
+    this->m_visibility_of_plane_C = 0;
+    
     this->m_lookup_table = vtkSmartPointer<vtkLookupTable>::New();
     
     double total_gray_value_range = 2^(sizeof(T) * 8) - 1;
@@ -340,12 +344,19 @@ void vmxImagePlanesT<T>::SetVisibilityOf_S_Plane(int is_visible)
 {
     if(is_visible)
     {
-        if(this->m_interactor) this->m_plane_S->EnabledOn();
-        return;
+        if(this->m_interactor)
+        {
+            this->m_plane_S->EnabledOn();
+            m_visibility_of_plane_S = 1;
+        }
     }
     else
     {
-        if(this->m_interactor) this->m_plane_S->EnabledOff();
+        if(this->m_interactor)
+        {
+            this->m_plane_S->EnabledOff();
+            m_visibility_of_plane_S = 0;
+        }
     }
 }
 
@@ -355,12 +366,19 @@ void vmxImagePlanesT<T>::SetVisibilityOf_R_Plane(int is_visible)
 {
     if(is_visible)
     {
-        if(this->m_interactor) this->m_plane_R->EnabledOn();
-        return;
+        if(this->m_interactor)
+        {
+            this->m_plane_R->EnabledOn();
+            m_visibility_of_plane_R = 1;
+        }
     }
     else
     {
-        if(this->m_interactor) this->m_plane_R->EnabledOff();
+        if(this->m_interactor)
+        {
+            this->m_plane_R->EnabledOff();
+            m_visibility_of_plane_R = 0;
+        }
     }
 }
 
@@ -370,12 +388,19 @@ void vmxImagePlanesT<T>::SetVisibilityOf_C_Plane(int is_visible)
 {
     if(is_visible)
     {
-        if(this->m_interactor) this->m_plane_C->EnabledOn();
-        return;
+        if(this->m_interactor)
+        {
+            this->m_plane_C->EnabledOn();
+            m_visibility_of_plane_C = 1;
+        }
     }
     else
     {
-        if(this->m_interactor) this->m_plane_C->EnabledOff();
+        if(this->m_interactor)
+        {
+            this->m_plane_C->EnabledOff();
+            m_visibility_of_plane_C = 0;
+        }
     }
 }
 

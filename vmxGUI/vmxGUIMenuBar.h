@@ -135,6 +135,9 @@ public:
     /// Font size of the used chacaters.
     int m_font_size;
     
+    /// Color of the characters.
+    double m_color_r, m_color_g, m_color_b;
+    
     /// Actors containing the text of menu bar items.
     mxList< vmxGUIMenuBarItem > m_items;
    
@@ -151,6 +154,18 @@ public:
     
     /// Add a new item to the menu bar.
     vmxGUIMenuBarItem* AddItem(const char *item_name);
+    
+    /// Call this to rebuild menu bar.
+    void BuildMenuBar()
+    {
+        this->SetInteractor(this->m_interactor);
+        this->SetFontSize(m_font_size);
+        this->SetColor(m_color_r, m_color_g, m_color_b);
+        //this->HideMenus();
+    };
+
+    /// Get item based on its name. If none found, return NULL.
+    vmxGUIMenuBarItem* GetItem(const char *item_name);
     
     /// Get origin (position) of the whole object.
     void GetOrigin(int &origin1, int &origin2);

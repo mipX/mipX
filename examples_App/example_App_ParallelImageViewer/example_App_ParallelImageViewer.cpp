@@ -19,11 +19,13 @@
 
 /*
  
- This example implements viewing of images in parallel.
+ This example implements viewing of images in parallel. The example does not use the data tree (data list widget)
+ to create the images, instead they are created in the main widget and assigned to image renderers.
  
  */
 
 
+#include "mxGeometry.h"
 #include "mxPosition.h"
 #include "mxBIP.h"
 #include "mxGIP.h"
@@ -40,102 +42,87 @@
 
 
 
+
+
+
 class MainApp : public vmxAppMainWidget
 {
     
     mxScopedPointer< vmxImage > image;
     mxScopedPointer< vmxImage > image2;
-    //mxScopedPointer< vmxImage > image3;
     
     vmxAppImageViewer image_viewer;
     vmxAppImageViewer image_viewer2;
-    //vmxAppImageViewer image_viewer3;
     
 public:
     
     
-    //static int Slot_RecalculateImage(vmxGUIConnection *connection);
-    
-    
     MainApp()
     {
-        this->SetDataListWidgetToDefault();
-        //    this->SetRenderer3DToDefaultTrackballCamera();
-        
-        // Register the vmxImage16UFactory with the data list widget.
-        // The widget will later use this factory to construct objects of the given type.
-        this->GetDataListWidget()->AddFactory(new vmxImage16UFactory);
+        // Note: If you do not want to use the data list widget, you do not have to create it!
+        //this->SetDataListWidgetToDefault();
+        //this->GetDataListWidget()->AddFactory(new vmxImage16UFactory);
         
         
+        // Create images
         image = new vmxImage();
         image2 = new vmxImage();
-        //image3 = new vmxImage();
         
-        image->LoadVTKFile("/Users/danilobabin/Dropbox/-DIP_IMAGES/-fUS/From_Gabriel_2018_10_09/Segmentation/D/processed/data.vtk");
-        //        image2->LoadVTKFile("/Users/danilobabin/Dropbox/-DIP_IMAGES/-fUS/From_Gabriel_2018_10_09/Segmentation/D/prf/thr/thr4.vtk");
-        //        image3->LoadVTKFile("/Users/danilobabin/Dropbox/-DIP_IMAGES/-fUS/From_Gabriel_2018_10_09/Segmentation/D/prf/thr/thr2-4.vtk");
-        image2->LoadVTKFile("/Users/danilobabin/Dropbox/-DIP_IMAGES/-fUS/From_Gabriel_2018_10_09/Segmentation/D/prf/thr10/thr5.vtk");
-        //image3->LoadVTKFile("/Users/danilobabin/Dropbox/-DIP_IMAGES/-fUS/From_Gabriel_2018_10_09/Segmentation/D/prf/thr10/thr3-5.vtk");
+        this->CreateTestImage(image);
         
+        mxBIP bip;
+        if(!bip.ProfileVolumeTransformForSphere(*image, *image, *image2));
+
         
-        
+        // Register viewer
         this->RegisterViewer(&image_viewer);
         image_viewer.GetRenderer(0)->SetMappingToGrayScale();
-        //image_viewer.GetRenderer(0)->SetMappingToColor();
         image_viewer.SetInputImage(image);
         image_viewer.GetRenderer()->FitImageToScreen();
         
-        
+        // Register viewer
         this->RegisterViewer(&image_viewer2);
-        image_viewer2.GetRenderer(0)->SetMappingToGrayScale();
-        //image_viewer2.GetRenderer(0)->SetMappingToColor();
         image_viewer2.SetInputImage(image2);
-        //image_viewer2.SetOverlayedImage(image2);
-        //image_viewer2.GetRenderer()->SetOverlayedImageMappingToColor(0.3);
+        image_viewer2.GetRenderer(0)->SetMappingToColor();
         image_viewer2.GetRenderer()->FitImageToScreen();
         
-        
-//        this->RegisterViewer(&image_viewer3);
-//        image_viewer3.GetRenderer(0)->SetMappingToGrayScale();
-//
-//        //image_viewer3.SetInputImage(image3);
-//        image_viewer3.SetInputImage(image);
-//        image_viewer3.SetOverlayedImage(image3);
-//        image_viewer3.GetRenderer()->SetOverlayedImageMappingToBinary();//image_viewer3.GetRenderer()->SetOverlayedImageMappingToColor(0.3);
-//
-//        image_viewer3.GetRenderer()->FitImageToScreen();
-//
-        //vmxGUIConnection *connection = vmxGUIConnection::New(image_viewer3.GetRenderer(), KeyPressEvent,
-        //                                                     this, MainApp::Slot_RecalculateImage);
-        //connection->SetPassedData(this);
-        
+        // Create connections to make the viewers display images in parallel.
         {
             vmxGUIConnection *c = vmxGUIConnection::New(image_viewer.GetRenderer(), ImageSliceChangeEvent, image_viewer2.GetRenderer(), image_viewer2.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
             c->SetPassedDataInt((int*)(&(image_viewer.GetRenderer()->m_index_slice)));
         }
-//        {
-//            vmxGUIConnection *c = vmxGUIConnection::New(image_viewer.GetRenderer(), ImageSliceChangeEvent, image_viewer3.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-//            c->SetPassedDataInt((int*)(&(image_viewer.GetRenderer()->m_index_slice)));
-//        }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(image_viewer2.GetRenderer(), ImageSliceChangeEvent, image_viewer.GetRenderer(), image_viewer2.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
             c->SetPassedDataInt((int*)(&(image_viewer2.GetRenderer()->m_index_slice)));
         }
-//        {
-//            vmxGUIConnection *c = vmxGUIConnection::New(image_viewer2.GetRenderer(), ImageSliceChangeEvent, image_viewer3.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-//            c->SetPassedDataInt((int*)(&(image_viewer2.GetRenderer()->m_index_slice)));
-//        }
-//        {
-//            vmxGUIConnection *c = vmxGUIConnection::New(image_viewer3.GetRenderer(), ImageSliceChangeEvent, image_viewer.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-//            c->SetPassedDataInt((int*)(&(image_viewer3.GetRenderer()->m_index_slice)));
-//        }
-//        {
-//            vmxGUIConnection *c = vmxGUIConnection::New(image_viewer3.GetRenderer(), ImageSliceChangeEvent, image_viewer2.GetRenderer(), vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-//            c->SetPassedDataInt((int*)(&(image_viewer3.GetRenderer()->m_index_slice)));
-//        }
         
         
     };
+    
+    
+    /// Create a test image
+    void CreateTestImage(vmxImage *vimg16)
+    {
+        unsigned int dimension_s = 100, dimension_r = 100, dimension_c = 100;
+        
+        int cube_size = 10;
+        
+        vimg16->SetDimensions(1,dimension_s,dimension_r,dimension_c);
+        
+        mxGeometry g;
+        g.SetDimensions(vimg16->GetDimension_S(), vimg16->GetDimension_R(), vimg16->GetDimension_C());
+        
+        int sn, rn,cn;
+        for(g.ForCube(vimg16->GetDimension_S()/2, vimg16->GetDimension_R()/2, vimg16->GetDimension_C()/2, 0); g.GetCube(cube_size, sn, rn, cn); )
+        {
+            vimg16->Set(sn,rn,cn, 255);
+        }
+        for(g.ForSphere(vimg16->GetDimension_S()/2+cube_size*2, vimg16->GetDimension_R()/2, vimg16->GetDimension_C()/2, 0); g.GetSphere((cube_size*cube_size), sn, rn, cn); )
+        {
+            vimg16->Set(sn,rn,cn, 255);
+        }
+    };
+
     
     
     ~MainApp(){};

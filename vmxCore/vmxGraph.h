@@ -96,7 +96,7 @@ public:
 	
 
 //	/// Scalars loaded from scalar values in mxGraph (size is set to maximum number of scalar values in mxGraph).
-//	bdArray< vtkSmartPointer<vtkFloatArray> > m_scalars_vtk;
+    vtkSmartPointer<vtkFloatArray> m_vtk_scalars; //	mxArray< vtkSmartPointer<vtkFloatArray> > m_scalars_vtk;
 
 
 
@@ -166,6 +166,19 @@ public:
 
     /// Destructor.
     ~vmxGraph();
+    
+    /// Use cardinal spline (of VTK) to curve the PATH and interpolate using a given coefficient.
+    /// Notice: Considers that the graph is a PATH (one skeleton link).
+    /// CAUTION: Assumes that vertices have been entered as a path sequence (so NOT raster scan order). This is usually so it the path is
+    /// created from a point list.
+    int CurveUsingCardinalSpline(int interpolation_coefficient);
+    
+    /// Export the mesh data of the graph to an STL file.
+    /// Note: STL file type does not save any scalar values.
+    void ExportMeshToSTL(const char *file_name);
+    
+    /// Export the mesh data of the graph to a VTK file.
+    void ExportMeshToVTK(const char *file_name);
 
     /// Get VTK actor for the specified time index (default 0).
     vtkActor* GetActor(unsigned int t=0);

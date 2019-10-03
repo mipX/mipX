@@ -60,6 +60,7 @@
 #include <chrono>
 #include <vtkImagePlaneWidget.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkObserverMediator.h>
 
 
 /// VTK level image plane widget for multi-plane reconstruction.

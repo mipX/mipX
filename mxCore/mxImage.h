@@ -47,6 +47,7 @@
 #include "mxArray.h"
 #include "mxBasicImage.h"
 #include "mxDataObject.h"
+#include "mxImageSliceTag.h"
 #include "mxRegularGrid.h"
 #include "mxString.h"
 
@@ -71,6 +72,9 @@ protected:
     /// If it is not, the data mamory is not deallocated (some external object is in charge of that).
     int m_is_data_owned_by_mxImage;
     
+    /// Dicom tags.
+    mxImageTag m_tags;
+    
 public:
 	
 	/// Constructor.
@@ -90,7 +94,7 @@ public:
     virtual int ConvertToDimensions(unsigned int t, unsigned int s, unsigned int r, unsigned int c);
 
 	/// Copy entire image from input image.
-    int Copy(mxImageT<T> *image);
+    virtual int Copy(mxImageT<T> *image);
     
     /// Copy data members of input object if the input object and this object are of the same type.
     virtual int CopyFromDataObject(mxDataObject *data_object);
@@ -173,13 +177,15 @@ public:
     /// Get spacing for columns.
     double GetSpacing_C();
     
+    /// Get tags.
+    mxImageTag* GetTag() { return &m_tags; };
+    
     /// Get the minimum and maximum voxel value found in the image.
     int GetVoxelMinAndMaxValues(uint64_t &min_value_included, uint64_t &max_value_included);
     
     /// Get the full range of voxel values [min_value_included,max_value_included].
     void GetVoxelValueFullRange(uint64_t &min_value_included, uint64_t &max_value_included);
     //void GetVoxelValueFullRange(T &min_value_included, T &max_value_included);
-
 
     /// Calculate index values for given world coordinates. If indexes fall outside the image range return fail 0.
     int IndexFromWorldCoordinates(double w_t, double w_s, double w_r, double w_c, int &out_t, int &out_s, int &out_r, int &out_c);
@@ -238,6 +244,10 @@ public:
     /// Set spacing.
     virtual void SetSpacing(double t, double s, double r, double c);
     
+    /// Sort slices by the given order of criteria - slices are sequentially sorted using criteria1, criteria2
+    /// (with maintining order of criteria1) and finaly using criteria3 (with maintaining order of criteria1 and criteria2).
+    virtual void SortSlices(const char *criteria1_tag_number1, const char *criteria1_tag_number2, const char *criteria2_tag_number1, const char *criteria2_tag_number2, const char *criteria3_tag_number1, const char *criteria3_tag_number2);
+
     /// Calculate world coordinates for given indexes.
     /// Notice: indexes are 'int' values on purpose: they do not have to fall inside the image index range.
     int WorldCoordinatesFromIndexes(int t, int s, int r, int c, double &out_w_t, double &out_w_z, double &out_w_y, double &out_w_x);

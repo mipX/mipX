@@ -45,13 +45,13 @@
 #include "vmxImage.h"
 #include "vmxAppWidget.h"
 #include "vmxGUIRendererImageViewer.h"
-
+#include "vmxPointList.h"
 
 
 
 /// App Main widget.
 
-class vmxAppImageViewer_API vmxAppImageViewer : public vmxAppViewer//, public vmxGUIRendererImageViewer
+class vmxAppImageViewer_API vmxAppImageViewer : public vmxAppViewer
 {
     
 protected:
@@ -63,6 +63,9 @@ protected:
     
 public:
     
+    /// command for converting seeds to point list.
+    vtkTextActor *m_command_seeds_to_point_list;
+    
     /// Constructor.
     vmxAppImageViewer()
     {
@@ -73,11 +76,17 @@ public:
     /// Destructor.
     virtual ~vmxAppImageViewer() {};
     
+    /// Disconnect the viewer from the default list widget.
+    void DisconnectFromDefaultDataListWidget();
+
     /// Get image.
     vmxImage** GetImage() { return &m_image; };
     
     /// Get the pointer to the GUI renderer.
     vmxGUIRendererImageViewer* GetRenderer(int index=0) { return m_image_renderer; };
+    
+    /// Get the seed point list.
+    void GetSeedPointList(mxPointList *pl);
     
     /// Set input image for the viewer.
     void SetInputImage(vmxImage *image);
@@ -90,12 +99,18 @@ public:
     
     /// Update display of the viewer.
     void Update();
-    
-//    /// Remove all signals from the viewer.
-//    void RemoveAllSignals();
-    
+        
     /// Slot that will be executed when the viewer need to be updated.
     static int Slot_UpdateViewer(vmxGUIConnection *connection);
+    
+    /// Slot that will be executed on left button drop - use to update viewer based on the drag&drop of image from data list.
+    static int Slot_OnDrop(vmxGUIConnection *connection);
+    
+    /// Slot that will be executed on key press (if the evet was not caught by gui renderer image viewer).
+    static int Slot_OnKeyPress(vmxGUIConnection *connection);
+    
+    /// Slot that will be executed on left button up event (if the evet was not caught by gui renderer image viewer).
+    static int Slot_OnLeftButtonUp(vmxGUIConnection *connection);
 
 };
 

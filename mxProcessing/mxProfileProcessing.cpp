@@ -53,6 +53,7 @@ int mxProfileProcessing::GetIndexArrayForOperatorStringArray(mxProfile &input, m
         int is_found = 0; //Indicator will show if the requested function was found
         for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements(); c++)
         {
+            //std::cout<<" '"<<input.GetVectorValuesLabels_C()[c]<<"' ";
             if(input.GetVectorValuesLabels_C()[c] == operators[i])
             {
                 output_index_array[i] = c;
@@ -677,7 +678,7 @@ int mxProfileProcessing::ProfileMeasure(mxProfile &input, mxImage &output, mxArr
     mxArray< int > index_array;
     if(!this->GetIndexArrayForOperatorStringArray(input, array_of_operators, index_array))
     {
-        std::cout<<std::endl<<"mxProfileProcessing::ProfileMeasure() error: mxProfileProcessing::GetIndexArrayForProfileFunction() returned 0.";
+        std::cout<<std::endl<<"mxProfileProcessing::ProfileMeasure() error: mxProfileProcessing::GetIndexArrayForOperatorStringArray() returned 0.";
         return 0;
     }
 

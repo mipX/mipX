@@ -113,9 +113,21 @@ public:
     
     /// Get the context menu of the object.
     virtual qmxDataObjectContextMenu* GetContextMenu();
+
+    /// Get number of elements of S dimention of data (usually corresponds to number of "slices" of the data).
+    virtual unsigned int GetDimension_S();
+    
+    /// Get number of elements of T dimention of data (usually corresponds to number of "time series" of the data).
+    virtual unsigned int GetDimension_T();
     
     /// Get the factory of this class object.
     mxDataObjectFactory* GetFactory();
+
+    /// Get index s (usually corresponds to slice index).
+    virtual unsigned int GetIndex_S();
+    
+    /// Get index t (usually corresponds to time index).
+    virtual unsigned int GetIndex_T();
     
     /// Get log string of all signatures (records/names) and parameters of functions called on this object.
     mxString& GetLog();
@@ -175,6 +187,12 @@ public:
     
     /// Set exclusive visibility.
     void SetExclusiveVisibility(int is_visibility_exclusive);
+
+    /// Set S index for the data object (usually corresponds to slice).
+    virtual void SetIndex_S(unsigned int index);
+    
+    /// Set T index for the data object (usually corresponds to time).
+    virtual void SetIndex_T(unsigned int index);
     
     /// Set the interactor for VTK visualization.
     virtual void SetInteractor(vtkRenderWindowInteractor *interactor);

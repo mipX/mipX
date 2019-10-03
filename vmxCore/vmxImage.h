@@ -160,6 +160,9 @@ public:
     //    /// Check visibility of the obejct.
     //    int IsVisible();
     
+    /// Get visibility of given component.
+    int GetVisibilityOfComponent(int component_index);
+    
     /// Load PNG image series from the array of given filen names.
     virtual int LoadPNGImages(vtkStringArray *file_names);
     
@@ -178,10 +181,10 @@ public:
     virtual void Reset();
 
     /// Set index 's' (slices).
-    int SetIndex_S(unsigned int index);
+    void SetIndex_S(unsigned int index);
     
     /// Set index 't' (time series).
-    int SetIndex_T(unsigned int index);
+    void SetIndex_T(unsigned int index);
     
     /// Set interactor.
     void SetInteractor(vtkRenderWindowInteractor *rwi);

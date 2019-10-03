@@ -40,15 +40,16 @@ vmxCurve::vmxCurve()
         
         m_colors.SetNumberOfElements(10);
         int i=0;
+       
         m_colors[i].m_red = 255; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
         m_colors[i].m_red = 0; m_colors[i].m_green = 255; m_colors[i].m_blue = 0; i++;
-        m_colors[i].m_red = 0; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
-        m_colors[i].m_red = 255; m_colors[i].m_green = 255; m_colors[i].m_blue = 0; i++;
-        m_colors[i].m_red = 255; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
-        m_colors[i].m_red = 0; m_colors[i].m_green = 255; m_colors[i].m_blue = 0; i++;
+        m_colors[i].m_red = 0; m_colors[i].m_green = 0; m_colors[i].m_blue = 255; i++;
+        m_colors[i].m_red = 255; m_colors[i].m_green = 0; m_colors[i].m_blue = 255; i++;
+        m_colors[i].m_red = 0; m_colors[i].m_green = 255; m_colors[i].m_blue = 255; i++;
+        m_colors[i].m_red = 128; m_colors[i].m_green = 0; m_colors[i].m_blue = 128; i++;
         m_colors[i].m_red = 128; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
         m_colors[i].m_red = 0; m_colors[i].m_green = 128; m_colors[i].m_blue = 0; i++;
-        m_colors[i].m_red = 0; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
+        m_colors[i].m_red = 0; m_colors[i].m_green = 128; m_colors[i].m_blue = 128; i++;
         m_colors[i].m_red = 128; m_colors[i].m_green = 128; m_colors[i].m_blue = 0; i++;
     }
     

@@ -45,6 +45,7 @@ int mxImageT<T>::AttachData(void *data_address, int is_data_owned_by_mxImage,  u
 {
     if(!this->m_grid.AttachData(((T*)data_address), dimension_c, dimension_r, dimension_s, dimension_t)) return 0;
     this->m_is_data_owned_by_mxImage = is_data_owned_by_mxImage;
+    this->m_tags.SetDimensions(dimension_t,dimension_s);
     return 1;
 }
 
@@ -52,6 +53,7 @@ int mxImageT<T>::AttachData(void *data_address, int is_data_owned_by_mxImage,  u
 template<class T>
 int mxImageT<T>::ConvertToDimensions(unsigned int t, unsigned int s, unsigned int r, unsigned int c)
 {
+    if(!this->m_tags.m_tags.ConvertToDimensions(1, 1, t, s)) return 0;
     return this->m_grid.ConvertToDimensions(t,s,r,c);
 }
 
@@ -60,6 +62,7 @@ template<class T>
 int mxImageT<T>::CopyFromDataObject(mxDataObject *data_object)
 {
     if(!data_object) return 0;
+    if(data_object->GetClassName()!=this->GetClassName()) return 0;
     
     mxImageT<T> *image = dynamic_cast<mxImageT<T>*>(data_object);
     
@@ -72,6 +75,7 @@ int mxImageT<T>::CopyFromDataObject(mxDataObject *data_object)
 template<class T>
 int mxImageT<T>::Copy(mxImageT<T> *image)
 {
+    //std::cout<<std::endl<<" mxImageT<T>::Copy(mxImageT<T> *image) was called!";
     if(!image) return 0;
 
     if(this==image) return 1;
@@ -84,7 +88,9 @@ int mxImageT<T>::Copy(mxImageT<T> *image)
         this->m_grid[i] = image->m_grid[i];
     }
     
-    if(!this->mxDataObject::CopyFromDataObject(image)) return 0;
+    m_tags = image->m_tags;
+    
+    //if(!this->mxDataObject::CopyFromDataObject(image)) return 0;
     
     return 1;
 }
@@ -425,6 +431,7 @@ void mxImageT<T>::Reset()
     {
         this->mxImageT<T>::DetachData();
     }
+    this->m_tags.Reset();
 }
 
 
@@ -461,6 +468,7 @@ int mxImageT<T>::SetDimensions(unsigned int t, unsigned int s, unsigned int r, u
 {
     this->mxImageT<T>::Reset();
     this->m_is_data_owned_by_mxImage = 1;
+    this->m_tags.SetDimensions(t,s);
     return (this->m_grid.SetDimensions(t,s,r,c));
 }
 
@@ -477,6 +485,7 @@ template<class T>
 void mxImageT<T>::SetDimensionsAs(mxBasicImage *image)
 {
     this->m_grid.SetDimensions(image->GetDimension_T(),image->GetDimension_S(),image->GetDimension_R(),image->GetDimension_C());
+    this->m_tags.SetDimensions(image->GetDimension_T(),image->GetDimension_S());
 }
 
 
@@ -507,6 +516,183 @@ template<class T>
 void mxImageT<T>::SetSpacing(double t, double s, double r, double c)
 {
     this->m_grid.SetSpacing(t,s,r,c);
+}
+
+
+template<class T>
+void mxImageT<T>::SortSlices(const char *criteria1_tag_number1, const char *criteria1_tag_number2, const char *criteria2_tag_number1, const char *criteria2_tag_number2, const char *criteria3_tag_number1, const char *criteria3_tag_number2)
+{
+    //This array will indicate how the indexes changed during the sort.
+    mxArray<unsigned int> index_array;
+    index_array.SetNumberOfElements(m_tags.m_tags.GetNumberOfDataElements());
+    for(unsigned int i=0; i<index_array.GetNumberOfElements(); i++) index_array[i] = i;
+    
+    // Do the bubble sort based on the given criteria.
+    int is_change_made = 1;
+    while(is_change_made)
+    {
+        is_change_made = 0;
+        for(unsigned int i=0; i<m_tags.m_tags.GetNumberOfDataElements()-1; i++)
+        {
+            mxArray<double> value_array1;
+            if(!m_tags.GetTag(i).GetValueAsArrayOfDoubles(criteria1_tag_number1, criteria1_tag_number2, value_array1))
+            {
+                std::cout<<std::endl<<"mxImageT<T>::SortSlices() error getting values from tags:"<<criteria1_tag_number1<<","<<criteria1_tag_number2;
+                return;
+            }
+            mxArray<double> value_array2;
+            
+            if(!m_tags.GetTag(i+1).GetValueAsArrayOfDoubles(criteria1_tag_number1, criteria1_tag_number2, value_array2))
+            {
+                std::cout<<std::endl<<"mxImageT<T>::SortSlices(): error getting values from tags:"<<criteria1_tag_number1<<","<<criteria1_tag_number2;
+                return;
+            }
+            
+            double v1 = 0, v2 = 0;
+            for(unsigned int j=0; j<value_array1.GetNumberOfElements() && j<value_array2.GetNumberOfElements(); j++)
+            {
+                if(value_array1[j]+0.00005<value_array2[j] || value_array1[j]-0.00005>value_array2[j])
+                {
+                    v1 = value_array1[j]; v2 = value_array2[j];
+                    break;
+                }
+            }
+            
+            //Sorting based on the criteria1
+            if(v1>v2)
+            {
+                //Invert the tag order
+                mxImageSliceTag temp_tag;
+                temp_tag = m_tags.GetTag(i+1);
+                m_tags.GetTag(i+1) = m_tags.GetTag(i);
+                m_tags.GetTag(i) = temp_tag;
+                
+                //Invert the index array elements order
+                unsigned int temp_i;
+                temp_i = index_array[i+1];
+                index_array[i+1] = index_array[i];
+                index_array[i] = temp_i;
+                
+                is_change_made = 1;
+            }
+            else
+            {
+                if(v1==v2 && criteria2_tag_number1 && criteria2_tag_number2)
+                {
+                    
+                    if(!m_tags.GetTag(i).GetValueAsArrayOfDoubles(criteria2_tag_number1, criteria2_tag_number2, value_array1))
+                    {
+                        std::cout<<std::endl<<"mxImageT<T>::SortSlices(): Error getting values from tags:"<<criteria2_tag_number1<<","<<criteria2_tag_number2;
+                        return;
+                    }
+                    
+                    if(!m_tags.GetTag(i+1).GetValueAsArrayOfDoubles(criteria2_tag_number1, criteria2_tag_number2, value_array2))
+                    {
+                        std::cout<<std::endl<<"mxImageT<T>::SortSlices(): Error getting values from tags:"<<criteria2_tag_number1<<","<<criteria2_tag_number2;
+                        return;
+                    }
+                    
+                    
+                    v1 = 0, v2 = 0;
+                    for(unsigned int j=0; j<value_array1.GetNumberOfElements() && j<value_array2.GetNumberOfElements(); j++)
+                    {
+                        if(value_array1[j]+0.00005<value_array2[j] || value_array1[j]-0.00005>value_array2[j])
+                        {
+                            v1 = value_array1[j]; v2 = value_array2[j];
+                            break;
+                        }
+                    }
+                    
+                    //Sorting based on the criteria2
+                    if(v1>v2)
+                    {
+                        //Invert the tag order
+                        mxImageSliceTag temp_tag;
+                        temp_tag = m_tags.GetTag(i+1);
+                        m_tags.GetTag(i+1) = m_tags.GetTag(i);
+                        m_tags.GetTag(i) = temp_tag;
+                        
+                        //Invert the index array elements order
+                        unsigned int temp_i;
+                        temp_i = index_array[i+1];
+                        index_array[i+1] = index_array[i];
+                        index_array[i] = temp_i;
+                        
+                        is_change_made = 1;
+                    }
+                    else
+                    {
+                        if(v1==v2 && criteria3_tag_number1 && criteria3_tag_number2)
+                        {
+                            
+                            
+                            if(!m_tags.GetTag(i).GetValueAsArrayOfDoubles(criteria3_tag_number1, criteria3_tag_number2, value_array1))
+                            {
+                                std::cout<<std::endl<<"mxImageT<T>::SortSlices(): Error getting values from tags:"<<criteria3_tag_number1<<","<<criteria3_tag_number2;
+                                return;
+                            }
+                            
+                            if(!m_tags.GetTag(i+1).GetValueAsArrayOfDoubles(criteria3_tag_number1, criteria3_tag_number2, value_array2))
+                            {
+                                std::cout<<std::endl<<"mxImageT<T>::SortSlices(): Error getting values from tags:"<<criteria3_tag_number1<<","<<criteria3_tag_number2;
+                                return;
+                            }
+                            
+                            
+                            v1 = 0, v2 = 0;
+                            for(unsigned int j=0; j<value_array1.GetNumberOfElements() && j<value_array2.GetNumberOfElements(); j++)
+                            {
+                                if(value_array1[j]+0.00005<value_array2[j] || value_array1[j]-0.00005>value_array2[j])
+                                {
+                                    v1 = value_array1[j]; v2 = value_array2[j];
+                                    break;
+                                }
+                            }
+                            
+                            
+                            //Sorting based on the criteria3
+                            if(v1>v2)
+                            {
+                                //Invert the tag order
+                                mxImageSliceTag temp_tag;
+                                temp_tag = m_tags.GetTag(i+1);
+                                m_tags.GetTag(i+1) = m_tags.GetTag(i);
+                                m_tags.GetTag(i) = temp_tag;
+                                
+                                //Invert the index array elements order
+                                unsigned int temp_i;
+                                temp_i = index_array[i+1];
+                                index_array[i+1] = index_array[i];
+                                index_array[i] = temp_i;
+                                
+                                is_change_made = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //Tags are sorted, the index change order is in index_array, so we now have to sort slices.
+    mxImageT<T> temp_img;//temp_img.SetSize(1,1,this->GetNumberOfRows(),this->GetNumberOfColumns());
+    temp_img.Copy(this);
+    for(unsigned int i=0; i<index_array.GetNumberOfElements(); i++)
+    {
+        int old_index = index_array[i];// new index is 'i'.
+        int s_old = old_index % this->GetDimension_S(); //GetNumberOfSlices();
+        int t_old = old_index / this->GetDimension_S(); //GetNumberOfSlices();
+        int s_new = i % this->GetDimension_S(); //GetNumberOfSlices();
+        int t_new = i / this->GetDimension_S(); //GetNumberOfSlices();
+        
+        for(unsigned int r=0; r<this->GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<this->GetDimension_C(); c++)
+            {
+                (*this)(t_new,s_new,r,c) = temp_img(t_old,s_old,r,c);
+            }
+        }
+    }
 }
 
 

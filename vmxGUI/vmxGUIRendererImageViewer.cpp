@@ -49,6 +49,49 @@ void vmxGUIInteractorStyleImageViewer::OnMouseMove()
 
 void vmxGUIInteractorStyleImageViewer::OnLeftButtonUp()
 {
+    vtkTextActor *ta = m_gui_renderer->GetCommand(this->Interactor->GetEventPosition()[0],this->Interactor->GetEventPosition()[1]);
+    
+    if(ta == m_gui_renderer->m_command_reset_view)
+    {
+        m_gui_renderer->FitImageToScreen();
+        m_gui_renderer->GetVTKRenderer()->Render();
+        
+        vtkInteractorStyleImage::OnLeftButtonUp();
+        return;
+    }
+    if(ta == m_gui_renderer->m_command_seeds_add_new)
+    {
+        //m_gui_renderer->m_picked_indexes;
+        
+        
+        vtkInteractorStyleImage::OnLeftButtonUp();
+        return;
+    }
+    if(ta == m_gui_renderer->m_command_seeds_clear_all)
+    {
+        m_gui_renderer->ClearAllPickedPositions();
+        m_gui_renderer->UpdatePickedPositionsVisualization();
+        this->Interactor->Render();
+        
+        vtkInteractorStyleImage::OnLeftButtonUp();
+        return;
+    }
+    if(ta == m_gui_renderer->m_command_seeds_toggle_view)
+    {
+        int is_visible = m_gui_renderer->IsPickedPositionsActorVisible();
+        m_gui_renderer->SetVisibilityOfPickedPositions(!is_visible);
+        this->Interactor->Render();
+        
+        vtkInteractorStyleImage::OnLeftButtonUp();
+        return;
+    }
+    
+    // Don't forget to invoke event, otherwise connections won't work.
+    this->m_gui_renderer->InvokeEvent(LeftButtonUpEvent, this->m_gui_renderer, NULL);
+    
+    //if(ta) std::cout<<std::endl<<ta->GetInput();
+    //else std::cout<<std::endl<<"None";
+    
     vtkInteractorStyleImage::OnLeftButtonUp();
 }
 
@@ -61,7 +104,7 @@ void vmxGUIInteractorStyleImageViewer::OnLeftButtonDown()
 
 void vmxGUIInteractorStyleImageViewer::OnKeyPress()
 {
-    //get the keypress
+    // get the keypress
     vtkRenderWindowInteractor *rwi = this->Interactor;
     std::string key = rwi->GetKeySym();
     
@@ -71,16 +114,22 @@ void vmxGUIInteractorStyleImageViewer::OnKeyPress()
         m_gui_renderer->SetIndexSlice(m_gui_renderer->m_index_slice+1);
         m_gui_renderer->UpdatePickedPositionsVisualization();
         
+        m_gui_renderer->DisplayProperties();
+        
         // Don't forget to invoke event, otherwise connections won't work.
         this->m_gui_renderer->InvokeEvent(ImageSliceChangeEvent, this->m_gui_renderer, NULL); //this->m_gui_renderer->InvokeEvent(KeyPressEvent, this->m_gui_renderer, NULL);
         
         rwi->Render();
+        
+        return;
     }
     if(key.compare("z") == 0)
     {
         m_gui_renderer->SetIndexSlice(m_gui_renderer->m_index_slice-1);
         m_gui_renderer->UpdatePickedPositionsVisualization();
         
+        m_gui_renderer->DisplayProperties();
+        
         // Don't forget to invoke event, otherwise connections won't work.
         this->m_gui_renderer->InvokeEvent(ImageSliceChangeEvent, this->m_gui_renderer, NULL); //this->m_gui_renderer->InvokeEvent(KeyPressEvent, this->m_gui_renderer, NULL);
         
@@ -88,18 +137,26 @@ void vmxGUIInteractorStyleImageViewer::OnKeyPress()
         
         return;
     }
-    if(key.compare("s") == 0)
+//    if(key.compare("s") == 0)
+//    {
+//        //cout<<" s ";
+//        //m_v_img->SetIndexSlices(m_v_img->GetIndexSlices()+1);
+//        //rwi->Render();
+//        return;
+//    }
+//    if(key.compare("x") == 0)
+//    {
+//        //cout<<" x ";
+//        //m_v_img->SetIndexSlices(m_v_img->GetIndexSlices()-1);
+//        //rwi->Render();
+//        return;
+//    }
+    if(key.compare("r") == 0)
     {
-        //cout<<" s ";
-        //m_v_img->SetIndexSlices(m_v_img->GetIndexSlices()+1);
-        //rwi->Render();
-        return;
-    }
-    if(key.compare("x") == 0)
-    {
-        //cout<<" x ";
-        //m_v_img->SetIndexSlices(m_v_img->GetIndexSlices()-1);
-        //rwi->Render();
+        //std::cout<<" r ";
+        m_gui_renderer->SetImageData(m_gui_renderer->m_image_data);
+        //m_gui_renderer->GetVTKRenderer()->ResetCamera();//0, 10, 0, 10, 0, 10);//);
+        rwi->Render();
         return;
     }
     if(key.compare("l") == 0)
@@ -320,6 +377,14 @@ vmxGUIRendererImageViewer::vmxGUIRendererImageViewer()
     m_mapping_of_overlayed_image = vmxGUIRendererImageViewerPlaneColorMapping::COLOR_TRANSPARENT;
     
     
+    m_command_index_slice_time = this->AddCommand(" ");
+    
+    m_command_reset_view = this->AddCommand("(R) Reset view");
+    m_command_seeds_add_new = this->AddCommand("(K) Add seed");
+    m_command_seeds_clear_all = this->AddCommand("(E) Clear seeds");
+    m_command_seeds_toggle_view = this->AddCommand("(L) Seeds toggle view");
+
+    
 }
 
 
@@ -446,12 +511,30 @@ vmxGUIRendererImageViewer::vmxGUIRendererImageViewer(vmxGUIMainWidget *main_widg
     m_mapping_of_overlayed_image = vmxGUIRendererImageViewerPlaneColorMapping::COLOR_TRANSPARENT;
     
     
+    m_command_index_slice_time = this->AddCommand(" ");
+    
+    m_command_reset_view = this->AddCommand("(R) Reset view");
+    m_command_seeds_add_new = this->AddCommand("(K) Add seed");
+    m_command_seeds_clear_all = this->AddCommand("(E) Clear seeds");
+    m_command_seeds_toggle_view = this->AddCommand("(L) Seeds toggle view");
+
 }
 
 
 vmxGUIRendererImageViewer::~vmxGUIRendererImageViewer()
 {
     
+}
+
+
+void vmxGUIRendererImageViewer::DisplayProperties()
+{
+    mxString st;
+    st.Assign("S: ");
+    st.AppendNumber((int)m_index_slice);
+    st.Append("  T: ");
+    st.AppendNumber((int)m_index_time);
+    m_command_index_slice_time->SetInput(st.Get_C_String());
 }
 
 
@@ -1127,6 +1210,7 @@ void vmxGUIRendererImageViewer::SetImageData(vtkImageData *image_data)
     
     
     m_image_actor->GetMapper()->SetInputConnection(m_image_map_to_colors->GetOutputPort()); //m_image_actor->GetMapper()->SetInputConnection(m_reslice->GetOutputPort());
+    //this->m_renderer->RemoveActor(m_image_actor);
     this->m_renderer->AddActor(m_image_actor);
     
     
@@ -1151,6 +1235,8 @@ void vmxGUIRendererImageViewer::SetImageData(vtkImageData *image_data)
 
 void vmxGUIRendererImageViewer::SetIndexSlice(unsigned int slice_index)
 {
+    if(!m_image_data) return;
+    
     if(m_plane_orientation == vmxGUIRendererImageViewerPlaneOrientation::ORIENTATION_TRANSVERSAL)
     {
         m_index_slice = (slice_index+m_image_data->GetDimensions()[2]) % m_image_data->GetDimensions()[2];
@@ -1164,6 +1250,8 @@ void vmxGUIRendererImageViewer::SetIndexSlice(unsigned int slice_index)
         }
         
         //this->GetConnectionManager()->Execute(ImageSliceChangeEvent, this);//, NULL);
+        
+        this->DisplayProperties();
         
         return;
     }
@@ -1179,6 +1267,8 @@ void vmxGUIRendererImageViewer::SetIndexSlice(unsigned int slice_index)
             m_overlay_reslice_axes->SetElement(1, 3, m_overlay_image_data->GetOrigin()[1]+m_overlay_image_data->GetSpacing()[1]*m_index_slice);
             m_overlay_reslice->Update();
         }
+        
+        this->DisplayProperties();
         
         //this->GetConnectionManager()->Execute(ImageSliceChangeEvent, this);//, NULL);
         
@@ -1196,6 +1286,9 @@ void vmxGUIRendererImageViewer::SetIndexSlice(unsigned int slice_index)
             m_overlay_reslice_axes->SetElement(0, 3, m_overlay_image_data->GetOrigin()[0]+m_overlay_image_data->GetSpacing()[0]*m_index_slice);
             m_overlay_reslice->Update();
         }
+        
+        
+        this->DisplayProperties();
         
         //this->GetConnectionManager()->Execute(ImageSliceChangeEvent, this);//, NULL);
         

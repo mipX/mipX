@@ -74,8 +74,14 @@ public:
     /// Morphological erosion of the binary input image using a spherical structuring element (SE) of given squared radius size.
     int ErodeWithSphereSE(mxImage &input, mxImage &output, unsigned int squared_radius_of_SE, unsigned int t=0);
     
+    /// Filter out voxels that have no non-zero 4-neighbors.
+    int FilterWith_4_Neghborhood(mxImage &input, mxImage &output, unsigned int t=0);
+    
     /// Extract the connected component starting from the given seed indexes by 26-neighborgood propagation on value above the given threshold value.
     int ExtractConnectedComponent26(mxImage &input, mxImage &output, unsigned int seed_s, unsigned int seed_r, unsigned int seed_c, mxImageScalar threshold, unsigned int t=0);
+    
+    /// Extract the largest 26-connected component in the input image above the given threshold value.
+    int ExtractLargestConnectedComponent26(mxImage &input_image, int threshold, mxImage &output_image, unsigned int t);
     
     /// Get the number of foreground (non-zero) voxels in 8 neighborhood of the given voxel indexes.
     int NumberOfForegroundVoxelsInNeighborhood8(mxImage &input, unsigned int t, unsigned int s, unsigned int r, unsigned int c);

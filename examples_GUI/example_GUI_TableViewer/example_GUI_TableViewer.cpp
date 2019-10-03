@@ -21,7 +21,7 @@
 
 /*
  
- This example illustrates how to create a simple app with table viewer viewing of tables.
+ This example illustrates how to create a simple table (manually and to view it using a table viewer.
  
  */
 

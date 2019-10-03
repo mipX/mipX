@@ -183,6 +183,7 @@ int vmxImageDataT<T>::ConvertToDimensions(unsigned int t, unsigned int s, unsign
 template<class T>
 int vmxImageDataT<T>::CopyFromDataObject(mxDataObject *data_object)
 {
+    std::cout<<std::endl<<" vmxImageDataT<T>::CopyFromDataObject(mxDataObject *data_object) was called!";
     if(!data_object) return 0;
     
     mxImageT<T> *image = dynamic_cast<mxImageT<T>*>(data_object);
@@ -196,6 +197,7 @@ int vmxImageDataT<T>::CopyFromDataObject(mxDataObject *data_object)
 template<class T>
 int vmxImageDataT<T>::Copy(vmxImageDataT<T> *image)
 {
+    std::cout<<std::endl<<" vmxImageDataT<T>::Copy(vmxImageDataT<T> *image) was called!";
     if(!this->mxImageT<T>::Copy(image)) return 0;
     this->vmxImageDataT<T>::SetPropertiesAs(image);
     this->internalAttachToPreset_mxImage();
@@ -206,6 +208,7 @@ int vmxImageDataT<T>::Copy(vmxImageDataT<T> *image)
 template<class T>
 int vmxImageDataT<T>::Copy(mxImageT<T> *image)
 {
+    std::cout<<std::endl<<" vmxImageDataT<T>::Copy(mxImageT<T> *image) was called!";
     if(!this->mxImageT<T>::Copy(image)) return 0;
     this->vmxImageDataT<T>::SetPropertiesAs(image);
     this->internalAttachToPreset_mxImage();

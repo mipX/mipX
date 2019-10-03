@@ -86,6 +86,9 @@ public:
     /// Pointer to submenu called from this item. If none pointer is NULL.
     vmxGUIMenu *m_sub_menu;
     
+    /// Pointer to attached data.
+    void *m_data;
+    
     /// Indicators for checked check boxes. Preset size, member m_number_of_check_boxes controlls how many check boxes there really are.
     int m_checkboxes[10];
     
@@ -137,6 +140,9 @@ public:
     /// List of pointers to items in the list of items. This array is built when calling BuildMenu() and is used for (fast)
     /// indexing access  to the items.
     mxArray<vmxGUIMenuItem*> m_item_pointers;
+    
+    /// The last picked item.
+    vmxGUIMenuItem *m_picked_item;
     
     /// Maintin the maximum number of checkboxes contained in an item - this is needed for checking/picking check boxes.
     /// This value gets updated when adding and removing items.
@@ -206,6 +212,9 @@ public:
     
     /// Get item by index.
     vmxGUIMenuItem* GetItem(int item_index) { if(item_index<0 || item_index>=this->GetNumberOfItems()) return NULL; return m_item_pointers[item_index]; };
+
+    /// Get item by name.
+    vmxGUIMenuItem* GetItem(const char *item_name);
     
     /// Get number of items in the menu.
     int GetNumberOfItems() { return m_items.GetNumberOfElements(); };
@@ -230,6 +239,9 @@ public:
     
     /// Get pointer to the picked submenu. If none return NULL.
     vmxGUIMenu* GetPickedSubMenu(int pos1, int pos2);
+    
+    /// Get pointer to the last picked item.
+    vmxGUIMenuItem* GetPickedItem() { return m_picked_item; };
     
     /// Get the size of the menu check box actor.
     int GetSizeOfCheckBoxActor(int &output_size1, int &output_size2);

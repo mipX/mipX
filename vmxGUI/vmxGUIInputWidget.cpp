@@ -54,6 +54,17 @@ vmxGUIInputWidget* vmxGUIInputWidget::New()
 }
 
 
+void vmxGUIInputWidget::GetInputItems(mxList< mxString > &items_list)
+{
+    items_list.Reset();
+    if(m_input_type != vmxGUIInputWidget::ITEM) return;
+    
+    mxString s;
+    s.Assign(vmxGUIItemSeparationChar2); s.Append(m_input);
+    s.ExtractStrings(vmxGUIItemSeparationChar2, vmxGUIItemSeparationChar1, items_list);
+}
+
+
 void vmxGUIInputWidget::GetOrigin(int &origin1, int &origin2)
 {
     double *org = m_text_actor->GetPosition();

@@ -62,6 +62,9 @@ public:
     /// Destructor.
     ~mxGIP();
     
+    /// Analyses the histogram of the image and creates a new images with values scaled in such way that there are no empty values in the histogram.
+    int CompactValues(mxImage &input, mxImage &output);
+    
     /// Make the histogram of the input image.
     int Histogram(mxImage &input, mxArray<int> &output);
     int Histogram(mxImage &input, mxCurve &output);

@@ -315,7 +315,7 @@ void vmxGUIInteractorStyle::OnLeftButtonUp()
         if(this->m_left_button_drag_detector.IsDropped() && picked_gui_object->IsAccepting_LeftButtonDrop_Event())
         {
             picked_gui_object->OnLeftButtonDrop();
-            
+
             vmxGUIWidgetCollection *collection = picked_gui_object->GetCollection();
             if(collection)
             {
@@ -385,6 +385,12 @@ void vmxGUIInteractorStyle::OnLeftButtonUp()
     // If the picked renderer was correctly found...
     if(scene_renderer)
     {
+        //... check if the drop was detected, and if so, call the drop method...
+        if(this->m_left_button_drag_detector.IsDropped())
+        {
+            scene_renderer->OnLeftButtonDrop();
+        }
+        
         //... and if it has a specified interactor style, use it.
         if(scene_renderer->GetVTKInteractorStyle())
         {

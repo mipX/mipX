@@ -56,20 +56,6 @@ public:
     
     mxArray< vmxGUIRendererImageViewer* > m_array_of_image_renderers;
     
-
-    
-//    static int Slot_vmxGUIMenu_LoadFiles2(vmxGUIConnection *connection)
-//    {
-//        vmxGUIFilesDialog *fd = static_cast<vmxGUIFilesDialog *>(connection->GetReceiverObject());
-//
-//        cout<<"MainApp::Slot_vmxGUIMenu_LoadFiles(): "<<fd->GetClassName().Get_C_String()<<endl;
-//
-//        fd->OpenFiles(Slot_vmxGUIFilesDialog_LoadFiles);
-//
-////        vmxGUIFilesDialog::OpenFiles(Slot_vmxGUIFilesDialog_LoadFiles);
-//
-//        return 1;
-//    };
     
  
     MainApp()
@@ -80,44 +66,11 @@ public:
         }
         
         
-//        //----- Create a sphere -----
-//        vtkSmartPointer<vtkSphereSource> sphere_source = vtkSmartPointer<vtkSphereSource>::New();
-//        sphere_source->SetCenter(0.0, 0.0, 0.0);
-//        sphere_source->SetRadius(5);
-//        sphere_source->Update();
-//        vtkSmartPointer<vtkPolyDataMapper> sphere_mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-//        sphere_mapper->SetInputConnection(sphere_source->GetOutputPort());
-//        vtkSmartPointer<vtkActor> sphere_actor = vtkSmartPointer<vtkActor>::New();
-//        sphere_actor->SetMapper(sphere_mapper);
-////        this->GetRenderer_3D()->AddActor(sphere_actor);
-//        //----------
-//
-
-//        //----- Add a new renderer to the render window -----
-//        //vmxGUIRendererImage image_renderer;
-//        this->AddRenderer(&m_image_renderer);
-//        //----------
-//
-//
-//        //----- Create an image actor -----
-//        vtkSmartPointer<vtkJPEGReader> jpg_reader = vtkSmartPointer<vtkJPEGReader>::New();
-//        jpg_reader->SetFileName("/Users/danilobabin/Downloads/Petra u vrticu/IMG_2071.jpg");
-//        jpg_reader->Update();
-//
-//        // /Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/From_Laura_and_Dan/PWV_data_converted/MFS002/00_cine.vtk
-//
-//        //vtkSmartPointer<vtkImageActor> image_actor = vtkSmartPointer<vtkImageActor>::New();
-//        //image_actor->GetMapper()->SetInputConnection(jpg_reader->GetOutputPort());
-//        //m_image_renderer.GetVTKRenderer()->AddActor(image_actor);
-//
-//        vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-//        reader->SetFileName("/Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/From_Laura_and_Dan/PWV_data_converted/MFS002/00_PC.vtk");
-//        reader->Update();
-//
-
         vtkSmartPointer<vtkGenericDataObjectReader> reader2 = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-        //reader2->SetFileName("/Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/From_Laura_and_Dan/PWV_data_converted/MFS002/00_cine.vtk");
-        reader2->SetFileName("/Users/danilobabin/Dropbox/-DIP_IMAGES/-AORTA/Wavelocity/InterScanner_UZGent/Volunteer02_M32Y/data/trueFisp.vtk");
+        mxString file_name;
+        file_name.Assign(MIPX_FILES_DATA_PATH);
+        file_name.Append("aorta_trufisp_sag.vtk");
+        reader2->SetFileName(file_name.Get_C_String());
         reader2->Update();
         
 
@@ -150,36 +103,30 @@ public:
         
         
 
-        
+        // Create connections for orthogonal viewing
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[0], ImagePickedEvent, m_array_of_image_renderers[1], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[0]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[0]->GetPickedWorldPosition());
         }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[0], ImagePickedEvent, m_array_of_image_renderers[2], m_array_of_image_renderers[1],vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[0]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[0]->GetPickedWorldPosition());
         }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[1], ImagePickedEvent, m_array_of_image_renderers[0], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[1]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[1]->GetPickedWorldPosition());
         }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[1], ImagePickedEvent, m_array_of_image_renderers[2], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[1]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[1]->GetPickedWorldPosition());
         }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[2], ImagePickedEvent, m_array_of_image_renderers[0], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[2]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[2]->GetPickedWorldPosition());
         }
         {
             vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[2], ImagePickedEvent, m_array_of_image_renderers[1], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_Pick);
             c->SetPassedDataInt(m_array_of_image_renderers[2]->GetPickedIndexes());
-            //c->SetPassedDataDouble(m_array_of_image_renderers[2]->GetPickedWorldPosition());
         }
         
         
@@ -189,24 +136,6 @@ public:
         m_array_of_image_renderers[2]->FitImageToScreen();
         
 
-        
-
-//
-//        //----- Add a number of new 3D renderers to the render window -----
-//        int number_of_renderers_to_add = 2;
-//        //mxArray<vmxGUIRenderer3DTrackBallCamera> array_of_3D_renderers;
-//        m_array_of_3D_renderers.SetNumberOfElements(number_of_renderers_to_add);
-//
-//        mxArray< vtkSmartPointer<vtkActor> > array_of_sphere_actors;
-//        array_of_sphere_actors.SetNumberOfElements(number_of_renderers_to_add);
-//        for(unsigned int i=0; i<m_array_of_3D_renderers.GetNumberOfElements(); i++)
-//        {
-//            array_of_sphere_actors[i] = vtkSmartPointer<vtkActor>::New();
-//            this->AddRenderer(&(m_array_of_3D_renderers[i]));
-//            m_array_of_3D_renderers[i].GetVTKRenderer()->AddActor(sphere_actor);
-//        }
-//        //----------
- 
     };
     
     

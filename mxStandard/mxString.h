@@ -169,6 +169,10 @@ public:
     /// Extract strings between input characters to list.
     /// Example: For string "{asc}{-5}{op2}", start_character '{', end_character '}', the output is: "asc","-5","op2".
     int ExtractStrings(char start_character, char end_character, mxList<mxString> &output_list);
+
+    /// Extract strings separated by input separator_character and add them to list.
+    /// Example: For string "part|of|a|sentence", separator_character '|', the output is: "part","of","a","sentence".
+    int ExtractStrings(char separator_character, mxList<mxString> &output_list);
     
     /// Extract the first string that is common for this and input string.
     /// Example: For "data_0324asd" and "data_1224", the output is: "data_".
@@ -189,7 +193,11 @@ public:
     /// For path string get the path of directory level up.
     /// Example: For "x:\dir\dir2\" level up is: "x:\dir\". ('\' can be replaced with '/').
     int PathLevelUp(mxString &output_dir);
-    
+
+    /// For path string get the path of directory level up.
+    /// Example: For "x:\A\B\C\" the list will be populated with: "x:\", "x:\A\", "x:\A\B\", "x:\A\B\C\". ('\' can be replaced with '/').
+    int PathLevels(mxList< mxString > &output_list_dirs);
+
     static char PathSeparator()
     {
     #if defined(_MSC_VER)

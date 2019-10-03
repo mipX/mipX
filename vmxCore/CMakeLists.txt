@@ -24,7 +24,6 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../mxCore
     ${PROJECT_SOURCE_DIR}/../mxStandard
-    ${PROJECT_SOURCE_DIR}/../vmxCore
 )
 
 set( ${TARGET_NAME}_SOURCES
@@ -35,6 +34,9 @@ set( ${TARGET_NAME}_SOURCES
     vmxImagePlanes.cpp
     vmxImagePlaneWidget.cpp
     vmxMesh.cpp
+    vmxPointList.cpp
+    vmxProfile.cpp
+    vmxSkeleton.cpp
     vmxTable.cpp
 )
 
@@ -46,6 +48,9 @@ set( ${TARGET_NAME}_HEADERS
     vmxImagePlanes.h
     vmxImagePlaneWidget.h
     vmxMesh.h
+    vmxPointList.h
+    vmxProfile.h
+    vmxSkeleton.h
     vmxTable.h
 )
 
@@ -61,6 +66,9 @@ add_definitions( -DvmxCurve_EXPORTS
     -DvmxImagePlanes_EXPORTS
     -DvmxImagePlaneWidget_EXPORTS
     -DvmxMesh_EXPORTS
+    -DvmxPointList_EXPORTS
+    -DvmxProfile_EXPORTS
+    -DvmxSkeleton_EXPORTS
     -DvmxTable_EXPORTS
 )
 

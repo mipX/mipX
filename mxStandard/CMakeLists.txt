@@ -17,6 +17,7 @@ set( ${TARGET_NAME}_SOURCES
 
 set( ${TARGET_NAME}_HEADERS
     mxArray.h
+    mxFileOperations.h
     mxList.h
     mxMatrix.h
     mxRegularGrid.h

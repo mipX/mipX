@@ -21,7 +21,7 @@
 
 /*
  
- This example illustrates how to create a simple app with signal viewer to view vx curves (signals).
+ This example illustrates how to create a simple app with signal viewer to view xy curves (signals).
  
  */
 

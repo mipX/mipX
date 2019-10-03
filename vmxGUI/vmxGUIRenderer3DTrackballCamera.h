@@ -57,6 +57,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkSphereSource.h>
+#include <vtkGlyph3D.h>
 
 
 class vmxGUIRenderer3DTrackballCamera;
@@ -91,8 +93,14 @@ public:
         //do nothing here.
     };
     
+    /// Re-imaplemented.
+    virtual void OnKeyPress();
+    
     /// Re-implemented to detect double-click.
     virtual void OnLeftButtonDown();
+    
+    /// Re-implemented to check commands first.
+    virtual void OnLeftButtonUp();
     
 };
 
@@ -113,9 +121,9 @@ public:
     
     vtkSmartPointer< vtkCellPicker > m_cell_picker;
     
-//    /// Current index of plane.
-//    unsigned int m_index_time;
-//    unsigned int m_index_slice;
+    /// Current indexes for temporal and slice view.
+    unsigned int m_index_time;
+    unsigned int m_index_slice;
     
     /// Picked indexes in order C,R,S,T.
     int m_picked_indexes[4];
@@ -127,12 +135,40 @@ public:
     vtkSmartPointer<vtkPoints> m_pick_marker_points;
     vtkSmartPointer<vtkPolyData> m_pick_marker_poly_data;
     
+    /// VTK structures for Glyph visualization of picked positions.
+    vtkSmartPointer<vtkPoints> m_pp_points;
+    vtkSmartPointer<vtkPolyData> m_pp_poly_data;
+    vtkSmartPointer<vtkSphereSource> m_pp_sphere_source;
+    vtkSmartPointer<vtkGlyph3D> m_pp_glyph;
+    vtkSmartPointer<vtkPolyDataMapper> m_pp_mapper;
+    vtkSmartPointer<vtkActor> m_pp_actor;
+    
+    
+    /// Command text actor for reset of view.
+    vtkTextActor *m_command_reset_view;
+    
+    /// Command text actor for adding seed point.
+    vtkTextActor *m_command_seeds_add_new;
+    
+    /// Command text actor for clearing seed points.
+    vtkTextActor *m_command_seeds_clear_all;
+    
+    /// Command text actor for toggle view of seed points.
+    vtkTextActor *m_command_seeds_toggle_view;
+    
+    /// Command text actor for slice and time index display.
+    vtkTextActor *m_command_index_slice_time;
+
+    
     
     /// Constructor.
     vmxGUIRenderer3DTrackballCamera(vmxGUIMainWidget *main_widget);
     
     /// Destructor.
     virtual ~vmxGUIRenderer3DTrackballCamera();
+    
+    /// Show indexing properties.
+    virtual void DisplayProperties();
     
     /// Get picked indexes.
     int* GetPickedIndexes() { return m_picked_indexes; };
@@ -142,6 +178,9 @@ public:
     
     /// Internal method to create the cross-hairs for marking the pick positions.
     void internal_CreateCrossHairs(int size=20);
+    
+    /// Check the visibility of position actors.
+    int IsPickedPositionsActorVisible() { return m_pp_actor->GetVisibility(); };
     
     /// Executed on mouse move event.
     virtual void OnMouseMove() {};
@@ -173,6 +212,9 @@ public:
     /// Set visibility of the pick marker.
     void SetPickMarkerVisibility(int is_visible) { m_pick_marker_actor->SetVisibility(is_visible); };
     
+    /// Set visibility of picked positions.
+    void SetVisibilityOfPickedPositions(int is_visible) { m_pp_actor->SetVisibility(is_visible); }
+    
     /// GetPicked position in world coordinates.
     void GetPickedWorldPosition(double &x, double &y, double &z);
 
@@ -182,6 +224,10 @@ public:
 //    /// Predefined slot method to pick the position on image and set the pick marker to it.
 //    /// The method takes int values for picked indexes and double for the given world coordinates (to avoid recomputation).
 //    static int Slot_Pick(vmxGUIConnection *connection);
+    
+    
+    /// Update visualization of picked positions.
+    void UpdatePickedPositionsVisualization();
     
 };
 

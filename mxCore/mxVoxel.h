@@ -44,6 +44,7 @@
 
 
 #include "mxIndex.h"
+#include "mxString.h"
 
 
 
@@ -91,6 +92,9 @@ public:
 	
 	/// Print voxel.
     mxVoxel_API friend std::ostream& operator << (std::ostream &o, mxVoxel &voxel);
+    
+    /// Read from a char string.
+    int ReadFromString(const char *s);
 };
 
 

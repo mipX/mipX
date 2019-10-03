@@ -85,9 +85,37 @@ qmxDataObjectContextMenu* mxDataObject::GetContextMenu()
 }
 
 
+unsigned int mxDataObject::GetDimension_S()
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetDimension_S()"<<std::endl;
+    return 0;
+}
+
+
+unsigned int mxDataObject::GetDimension_T()
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetDimension_T()"<<std::endl;
+    return 0;
+}
+
+
 mxDataObjectFactory* mxDataObject::GetFactory()
 {
     return (this->m_factory);
+}
+
+
+unsigned int mxDataObject::GetIndex_S()
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetIndex_S()"<<std::endl;
+    return 0;
+}
+
+
+unsigned int mxDataObject::GetIndex_T()
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::GetIndex_T()"<<std::endl;
+    return 0;
 }
 
 
@@ -185,6 +213,18 @@ void mxDataObject::SetColor(unsigned char red, unsigned char green, unsigned cha
 void mxDataObject::SetExclusiveVisibility(int is_visibility_exclusive)
 {
     this->m_is_exclusive_visibility_on = is_visibility_exclusive;
+}
+
+
+void mxDataObject::SetIndex_S(unsigned int index)
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetIndex_S()"<<std::endl;
+}
+
+
+void mxDataObject::SetIndex_T(unsigned int index)
+{
+    std::cout<<this->GetClassName().Get_C_String()<<" called mxDataObject::SetIndex_T()"<<std::endl;
 }
 
 
