@@ -140,9 +140,16 @@ void vmxGUIInteractorStyle::OnMouseMove()
                 }
             }
             
+            ////ADDED
+            //interactor->SetInteractorStyle(scene_renderer->GetVTKInteractorStyle());
+            
             scene_renderer->GetVTKInteractorStyle()->SetInteractor(interactor);
             scene_renderer->GetVTKInteractorStyle()->OnMouseMove();
             scene_renderer->GetVTKInteractorStyle()->SetInteractor(NULL);
+            
+            ////ADDED
+            //interactor->SetInteractorStyle(this);
+            
             this->SetInteractor(interactor);
             
         }

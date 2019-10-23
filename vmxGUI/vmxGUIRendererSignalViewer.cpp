@@ -24,10 +24,6 @@
 
 
 
-//---------------------------------------------------------------------------
-
-
-
 vmxGUIRendererSignalViewer::vmxGUIRendererSignalViewer(vmxGUIMainWidget *main_widget)
 {
     m_class_name.Assign("vmxGUIRendererSignalViewer");
@@ -43,23 +39,58 @@ vmxGUIRendererSignalViewer::vmxGUIRendererSignalViewer(vmxGUIMainWidget *main_wi
         m_clip_board = main_widget->GetClipBoard();
     }
     
-    m_data_object = vtkSmartPointer<vtkDataObject>::New();
+    m_is_left_button_down = 0;
     
     
-    xmin = 0.;
-    ymin = 0.;
-    xmax = 0.;
-    ymax = 0.;
+    
+    vtkRenderer *renderer = this->GetVTKRenderer();
+    renderer->SetBackground(0.02, 0.02, 0.02);
+
+    
+    m_chart = vtkSmartPointer<vtkChartXY>::New();
+    m_chart_scene = vtkSmartPointer<vtkContextScene>::New();
+    m_chart_actor = vtkSmartPointer<vtkContextActor>::New();
     
     
-    scale = 1;
+    //   m_chart->SetAutoSize(false);
+    //   m_chart->SetSize(vtkRectf(0.0, 0.0, 300, 200));
     
-    int_scale = 1;
-    max_int_scale = 10;
+    m_chart->SetShowLegend(true);
+//    m_chart->SetSelectionMethod(vtkChart::SELECTION_PLOTS);
+    double grey_level = 0.6;
     
-    //double visible_range_x[2], visible_range_y[2];
+    m_chart->GetAxis(0)->GetLabelProperties()->SetColor(grey_level,grey_level,grey_level);
+    m_chart->GetAxis(0)->GetTitleProperties()->SetColor(grey_level,grey_level,grey_level);
+    m_chart->GetAxis(1)->GetLabelProperties()->SetColor(grey_level,grey_level,grey_level);
+    m_chart->GetAxis(1)->GetTitleProperties()->SetColor(grey_level,grey_level,grey_level);
+    
+    unsigned char grid_grey_level = 25;
+    m_chart->GetAxis(0)->GetGridPen()->SetColor(grid_grey_level,grid_grey_level,grid_grey_level);// SetGridVisible(0);
+    m_chart->GetAxis(1)->GetGridPen()->SetColor(grid_grey_level,grid_grey_level,grid_grey_level);// SetGridVisible(0);
+
+    m_chart->GetLegend()->SetVerticalAlignment(vtkChartLegend::BOTTOM);//CUSTOM);
+    m_chart->GetLegend()->SetHorizontalAlignment(vtkChartLegend::LEFT);//CENTER);//CUSTOM);
+    
+    m_chart_scene->AddItem(m_chart);
+    m_chart_actor->SetScene(m_chart_scene);
     
     
+    
+    //both needed
+    renderer->AddActor(m_chart_actor);
+    m_chart_scene->SetRenderer(renderer);
+    
+    // Create a table.
+    m_table = vtkSmartPointer<vtkTable>::New();
+    
+    m_table->Initialize();
+    
+
+//    this->GetMainWidget()->GetRenderWindow()->SetMultiSamples(0);
+    
+
+
+    // create default signal to plot
     m_default_array_x = vtkSmartPointer<vtkDoubleArray>::New();
     m_default_array_y = vtkSmartPointer<vtkDoubleArray>::New();
     double value = 0;
@@ -68,58 +99,31 @@ vmxGUIRendererSignalViewer::vmxGUIRendererSignalViewer(vmxGUIMainWidget *main_wi
     value = 1;
     m_default_array_x->InsertValue(1, value);
     m_default_array_y->InsertValue(1, value);
-    
-    
-    m_plot_actor = vtkSmartPointer<vtkXYPlotActor>::New();
-    m_plot_actor->ExchangeAxesOff();
-    m_plot_actor->SetLabelFormat( "%g" );
-    m_plot_actor->SetXTitle( "X" );
-    m_plot_actor->SetYTitle( "Y" );
-    m_plot_actor->SetXValuesToValue();
-    
-    m_plot_actor->SetPosition(0,0);
-    m_plot_actor->SetWidth(1);
-    m_plot_actor->SetHeight(1);
-    
-//    m_plot_actor->LegendOn();
-    
-    // Predefine colors to use for coloring signals.
-//    m_colors.SetNumberOfElements(8);
-//    int i=0;
-//    m_colors[i].m_red = 1; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
-//    m_colors[i].m_red = 0; m_colors[i].m_green = 1; m_colors[i].m_blue = 0; i++;
-//    m_colors[i].m_red = 0; m_colors[i].m_green = 0; m_colors[i].m_blue = 1; i++;
-//    m_colors[i].m_red = 0.5; m_colors[i].m_green = 0.5; m_colors[i].m_blue = 0.5; i++;
-//    m_colors[i].m_red = 1; m_colors[i].m_green = 0; m_colors[i].m_blue = 1; i++;
-//    m_colors[i].m_red = 0; m_colors[i].m_green = 1; m_colors[i].m_blue = 1; i++;
-//    m_colors[i].m_red = 0.5; m_colors[i].m_green = 0; m_colors[i].m_blue = 0; i++;
-//    m_colors[i].m_red = 0; m_colors[i].m_green = 0.5; m_colors[i].m_blue = 0; i++;
-    
-    
-    
-    m_coordinate_text_actor = vtkSmartPointer<vtkTextActor>::New();
-    m_coordinate_text_actor->SetInput ( " " );
-    m_coordinate_text_actor->SetPosition2 ( 10, 40 );
-    m_coordinate_text_actor->GetTextProperty()->SetFontSize ( 24 );
-    m_coordinate_text_actor->GetTextProperty()->SetColor ( 1.0, 0.0, 0.0 );
-    m_renderer->AddActor2D ( m_coordinate_text_actor );
-    
 
-    this->SetListeningFor_MouseMove_Event(1);
-
-//    // VTK structures for creating pick marker.
-//    m_pick_marker_actor = vtkSmartPointer<vtkActor>::New();
-//    m_pick_marker_lines = vtkSmartPointer<vtkCellArray>::New();
-//    m_pick_marker_mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-//    m_pick_marker_points = vtkSmartPointer<vtkPoints>::New();
-//    m_pick_marker_poly_data = vtkSmartPointer<vtkPolyData>::New();
-//
-//
-//    this->internal_CreateCrossHairs();
-//
-//    m_renderer->AddActor(m_pick_marker_actor);
     
-    
+//    m_coordinate_text_actor = vtkSmartPointer<vtkTextActor>::New();
+//    m_coordinate_text_actor->SetInput ( " " );
+//    m_coordinate_text_actor->SetPosition2 ( 10, 40 );
+//    m_coordinate_text_actor->GetTextProperty()->SetFontSize ( 24 );
+//    m_coordinate_text_actor->GetTextProperty()->SetColor ( 1.0, 0.0, 0.0 );
+//    m_renderer->AddActor2D ( m_coordinate_text_actor );
+//
+//
+/////    this->SetListeningFor_MouseMove_Event(1);
+//
+////    // VTK structures for creating pick marker.
+////    m_pick_marker_actor = vtkSmartPointer<vtkActor>::New();
+////    m_pick_marker_lines = vtkSmartPointer<vtkCellArray>::New();
+////    m_pick_marker_mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+////    m_pick_marker_points = vtkSmartPointer<vtkPoints>::New();
+////    m_pick_marker_poly_data = vtkSmartPointer<vtkPolyData>::New();
+////
+////
+////    this->internal_CreateCrossHairs();
+////
+////    m_renderer->AddActor(m_pick_marker_actor);
+//
+//
     
 }
 
@@ -130,10 +134,23 @@ vmxGUIRendererSignalViewer::~vmxGUIRendererSignalViewer()
 }
 
 
+void vmxGUIRendererSignalViewer::CreateMouseEvent(vtkContextMouseEvent &event, int button)
+{
+    int renderer_coords_x0y0x1y1[4];
+    this->GetScreenCoordinates(renderer_coords_x0y0x1y1[0],renderer_coords_x0y0x1y1[1], renderer_coords_x0y0x1y1[2],renderer_coords_x0y0x1y1[3]);
+    
+    
+    event.SetInteractor(this->GetMainWidget()->GetInteractor());
+    event.SetPos(vtkVector2f(this->GetMainWidget()->GetInteractor()->GetEventPosition()[0] - renderer_coords_x0y0x1y1[0],
+                             this->GetMainWidget()->GetInteractor()->GetEventPosition()[1] - renderer_coords_x0y0x1y1[1]));
+    event.SetButton(button);
+}
+
+
 void vmxGUIRendererSignalViewer::AddInputData(vtkDoubleArray *x_array, vtkDoubleArray *y_array, const char *name, const char *x_label, const char *y_label, unsigned char red, unsigned char green, unsigned char blue)
 {
     vmxGUIRendererSignalViewerSignalContainer *signal = m_signals.AddNewToEnd();
-    
+
     if(name) signal->m_name.Assign(name);
     if(x_label) signal->m_X_label.Assign(x_label);
     if(y_label) signal->m_Y_label.Assign(y_label);
@@ -142,100 +159,147 @@ void vmxGUIRendererSignalViewer::AddInputData(vtkDoubleArray *x_array, vtkDouble
     signal->m_red = red;
     signal->m_green = green;
     signal->m_blue = blue;
-    
-    if(m_signals.GetNumberOfElements()==1)
-    {
-        xmin = x_array->GetValue(0);
-        xmax = x_array->GetValue(0);
-        ymin = y_array->GetValue(0);
-        ymax = y_array->GetValue(0);
-    }
-    for(vtkIdType j = 0; j < x_array->GetNumberOfTuples(); j++)
-    {
-        if(x_array->GetValue(j)>xmax) xmax = x_array->GetValue(j);
-        if(x_array->GetValue(j)<xmin) xmin = x_array->GetValue(j);
-    }
-    for(vtkIdType j = 0; j < y_array->GetNumberOfTuples(); j++)
-    {
-        if(y_array->GetValue(j)>ymax) ymax = y_array->GetValue(j);
-        if(y_array->GetValue(j)<ymin) ymin = y_array->GetValue(j);
-    }
 }
 
 
 void vmxGUIRendererSignalViewer::OnMouseMove()
 {
-    vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
-    int* click_pos = rwi->GetEventPosition();
+    int mouse_screen_pos_xy[2];
+    mouse_screen_pos_xy[0] = this->GetMainWidget()->GetInteractor()->GetEventPosition()[0];
+    mouse_screen_pos_xy[1] = this->GetMainWidget()->GetInteractor()->GetEventPosition()[1];
     
-    if(rwi->FindPokedRenderer(click_pos[0], click_pos[1]) != this->m_renderer) return;
     
-    double p_x, p_y;
-    this->ViewportPositionToPlotCoordinates(click_pos[0], click_pos[1], p_x, p_y);
-    //int *renderer_size = this->m_renderer->GetSize();
-    //cout<<"  renderer="<<renderer_size[0]<<","<<renderer_size[1]<<"  ";
-    //cout<<"  cl_x="<<click_pos[0]<<"  cl_y="<<click_pos[1]<<"  ";
-    //cout<<"  p_x="<<p_x<<"  p_y="<<p_y<<" ";
+    int renderer_coords_x0y0x1y1[4];
+    this->GetScreenCoordinates(renderer_coords_x0y0x1y1[0],renderer_coords_x0y0x1y1[1], renderer_coords_x0y0x1y1[2],renderer_coords_x0y0x1y1[3]);
+    
+    int local_mouse_position_xy[2];
+    local_mouse_position_xy[0] = mouse_screen_pos_xy[0] - renderer_coords_x0y0x1y1[0];
+    local_mouse_position_xy[1] = mouse_screen_pos_xy[1] - renderer_coords_x0y0x1y1[1];
+    
+    
+    //    cout<<" axis(0)pos="<< this->m_gui_renderer->m_chart->GetAxis(0)->GetPoint1()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(0)->GetPoint1()[1];
+    //    //cout<<" axis(1)pos="<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint1()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint1()[1];
+    //    cout<<" axis()pos2="<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint2()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint2()[1];
+    
+    //chartP1=[44,37], chartP2=[762,758] range_x=[0,7.5], range_y=[-35,40]
+    
+    //std::cout<<" {"<<local_mouse_position_xy[0]<<","<<local_mouse_position_xy[1]<<"}";
+    
+    int chart_p1[2];
+    this->m_chart->GetPoint1(chart_p1[0],chart_p1[1]);
+    int chart_p2[2];
+    this->m_chart->GetPoint2(chart_p2[0],chart_p2[1]);
+    double chart_p1_x = chart_p1[0];
+    double chart_p1_y = chart_p1[1];
+    double chart_p2_x = chart_p2[0];
+    double chart_p2_y = chart_p2[1];
+    //cout<<" chartP1=["<<chart_p1[0]<<","<<chart_p1[1]<<"], chartP2=["<<chart_p2[0]<<","<<chart_p2[1]<<"]";
+    
+    
+    double x_value_range[2];
+    this->m_chart->GetAxis(1)->GetRange(x_value_range);
+    double y_value_range[2];
+    this->m_chart->GetAxis(0)->GetRange(y_value_range);
+    //cout<<" range_x=["<<x_value_range[0]<<","<<x_value_range[1]<<"], range_y=["<<y_value_range[0]<<","<<y_value_range[1]<<"]";
+    
+    double dx = (x_value_range[1]-x_value_range[0]) / (chart_p2_x-chart_p1_x);
+    double value_x = ( local_mouse_position_xy[0] - chart_p1_x ) * dx + x_value_range[0];
+    
+    double dy = (y_value_range[1]-y_value_range[0]) / (chart_p2_y-chart_p1_y);
+    double value_y = ( local_mouse_position_xy[1] - chart_p1_y ) * dy + y_value_range[0];
+
+    
+    
+    if(m_is_left_button_down)
+    {
+        
+        int local_last_left_button_position_xy[2];
+        local_last_left_button_position_xy[0] = m_last_mouse_screen_position_xy[0] - renderer_coords_x0y0x1y1[0];
+        local_last_left_button_position_xy[1] = m_last_mouse_screen_position_xy[1] - renderer_coords_x0y0x1y1[1];
+        
+
+        double last_left_button_hold_value_x = (local_last_left_button_position_xy[0] - chart_p1_x) * dx + x_value_range[0];
+        double last_left_button_hold_value_y = (local_last_left_button_position_xy[1] - chart_p1_y) * dy + y_value_range[0];
+        
+        //std::cout<<" {"<<last_left_button_hold_value_x<<","<<last_left_button_hold_value_y<<"}";
+        
+        double move_x = value_x - last_left_button_hold_value_x;
+        double move_y = value_y - last_left_button_hold_value_y;
+        
+        //std::cout<<"_["<<move_x<<","<<move_y<<"]";
+        
+        vtkAxis* x_axis = this->m_chart->GetAxis(1);
+        vtkAxis* y_axis = this->m_chart->GetAxis(0);
+        
+        
+        x_axis->SetRange(x_value_range[0]-move_x, x_value_range[1]-move_x);
+        y_axis->SetRange(y_value_range[0]-move_y, y_value_range[1]-move_y);
+        
+        m_last_mouse_screen_position_xy[0] = mouse_screen_pos_xy[0];
+        m_last_mouse_screen_position_xy[1] = mouse_screen_pos_xy[1];
+    }
+
+    
+    m_last_mouse_screen_position_xy[0] = mouse_screen_pos_xy[0];
+    m_last_mouse_screen_position_xy[1] = mouse_screen_pos_xy[1];
+    
+
+
     mxString s;
-    s.AssignNumber(p_x);
+    s.AppendNumber(value_x);
     s.Append(", ");
-    s.AppendNumber(p_y);
-    m_coordinate_text_actor->SetInput(s.Get_C_String());
-//    m_coordinate_text_actor->SetPosition(click_pos[0],click_pos[1]);
+    s.AppendNumber(value_y);
+    vtkStdString text;
+    text.assign(s.Get_C_String());
+    this->m_chart->GetTooltip()->SetText(text);
+    vtkVector2f local_pos;
+    local_pos.Set(local_mouse_position_xy[0], local_mouse_position_xy[1]);
+    this->m_chart->GetTooltip()->SetPosition(local_pos);
+    this->m_chart->GetTooltip()->SetVisible(1);
+
+
+    vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
+
     rwi->Render();
+
+    
+}
+
+
+void vmxGUIRendererSignalViewer::OnLeftButtonDown()
+{
+    m_is_left_button_down = 1;
+}
+
+
+void vmxGUIRendererSignalViewer::OnLeftButtonUp()
+{
+    m_is_left_button_down = 0;
 }
 
 
 void vmxGUIRendererSignalViewer::OnMouseWheelBackward()
 {
-    int_scale--;
-    if(int_scale<1)
-    {
-        int_scale = 1;
-        return;
-    }
+    
+    vtkContextMouseEvent event;
+    this->CreateMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
+    
+    this->m_chart->MouseWheelEvent(event, -1);
     
     vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
-    
-    scale = 1.0 / ((double) int_scale);
-    
-    int* click_pos = rwi->GetEventPosition();
-    double p_x, p_y;
-    this->ViewportPositionToPlotCoordinates(click_pos[0], click_pos[1], p_x, p_y);
-    
-    //this->Zoom(p_x, p_y, xmin, xmax, ymin, ymax, scale);
-    
-    int *renderer_size = this->m_renderer->GetSize();
-    
-    this->Zoom2(p_x,p_y, renderer_size[0],renderer_size[1], click_pos[0],click_pos[1], int_scale);
-    
     rwi->Render();
+    
 }
 
 
 void vmxGUIRendererSignalViewer::OnMouseWheelForward()
 {
-    int_scale++;
-    if(int_scale>10)
-    {
-        int_scale = 10;
-        return;
-    }
+    vtkContextMouseEvent event;
+    this->CreateMouseEvent(event, vtkContextMouseEvent::MIDDLE_BUTTON);
     
+    this->m_chart->MouseWheelEvent(event, 1);
+
     vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
-    
-    scale = 1.0 / ((double) int_scale);
-    
-    int* click_pos = rwi->GetEventPosition();
-    double p_x, p_y;
-    this->ViewportPositionToPlotCoordinates(click_pos[0], click_pos[1], p_x, p_y);
-    
-    //this->Zoom(p_x, p_y, xmin, xmax, ymin, ymax, scale);
-    
-    int *renderer_size = this->m_renderer->GetSize();
-    
-    this->Zoom2(p_x,p_y, renderer_size[0],renderer_size[1], click_pos[0],click_pos[1], int_scale);
-    
     rwi->Render();
 }
 
@@ -244,59 +308,21 @@ void vmxGUIRendererSignalViewer::OnMouseWheelForward()
 void vmxGUIRendererSignalViewer::OnKeyPress()
 {
     
-    vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
-
-    std::string key = rwi->GetKeySym();
-    
-    if(key == "a")
-    {
-        int_scale++;
-        if(int_scale>10)
-        {
-            int_scale = 10;
-            return;
-        }
-        
-        scale = 1.0 / ((double) int_scale);
-        
-        int* click_pos = rwi->GetEventPosition();
-        double p_x, p_y;
-        this->ViewportPositionToPlotCoordinates(click_pos[0], click_pos[1], p_x, p_y);
-        
-        //this->Zoom(p_x, p_y, xmin, xmax, ymin, ymax, scale);
-        
-        int *renderer_size = this->m_renderer->GetSize();
-        
-        this->Zoom2(p_x,p_y, renderer_size[0],renderer_size[1], click_pos[0],click_pos[1], int_scale);
-        
-        rwi->Render();
-        
-    }
-    
-    if(key == "z")
-    {
-        int_scale--;
-        if(int_scale<1)
-        {
-            int_scale = 1;
-            return;
-        }
-        
-        scale = 1.0 / ((double) int_scale);
-        
-        int* click_pos = rwi->GetEventPosition();
-        double p_x, p_y;
-        this->ViewportPositionToPlotCoordinates(click_pos[0], click_pos[1], p_x, p_y);
-        
-        //this->Zoom(p_x, p_y, xmin, xmax, ymin, ymax, scale);
-        
-        int *renderer_size = this->m_renderer->GetSize();
-        
-        this->Zoom2(p_x,p_y, renderer_size[0],renderer_size[1], click_pos[0],click_pos[1], int_scale);
-    
-        rwi->Render();
-        
-    }
+//    vtkRenderWindowInteractor *rwi = this->GetMainWidget()->GetInteractor();
+//
+//    std::string key = rwi->GetKeySym();
+//
+//    if(key == "a")
+//    {
+//        rwi->Render();
+//
+//    }
+//
+//    if(key == "z")
+//    {
+//        rwi->Render();
+//
+//    }
 }
 
 
@@ -309,11 +335,15 @@ void vmxGUIRendererSignalViewer::RemoveAllData()
 
 void vmxGUIRendererSignalViewer::Update()
 {
+    m_table->Initialize();
+    m_chart->ClearPlots();
+
+    
     if(m_signals.IsEmpty())
     {
         this->AddInputData(m_default_array_x,m_default_array_y," "," "," ",25,25,25);
     }
-    
+
 
     // find out what is the max number of samples over all curves (arrays).
     int max_number_of_samples = 0;
@@ -328,25 +358,13 @@ void vmxGUIRendererSignalViewer::Update()
         }
     }
 
-    for(int i=0; i<m_signals.GetNumberOfElements(); i++)
-    {
-        m_plot_actor->RemoveDataObjectInput(m_data_object);
-    }
-
-    m_data_object->ReleaseData();
     
-    m_data_object->Initialize();
-
-    m_plot_actor->RemoveDataObjectInput(m_data_object);
-
-    m_data_object->ReleaseData();
-
-    vtkSmartPointer<vtkFieldData> field_data = vtkSmartPointer<vtkFieldData>::New();
-
-
-    // enter all arrays to field data.
+    
+    
+    // enter all arrays to table.
     mxListIterator< vmxGUIRendererSignalViewerSignalContainer > it;
-    for(it.SetToBegin(m_signals); it.IsValid(); it.MoveToNext())
+    int counter = 0;
+    for(it.SetToBegin(m_signals), counter = 0; it.IsValid(); it.MoveToNext(), counter+=2)
     {
         //IT SEEMS THAT ALL ARRAYS MUST BE OF THE SAME SIZE - HENCE, CREATE TEMP ARRAYS FROM INPUT ONES SUCH THAT THEY ARE ALL THE SAME SIZE AND THEN ADD TO THE FIELD!
         vtkSmartPointer<vtkDoubleArray> array_x = vtkSmartPointer<vtkDoubleArray>::New();
@@ -362,54 +380,34 @@ void vmxGUIRendererSignalViewer::Update()
             array_x->InsertValue(j,it.GetElementAddress()->m_X_array->GetValue( it.GetElementAddress()->m_X_array->GetNumberOfValues()-1));
             array_y->InsertValue(j,it.GetElementAddress()->m_Y_array->GetValue( it.GetElementAddress()->m_Y_array->GetNumberOfValues()-1));
         }
-        
-        field_data->AddArray(array_y);
-        field_data->AddArray(array_x);
+
+        {
+            mxString name;
+            name.Append(it.GetElementAddress()->m_name.Get_C_String());
+            name.Append("X_Axis");
+            array_x->SetName(name.Get_C_String());
+            m_table->AddColumn(array_x);
+        }
+
+        array_y->SetName(it.GetElementAddress()->m_name.Get_C_String());
+        m_table->AddColumn(array_y);
+
+
+        vtkPlot *line = m_chart->AddPlot(vtkChart::LINE);
+        line->SetInputData(m_table, counter, counter+1);
+        line->SetColor(it.GetElementAddress()->m_red, it.GetElementAddress()->m_green, it.GetElementAddress()->m_blue, 255);
+        line->SetWidth(1.0);
     }
-
-    // connect index value with corresponding X and Y arrays.
-    int point_component_counter = 1;
-    int i =0;
-    for(point_component_counter = 1, i=0; i<m_signals.GetNumberOfElements(); point_component_counter+=2, i++)
-    {
-        m_data_object->SetFieldData(field_data);
-
-        // connect index and X value array.
-        m_plot_actor->SetDataObjectXComponent(i, point_component_counter);
-
-        // connect index and Y value array.
-        m_plot_actor->SetDataObjectYComponent(i, point_component_counter-1);
-
-        
-        double red = (double(m_signals[i].m_red)) / 255.0;
-        double green = (double(m_signals[i].m_green)) / 255.0;
-        double blue = (double(m_signals[i].m_blue)) / 255.0;
-        
-        
-        m_plot_actor->SetPlotColor(i, red,green,blue);
-
-        // it seems that this line needs to be here in order to render all curves.
-        m_plot_actor->AddDataObjectInput(m_data_object);
-    }
-
-    m_plot_actor->SetXValuesToValue();
-
-
-    visible_range_x[0] = xmin;
-    visible_range_x[1] = xmax;
-    visible_range_y[0] = ymin;
-    visible_range_y[1] = ymax;
-
-    m_plot_actor->SetXRange( xmin, xmax );
-    m_plot_actor->SetYRange( ymin, ymax );
     
     if(!m_signals.IsEmpty())
     {
-        m_plot_actor->SetXTitle( this->m_signals[0].m_X_label.Get_C_String() );
-        m_plot_actor->SetYTitle( this->m_signals[0].m_Y_label.Get_C_String() );
+        vtkStdString title_x;
+        title_x.assign(this->m_signals[0].m_X_label.Get_C_String());
+        m_chart->GetAxis(1)->SetTitle(title_x);
+        vtkStdString title_y;
+        title_y.assign(this->m_signals[0].m_Y_label.Get_C_String());
+        m_chart->GetAxis(0)->SetTitle(title_y);
     }
-
-    m_renderer->AddActor(m_plot_actor);
 
     if(m_renderer->GetRenderWindow())
     {
@@ -427,85 +425,48 @@ void vmxGUIRendererSignalViewer::Update()
 
 void vmxGUIRendererSignalViewer::ViewportPositionToPlotCoordinates(int viewport_pos_x, int viewport_pos_y, double &output_plot_coordinate_x, double &output_plot_coordinate_y)
 {
-    double v0[2], p0[2], v1[2], p1[2];
+    int mouse_screen_pos_xy[2];
+    mouse_screen_pos_xy[0] = this->GetMainWidget()->GetInteractor()->GetEventPosition()[0];
+    mouse_screen_pos_xy[1] = this->GetMainWidget()->GetInteractor()->GetEventPosition()[1];
     
-    int screen_viewport[4];
-    this->GetScreenCoordinates(screen_viewport[0],screen_viewport[1],screen_viewport[2],screen_viewport[3]);
+    int renderer_coords_x0y0x1y1[4];
+    this->GetScreenCoordinates(renderer_coords_x0y0x1y1[0],renderer_coords_x0y0x1y1[1], renderer_coords_x0y0x1y1[2],renderer_coords_x0y0x1y1[3]);
     
-    // amend viewport position based on the position of the renderer in the render window.
-    viewport_pos_x = viewport_pos_x - screen_viewport[0];
-    viewport_pos_y = viewport_pos_y - screen_viewport[1];
+    int local_mouse_position_xy[2];
+    local_mouse_position_xy[0] = mouse_screen_pos_xy[0] - renderer_coords_x0y0x1y1[0];
+    local_mouse_position_xy[1] = mouse_screen_pos_xy[1] - renderer_coords_x0y0x1y1[1];
     
-    v0[0] = 0; v0[1] = 0;
-    m_plot_actor->ViewportToPlotCoordinate(m_renderer,p0[0],p0[1]);
     
-    p1[0] = 0; p1[1] = 0;
-    m_plot_actor->PlotToViewportCoordinate(m_renderer,v1[0],v1[1]);
+    //    cout<<" axis(0)pos="<< this->m_gui_renderer->m_chart->GetAxis(0)->GetPoint1()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(0)->GetPoint1()[1];
+    //    //cout<<" axis(1)pos="<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint1()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint1()[1];
+    //    cout<<" axis()pos2="<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint2()[0]<<","<< this->m_gui_renderer->m_chart->GetAxis(1)->GetPoint2()[1];
     
-    double dx_P = p1[0] - p0[0];
-    double dx_V = v1[0] - v0[0];
     
-    double dy_P = p1[1] - p0[1];
-    double dy_V = v1[1] - v0[1];
+    //std::cout<<" {"<<local_mouse_position_xy[0]<<","<<local_mouse_position_xy[1]<<"}";
     
-    double dx_V2 = viewport_pos_x - v1[0];
-    output_plot_coordinate_x = p1[0] + dx_P * dx_V2 / dx_V;
+    int chart_p1[2];
+    this->m_chart->GetPoint1(chart_p1[0],chart_p1[1]);
+    int chart_p2[2];
+    this->m_chart->GetPoint2(chart_p2[0],chart_p2[1]);
+    double chart_p1_x = chart_p1[0];
+    double chart_p1_y = chart_p1[1];
+    double chart_p2_x = chart_p2[0];
+    double chart_p2_y = chart_p2[1];
+    //cout<<" chartP1=["<<chart_p1[0]<<","<<chart_p1[1]<<"], chartP2=["<<chart_p2[0]<<","<<chart_p2[1]<<"]";
     
-    double dy_V2 = viewport_pos_y - v1[1];
-    output_plot_coordinate_y = p1[1] + dy_P * dy_V2 / dy_V;
+    
+    double x_value_range[2];
+    this->m_chart->GetAxis(1)->GetRange(x_value_range);
+    double y_value_range[2];
+    this->m_chart->GetAxis(0)->GetRange(y_value_range);
+    //cout<<" range_x=["<<x_value_range[0]<<","<<x_value_range[1]<<"], range_y=["<<y_value_range[0]<<","<<y_value_range[1]<<"]";
+    
+    double dx = (x_value_range[1]-x_value_range[0]) / (chart_p2_x-chart_p1_x);
+    output_plot_coordinate_x = ( local_mouse_position_xy[0] - chart_p1_x ) * dx + x_value_range[0];
+    
+    double dy = (y_value_range[1]-y_value_range[0]) / (chart_p2_y-chart_p1_y);
+    output_plot_coordinate_y = ( local_mouse_position_xy[1] - chart_p1_y ) * dy + y_value_range[0];
 }
 
-
-void vmxGUIRendererSignalViewer::Zoom1(double plot_value_x, double plot_value_y, double x_min, double x_max, double y_min, double y_max, double zoom_scale)
-{
-    double d_visible_range_x1 = x_max - x_min + 1;
-
-    double normalized_distance_x = (plot_value_x - x_min) / (d_visible_range_x1);
-
-    double d_visible_range_x2 = zoom_scale * d_visible_range_x1;
-
-
-    visible_range_x[0] = plot_value_x - normalized_distance_x * d_visible_range_x2;
-    visible_range_x[1] = visible_range_x[0] + d_visible_range_x2;
-
-
-    m_plot_actor->SetXRange(visible_range_x[0], visible_range_x[1]);
-
-    double d_visible_range_y1 = y_max - y_min + 1;
-
-    double normalized_distance_y = (plot_value_y - y_min) / (d_visible_range_y1);
-
-    double d_visible_range_y2 = zoom_scale * d_visible_range_y1;
-
-
-    visible_range_y[0] = plot_value_y - normalized_distance_y * d_visible_range_y2;
-    visible_range_y[1] = visible_range_y[0] + d_visible_range_y2;
-
-
-    m_plot_actor->SetYRange(visible_range_y[0], visible_range_y[1]);
-}
-
-
-
-void vmxGUIRendererSignalViewer::Zoom2(double plot_value_x, double plot_value_y, int renderer_size_x, int renderer_size_y, int click_pos_x,int click_pos_y, double int_zoom_scale)
-{
-    m_plot_actor->SetWidth(int_zoom_scale);
-    m_plot_actor->SetHeight(int_zoom_scale);
-    
-    int screen_viewport[4];
-    this->GetScreenCoordinates(screen_viewport[0],screen_viewport[1],screen_viewport[2],screen_viewport[3]);
-    
-    // amend the click position based on the coordinates of the renderer.
-    click_pos_x = click_pos_x - screen_viewport[0];
-    click_pos_y = click_pos_y - screen_viewport[1];
-    
-    // relative click position to the screen coordinates (not the axes crossing!)
-    double click_relative_pos_x, click_relative_pos_y;
-    click_relative_pos_x = ((double)click_pos_x) / ((double)renderer_size_x);
-    click_relative_pos_y = ((double)click_pos_y) / ((double)renderer_size_y);
-    
-    m_plot_actor->SetPosition((int_zoom_scale-1)*(-click_relative_pos_x), (int_zoom_scale-1)*(-click_relative_pos_y));
-    
-}
 
 

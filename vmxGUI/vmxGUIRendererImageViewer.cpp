@@ -153,6 +153,8 @@ void vmxGUIInteractorStyleImageViewer::OnKeyPress()
 //    }
     if(key.compare("r") == 0)
     {
+        if(!m_gui_renderer->m_image_data) return;
+        
         //std::cout<<" r ";
         m_gui_renderer->SetImageData(m_gui_renderer->m_image_data);
         //m_gui_renderer->GetVTKRenderer()->ResetCamera();//0, 10, 0, 10, 0, 10);//);
@@ -178,6 +180,8 @@ void vmxGUIInteractorStyleImageViewer::OnKeyPress()
     }
     if(key.compare("k") == 0)
     {
+        if(!m_gui_renderer->m_image_data) return;
+        
         vtkSmartPointer< vtkCellPicker > picker = vtkSmartPointer< vtkCellPicker >::New();
         
         picker->SetTolerance(0.0005);
@@ -215,6 +219,8 @@ void vmxGUIInteractorStyleImageViewer::OnKeyPress()
     }
     if(key.compare("p") == 0)
     {
+        if(!m_gui_renderer->m_image_data) return;
+        
         //cout<<"event_pos="<<rwi->GetEventPosition()[0]<<","<< rwi->GetEventPosition()[1]<<"   ";
         
         

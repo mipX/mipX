@@ -85,7 +85,7 @@ public:
     /// Remove all signals from the viewer.
     void RemoveAllSignals();
     
-    /// Slot that will be executed when the viewer need to be updated.
+    /// Slot that will be executed when the viewer needs to be updated.
     static int Slot_UpdateViewer(vmxGUIConnection *connection);
 
 };

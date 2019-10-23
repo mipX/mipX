@@ -19,6 +19,7 @@ set( ${TARGET_NAME}_SOURCES
     mxGraphProcessing.cpp
     mxProfileProcessing.cpp
     mxSkeletonization.cpp
+    mxVectorProcessing.cpp
 )
 
 set( ${TARGET_NAME}_HEADERS
@@ -28,6 +29,7 @@ set( ${TARGET_NAME}_HEADERS
     mxGraphProcessing.h
     mxProfileProcessing.h
     mxSkeletonization.h
+    mxVectorProcessing.h
 )
 
 set( ${TARGET_NAME}_LIBS
@@ -40,6 +42,7 @@ add_definitions( -DmxBIP_EXPORTS
     -DmxGraphProcessing_EXPORTS
     -DmxProfileProcessing_EXPORTS
     -DmxSkeletonization_EXPORTS
+    -DmxVectorProcessing_EXPORTS
 )
 
 add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )

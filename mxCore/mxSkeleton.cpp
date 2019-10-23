@@ -5316,8 +5316,8 @@ int mxSkeleton::LoadFromTextFileOfPositions_v2(const char *file_name, mxString *
 		return 0;
     }
 
-	char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
-	int line_size = 99999;
+    const unsigned int line_size = 1000000;
+	char text_line[line_size+1];
 
 	mxSkeletonLink *psl;
 	mxSkeletonNode *psn;
@@ -5603,8 +5603,8 @@ int mxSkeleton::LoadFromTextFileOfPositions_v3(const char *file_name, mxString *
         return 0;
     }
     
-    char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
-    int line_size = 99999;
+    const unsigned int line_size = 1000000;
+    char text_line[line_size+1];
     
     mxSkeletonLink *psl;
     mxSkeletonNode *psn;
@@ -5920,8 +5920,8 @@ int mxSkeleton::FileVersion(const char *file_name, int &output_version)
 		return 0;
     }
 
-	char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
-	int line_size = 99999;
+    const unsigned int line_size = 1000000;
+    char text_line[line_size+1];
 
 	mxPoint _start_node_position, _end_node_position;
 
@@ -5994,8 +5994,8 @@ int mxSkeleton::LoadFromTextFileOfPositions_Legacy(const char *file_name)
         return 0;
     }
     
-    char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
-    int line_size = 99999;
+    const unsigned int line_size = 1000000;
+    char text_line[line_size+1];
     
     mxSkeletonLink *psl;
     mxSkeletonNode *psn;
@@ -6212,8 +6212,8 @@ int mxSkeleton::LoadFromTextFileOfPositions_v1(const char *file_name)
 		return 0;
     }
 
-	char text_line[100000];//If you change this value, you must also change the amount of loaded characters, see below.
-	int line_size = 99999;
+    const unsigned int line_size = 1000000;
+    char text_line[line_size+1];
 
 	mxSkeletonLink *psl;
 	mxSkeletonNode *psn;

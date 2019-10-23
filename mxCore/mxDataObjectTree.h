@@ -84,6 +84,9 @@ public:
     /// Get data object by its unique data object name. Fail returns NULL.
     mxDataObject* GetDataObject(const char *data_object_name);
 
+    /// Get data object by its unique data object name if it has the given class name. Fail returns NULL.
+    mxDataObject* GetDataObject(const char *data_object_name, const char *class_name);
+    
     /// Get data object factories.
     mxList< mxDataObjectFactory*>* GetDataObjectFactories() { return &m_data_object_factories; };
 

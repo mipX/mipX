@@ -132,7 +132,7 @@ mxDataObject* mxDataObjectTree::Create(const char *class_or_type_name, const cha
             return obj;
         }
     }
-    std::cout<<"mxDataObjectTree::Create(): could not find factory for class/type name class_or_type_name='"<<class_or_type_name<<"'"<<std::endl;
+    std::cout<<std::endl<<"mxDataObjectTree::Create(): could not find factory for class/type name class_or_type_name '"<<class_or_type_name<<"'"<<std::endl;
     return NULL;
 }
 
@@ -149,6 +149,20 @@ mxDataObject* mxDataObjectTree::GetDataObject(const char *data_object_name)
             {
                 return ito.GetElement();
             }
+        }
+    }
+    return NULL;
+}
+
+
+mxDataObject* mxDataObjectTree::GetDataObject(const char *data_object_name, const char *class_name)
+{
+    mxDataObject *obj = this->GetDataObject(data_object_name);
+    if(obj)
+    {
+        if(obj->GetClassName()==class_name)
+        {
+            return obj;
         }
     }
     return NULL;

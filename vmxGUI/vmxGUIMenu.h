@@ -219,6 +219,10 @@ public:
     /// Get number of items in the menu.
     int GetNumberOfItems() { return m_items.GetNumberOfElements(); };
     
+    void SetMaximumSize(int max_size_x, int max_size_y)
+    {
+    };
+    
     /// Get number of items in the menu.
     int GetMaxNumberOfCheckBoxes() { return m_max_number_of_check_boxes; };
 

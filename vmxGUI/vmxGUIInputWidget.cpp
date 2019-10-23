@@ -130,7 +130,7 @@ void vmxGUIInputWidget::OnKeyPress()
                     {
                         if(this->m_input.GetNumberOfCharacters()>0)
                         {
-                            this->m_input.GetStdString().pop_back();
+                            this->m_input.PopBack(); //this->m_input.GetStdString()->pop_back();
                             this->ShowInputText();
                             this->RepositionAfterResizing();
                             this->GetMainWidget()->GetInteractor()->Render();
@@ -162,7 +162,7 @@ void vmxGUIInputWidget::OnKeyPress()
                     {
                         if(this->m_input.GetNumberOfCharacters()>0)
                         {
-                            this->m_input.GetStdString().pop_back();
+                            this->m_input.PopBack(); //this->m_input.GetStdString()->pop_back();
                             this->ShowInputText();
                             this->RepositionAfterResizing();
                             this->GetMainWidget()->GetInteractor()->Render();
@@ -232,7 +232,7 @@ void vmxGUIInputWidget::OnKeyPress()
                     {
                         if(this->m_input.GetNumberOfCharacters()>0)
                         {
-                            this->m_input.GetStdString().pop_back();
+                            this->m_input.PopBack(); //this->m_input.GetStdString()->pop_back();
                             this->ShowInputText();
                             this->RepositionAfterResizing();
                             this->GetMainWidget()->GetInteractor()->Render();

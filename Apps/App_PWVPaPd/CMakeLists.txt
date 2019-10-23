@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 cmake_policy(SET CMP0043 NEW)
 
-set( TARGET_NAME test_vtk )
+set( TARGET_NAME App_PWVPaPd )
 
 PROJECT(${TARGET_NAME})
+
+include (InstallRequiredSystemLibraries)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
@@ -17,33 +19,22 @@ if(MIPX_USE_VTK_WITH_QT)
     qt5_wrap_ui(UISrcs ${UI_FILES} )
 endif()
 
-
-#add_definitions( -DmxCore_USE_SOURCE_CODE
-#    -DvmxCore_USE_SOURCE_CODE
-#)
-
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/../mxCore
-    ${PROJECT_SOURCE_DIR}/../mxStandard
-    ${PROJECT_SOURCE_DIR}/../mxProcessing
-    ${PROJECT_SOURCE_DIR}/../vmxCore
-    ${PROJECT_SOURCE_DIR}/../vmxGUI
+    ${MIPX_HEADER_DIRS}
 )
 
 set( ${TARGET_NAME}_SOURCES
     ${TARGET_NAME}.cpp
+    PWVPaPd.cpp
 )
 
 set( ${TARGET_NAME}_HEADERS
+    PWVPaPd.h
 )
 
 set( ${TARGET_NAME}_LIBS
-    mxCore
-    mxStandard
-    mxProcessing
-    vmxCore
-    vmxGUI
+    ${MIPX_LIBS}
 )
 
 set( MACOSX_RESOURCE_FILES ${CMAKE_SOURCE_DIR}/Files/Icons/mipx_icon_mipx.png )

@@ -136,7 +136,7 @@ typedef int (*vmxGUISlotFunction)(vmxGUIConnection *connection);
 
 /// Connection used to establish a signal - slot binding.
 
-class vmxGUIConnection
+class vmxGUIWidget_API vmxGUIConnection
 {
 protected:
 
@@ -336,7 +336,7 @@ public:
 
 /// Connection magaer stores established connections and calls slots on given signals.
 
-class vmxGUIConnectionManager
+class vmxGUIWidget_API vmxGUIConnectionManager
 {
 private:
     
@@ -1132,7 +1132,7 @@ public:
 
 
 
-class vmxGUIRendererPosition
+class vmxGUIWidget_API vmxGUIRendererPosition
 {
 public:
     double m_x;
@@ -1149,7 +1149,7 @@ public:
 
 /// Base class for GUI renderers.
 
-class vmxGUIRenderer : public vmxGUIBaseObject
+class vmxGUIWidget_API vmxGUIRenderer : public vmxGUIBaseObject
 {
     
 protected:
@@ -1279,6 +1279,7 @@ public:
     /// Executed when key is pressed.
     virtual void OnKeyPress() {};
     
+  
 //    /// Set relative coordinates of the renderer in the render window. Range of values [0,1].
 //    void SetRelativeCoordinates(double x, double y) { m_relative_coordinates[0] = x; m_relative_coordinates[1] = y; };
 //

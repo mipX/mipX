@@ -292,6 +292,20 @@ vmxAppMainWidget::~vmxAppMainWidget()
 }
 
 
+vmxAppViewer* vmxAppMainWidget::GetViewer(const char *viewer_object_name)
+{
+    mxListIterator< vmxAppViewer* > it;
+    for(it.SetToBegin(this->m_app_viewer_list); it.IsValid(); it.MoveToNext())
+    {
+        if(it.GetElement()->GetObjectName()==viewer_object_name)
+        {
+            return it.GetElement();
+        }
+    }
+    return NULL;
+}
+
+
 int vmxAppMainWidget::LoadFunctionFactory(vmxAppFunctionFactoryInterface *function_factory)
 {
     if(!function_factory) return 0;
@@ -397,6 +411,9 @@ void vmxAppMainWidget::LoadFunctionFactoryList(vmxAppFunctionFactoryList *list_o
 void vmxAppMainWidget::RegisterViewer(vmxAppViewer *viewer)
 {
     viewer->Setup(this);
+    
+    m_app_viewer_list.AddToEnd(viewer);
+    
     mxArray< vmxGUIRenderer* > renderers = viewer->GetRenderers();
     for(unsigned int i=0; i<renderers.GetNumberOfElements(); i++)
     {

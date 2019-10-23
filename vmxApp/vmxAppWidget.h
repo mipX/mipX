@@ -235,6 +235,11 @@ protected:
     /// Function widget that is used for initialization of functions.
     mxScopedPointer< vmxAppFunctionWidget > m_function_widget;
     
+    /// List of added viewers. It partially corresponds to the list of added renderers in main GUI widget, because an app viewer can have multiple renderers.
+    /// In other words, there could be more rendeers in the list of renderers than there are viewers in the list of viewers.
+    mxList< vmxAppViewer* > m_app_viewer_list;
+    
+// THIS SHOULD NOT BE HERE!!!
     /// command for default renderer 3D.
     vtkTextActor *m_command_seeds_to_point_list;
     
@@ -254,6 +259,9 @@ public:
     
     /// Get renderer for the 3D scene.
     vmxGUIRenderer* GetRenderer_3D() { return m_renderer_3D; };
+    
+    /// Get viewer based on its object name.
+    vmxAppViewer* GetViewer(const char *viewer_object_name);
     
     /// Load function factory.
     int LoadFunctionFactory(vmxAppFunctionFactoryInterface *function_factory);

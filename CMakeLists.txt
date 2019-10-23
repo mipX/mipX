@@ -209,5 +209,7 @@ endif()
 add_subdirectory( examples_App )
 add_subdirectory( examples_GUI )
 
+add_subdirectory( Apps )
 
-#add_subdirectory( test_vtk )
+#add_subdirectory( aaApps )
+#add_subdirectory( aaTests )

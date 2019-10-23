@@ -47,9 +47,9 @@
 #include "mxDataObject.h"
 #include "mxString.h"
 
-#include <strstream>
+//#include <strstream>
 #include <fstream>
-#include <iomanip>
+//#include <iomanip>
 
 
 /// 2D curve (x and y=f(x) values) as pair of arrays of x and corresponding y values.

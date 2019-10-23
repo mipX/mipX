@@ -42,12 +42,16 @@
 	#define mxString_H
 
 
-//#include <sstream>
+#include <sstream>
 #include <fstream>
-//#include <iostream>
+#include <iostream>
 #include <string>
 #include "mxList.h"
 
+#include <mxScopedPointer.h>
+
+template class mxString_API std::basic_string<char>;
+template class mxString_API std::allocator<char>;
 
 
 /// String class as a wrapper around std::string.
@@ -58,7 +62,9 @@ class mxString_API mxString
 private:
 
 	/// Data is a standard string.
-	std::string m_string;
+	std::string *m_string;
+    
+    //mxScopedPointer<std::string> m_string;
 
 public:
 
@@ -68,8 +74,10 @@ public:
 	/// Destructor.
 	~mxString();
 
-	/// Get standard string (std::string).
-	std::string& GetStdString();
+//	/// Get standard string (std::string).
+//	std::string& GetStdString();
+
+	std::string* GetStdString() { return m_string; };
     
     /// Get the string as a const C-style string (null terminator is appended).
     /// Notice: the created C-style string is owned by this->m_string and should not be deleted.
@@ -96,8 +104,8 @@ public:
     /// Set string from a c-type string.
     void Assign(const char *s);
     
-    /// Set string from an existing standard string.
-    void Assign(const std::string &s);
+ //   /// Set string from an existing standard string.
+  //  void Assign(const std::string &s);
     
 	/// Append string to (an existing) this string.
     void Append(mxString &s);
@@ -108,8 +116,8 @@ public:
     /// Append c-type string to (an existing) this string.
     void Append(const char *s);
     
-    /// Append standard string to (an existing) this string.
-    void Append(const std::string &s);
+ //   /// Append standard string to (an existing) this string.
+ //   void Append(const std::string &s);
     
     /// Convert int number to string and append to this string.
     void AppendNumber(int number);
@@ -137,9 +145,6 @@ public:
     
     /// Convert path to Linux path (replacing '\' with '/').
     void ToLinuxPath();
-    
-    /// Pop from back of the string.
-    void PopBack();
 
 	/// Extract all int numbers to list.
 	void ExtractNumbers(mxList<int> &list_of_ints);
@@ -224,7 +229,7 @@ public:
     void InvertCapitalization();
 
     /// Indexing operator.
-	char& operator [](int r){return this->m_string[r];};
+	char& operator [](int r){return (*this->m_string)[r];};
     
 	/// Assignment operator.
 	mxString& operator =(mxString &s);

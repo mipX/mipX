@@ -24,41 +24,45 @@
 
 mxString::mxString()
 {
+    //m_string = NULL;
+    m_string = new std::string[1];
 }
 
 
 mxString::~mxString()
 {
+	delete [] m_string;
+    //m_string = NULL;
 }
 
 
-std::string& mxString::GetStdString()
-{
-    return this->m_string;
-}
+//std::string& mxString::GetStdString()
+//{
+//    return this->m_string;
+//}
 
 
 const char* mxString::Get_C_String()
 {
-    return this->m_string.c_str();
+    return this->m_string->c_str();
 }
 
 
 void mxString::Clear()
 {
-    this->m_string.clear();
+    this->m_string->clear();
 }
 
 
 int mxString::IsEmpty()
 {
-    return this->m_string.empty();
+    return this->m_string->empty();
 }
 
 
 unsigned int mxString::GetNumberOfCharacters()
 {
-    return ((unsigned int)this->m_string.length());
+    return ((unsigned int)this->m_string->length());
 }
 
 
@@ -70,50 +74,62 @@ unsigned int mxString::Length()
 
 void mxString::Assign(mxString &s)
 {
-    this->m_string.assign(s.m_string);
+    this->m_string->assign(*s.m_string);
 }
 
 
 void mxString::Assign(const char c)
 {
-    this->m_string.assign(&c,0,1);
+    this->m_string->assign(&c,0,1);
 }
 
 
 void mxString::Assign(const char *s)
 {
-    this->m_string.assign(s);
+    this->m_string->assign(s);
 }
 
 
-void mxString::Assign(const std::string &s)
-{
-    this->m_string.assign(s);
-}
+//void mxString::Assign(const std::string &s)
+//{
+//    this->m_string->assign(s);
+//}
 
 
 void mxString::Append(mxString &s)
 {
-    this->m_string.append(s.m_string);
+    if(s.IsEmpty()) return;
+    //if(s=="") return;
+    if(!this->m_string)
+    {
+        std::cout<<std::endl<<"mxString::Append() error: m_string is NULL";
+       // return;
+    }
+    if(!s.Get_C_String())
+    {
+        std::cout<<std::endl<<"mxString::Append() error: s.Get_C_String() is NULL";
+       // return;
+    }
+    this->m_string->append(s.Get_C_String());
 }
 
 
 void mxString::Append(const char c)
 {
-    this->m_string.append(&c,0,1);
+    this->m_string->append(&c,0,1);
 }
 
 
 void mxString::Append(const char *s)
 {
-    this->m_string.append(s);
+    this->m_string->append(s);
 }
 
 
-void mxString::Append(const std::string &s)
-{
-    this->m_string.append(s);
-}
+//void mxString::Append(const std::string &s)
+//{
+//    this->m_string->append(s);
+//}
 
 
 void mxString::AppendNumber(int number)
@@ -135,7 +151,7 @@ void mxString::AssignNumber(int number)
 	std::ostringstream os;
 	os<<number;
     this->Clear();
-	this->Assign(os.str());
+	this->m_string->assign(os.str()); //this->Assign(os.str());
 }
 
 
@@ -177,16 +193,10 @@ void mxString::AssignNumber(double number, int number_of_decimals)
 }
 
 
-void mxString::PopBack()
-{
-    m_string.pop_back();
-}
-
-
 int mxString::ToNumber(int &output_number)
 {
 	if(this->IsEmpty()) return 0;
-	std::istringstream i(this->GetStdString());
+	std::istringstream i(*this->m_string);
 	return (i>>output_number) ? true : false;
 }
 
@@ -194,7 +204,7 @@ int mxString::ToNumber(int &output_number)
 int mxString::ToNumber(double &output_number)
 {
 	if(this->IsEmpty()) return 0;
-    std::istringstream i(this->GetStdString());
+    std::istringstream i(*this->m_string);
 	return (i>>output_number) ? true : false;
 }
 
@@ -218,7 +228,7 @@ void mxString::ToWindowsPath()
 {
     for(unsigned int i=0; i<this->GetNumberOfCharacters(); i++)
     {
-        if(this->m_string[i]=='/') { this->m_string[i] = '\\'; }
+        if((*this->m_string)[i]=='/') { this->m_string[i] = '\\'; }
     }
 }
 
@@ -227,7 +237,7 @@ void mxString::ToLinuxPath()
 {
     for(unsigned int i=0; i<this->GetNumberOfCharacters(); i++)
     {
-        if(this->m_string[i]=='\\') { this->m_string[i] = '/'; }
+        if((*this->m_string)[i]=='\\') { this->m_string[i] = '/'; }
     }
 }
 
@@ -280,7 +290,7 @@ void mxString::ExtractNumbers(mxList<double> &list_of_doubles)
     if(this->IsEmpty()) return;
     
     mxString temp_string;
-    for(unsigned int i=0; i<m_string.length(); i++)
+    for(unsigned int i=0; i<m_string->length(); i++)
     {
         if((*this)[i]=='+' || (*this)[i]=='-' || ((*this)[i]>='0' && (*this)[i]<='9') || (*this)[i]=='.' || (*this)[i]=='e') { temp_string.Append((*this)[i]); }
         else
@@ -312,7 +322,7 @@ void mxString::ExtractHexadecimalStrings(mxList<mxString> &list_of_hexadecimal_s
     mxString *ps = list_of_hexadecimal_strings.AddNewToEnd();
     
     int is_sign_found = 0;
-    for(unsigned int i=0; i<this->m_string.length(); i++)
+    for(unsigned int i=0; i<this->m_string->length(); i++)
     {
         if(!is_sign_found)
         {
@@ -417,7 +427,7 @@ void mxString::ExtractNonIntNumberString(mxString &extracted_string)
 	extracted_string.Clear();
 	
 	int is_first_non_number_character_found = 0;
-	for(unsigned int i=0; i<m_string.length(); i++)
+	for(unsigned int i=0; i<m_string->length(); i++)
 	{
 		if(!is_first_non_number_character_found) 
 		{
@@ -586,7 +596,7 @@ int mxString::ExtractFileNameAndFileExtension(mxString &output_file_name_with_pa
         }
         //... and copy the string from the last dot (but NOT including it) to the end of the string to output_extension.
         output_extension.Clear();
-        for(int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++)
+        for(unsigned int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++)
         {
             output_extension.Append((*this)[i]);
         }
@@ -624,7 +634,7 @@ int mxString::ExtractFilePathParts(mxString &output_dir, mxString &output_file_n
     output_extension.Clear();
     if(index_of_last_dot>0)
     {
-        for(int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++) { output_extension.Append((*this)[i]); }
+        for(unsigned int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++) { output_extension.Append((*this)[i]); }
     }
     else
     {
@@ -759,7 +769,7 @@ int mxString::IsOfPattern(mxString &pattern_string, char number_marker_character
 
 void mxString::InvertCapitalization()
 {
-    for(unsigned int i=0; i<this->m_string.length(); i++ )
+    for(unsigned int i=0; i<this->m_string->length(); i++ )
     {
         if(islower((*this)[i])) (*this)[i] = toupper((*this)[i]);
         else (*this)[i] = tolower((*this)[i]);
@@ -798,7 +808,7 @@ int mxString::operator ==(mxString &s)
     if(this->GetNumberOfCharacters()!=s.GetNumberOfCharacters()) return 0;
     
 	// Note: If strings are equal, compare() method returns 0.
-    if(!this->m_string.compare(s.m_string)) return 1;
+    if(!this->m_string->compare(*s.m_string)) return 1;
 	return 0;
 }
 
@@ -808,7 +818,7 @@ int mxString::operator ==(char *s)
 	if(s==NULL) return 0;
 
 	// Note: If strings are equal, compare() method returns 0.
-	if(!this->m_string.compare(s)) return 1;
+	if(!this->m_string->compare(s)) return 1;
 	return 0;
 }
 
@@ -818,7 +828,7 @@ int mxString::operator ==(const char *s)
 	if(s==NULL) return 0;
 
     // Note: If strings are equal, compare() method returns 0.
-    if(!this->m_string.compare(s)) return 1;
+    if(!this->m_string->compare(s)) return 1;
 	return 0;
 }
 

@@ -159,6 +159,11 @@ public:
     /// Set the main widget and connect visualization objects contained within it.
     void SetMainWidget(vmxGUIMainWidget *main_widget);
     
+    void SetMaximumSize(int max_size_x, int max_size_y)
+    {
+    };
+
+    
     /// Set the origin (position) of the menu.
     void SetOrigin(int origin1, int origin2);
     

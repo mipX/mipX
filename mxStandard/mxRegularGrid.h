@@ -475,7 +475,7 @@ template<class T>
 mxRegularGrid<T>& mxRegularGrid<T>::operator =(mxRegularGrid<T> &m)
 {
     if (&m==this) return *this;
-    this->mxRegularGrid<T>::Copy(m);
+    this->mxRegularGrid<T>::Copy(&m);
     return *this;
 }
 
