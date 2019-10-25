@@ -114,7 +114,7 @@ public:
         return ::_mkdir(path);
 #else
 #if _POSIX_C_SOURCE
-        return ::mkdir(path);
+        return ::mkdir(path, 0777); // For LINUX GCC
 #else
         return ::mkdir(path, 0777);//0755); // not sure if this works on mac
 #endif
@@ -133,7 +133,7 @@ public:
             return ::_mkdir(path);
         #else
             #if _POSIX_C_SOURCE
-                return ::mkdir(path);
+                return ::mkdir(path, 0777);
             #else
                 return ::mkdir(path, 0777);//0755); // not sure if this works on mac
             #endif
