@@ -586,7 +586,7 @@ int mxString::ExtractFileNameAndFileExtension(mxString &output_file_name_with_pa
         }
         //... and copy the string from the last dot (but NOT including it) to the end of the string to output_extension.
         output_extension.Clear();
-        for(int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++)
+        for(int i=index_of_last_dot+1; i<(int)this->GetNumberOfCharacters(); i++)
         {
             output_extension.Append((*this)[i]);
         }
@@ -624,7 +624,7 @@ int mxString::ExtractFilePathParts(mxString &output_dir, mxString &output_file_n
     output_extension.Clear();
     if(index_of_last_dot>0)
     {
-        for(int i=index_of_last_dot+1; i<this->GetNumberOfCharacters(); i++) { output_extension.Append((*this)[i]); }
+        for(int i=index_of_last_dot+1; i<(int)this->GetNumberOfCharacters(); i++) { output_extension.Append((*this)[i]); }
     }
     else
     {

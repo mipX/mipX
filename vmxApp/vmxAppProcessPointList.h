@@ -41,6 +41,9 @@
 #include "vmxPointList.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 #include <vtkMath.h>
@@ -50,7 +53,9 @@
     #define vmxAppProcessPointList_H
 
 
-
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -91,6 +96,12 @@ public:
     };
     ~vmxAppProcessPointListFunctionList() {};
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

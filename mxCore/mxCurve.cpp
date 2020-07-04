@@ -731,6 +731,16 @@ void mxCurve::Sort_X_Ascending()
 }
 
 
+void mxCurve::Swap_X_and_Y_values()
+{
+    mxArray< double > original_y_values;
+    original_y_values.CopyFrom(this->m_Y_values);
+    
+    this->m_Y_values.CopyFrom(this->m_X_values);
+    this->m_X_values.CopyFrom(original_y_values);
+}
+
+
 double& mxCurve::X(unsigned int index)
 {
     return this->m_X_values[index];
@@ -749,7 +759,7 @@ double mxCurve::Y_FX(double x_value)
     // larger x value in the array sorted in ascending order.
 
     int s=0;
-    for(s=0; s<this->GetNumberOfSamples(); s++)
+    for(s=0; s<(int)this->GetNumberOfSamples(); s++)
     {
         if(this->m_X_values[s] > x_value)
         {
@@ -764,7 +774,7 @@ double mxCurve::Y_FX(double x_value)
     }
 
     // sample is after the sample with index 'this->GetNumberOfSamples()-1' (we assume Y value 0).
-    if(s>=this->GetNumberOfSamples())
+    if(s>=(int)this->GetNumberOfSamples())
     {
         return ( this->m_Y_values[this->GetNumberOfSamples()-1] / 2.0 );
     }

@@ -71,6 +71,11 @@
 #endif
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 
 
 //-------------------------------------------------------------------------------------------------------------------------
@@ -114,7 +119,7 @@ public:
         return ::_mkdir(path);
 #else
 #if _POSIX_C_SOURCE
-        return ::mkdir(path, 0777); // For LINUX GCC
+        return ::mkdir(path);
 #else
         return ::mkdir(path, 0777);//0755); // not sure if this works on mac
 #endif
@@ -133,7 +138,7 @@ public:
             return ::_mkdir(path);
         #else
             #if _POSIX_C_SOURCE
-                return ::mkdir(path, 0777);
+                return ::mkdir(path);
             #else
                 return ::mkdir(path, 0777);//0755); // not sure if this works on mac
             #endif
@@ -201,6 +206,10 @@ public:
 };
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

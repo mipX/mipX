@@ -48,10 +48,10 @@ int mxProfileProcessing::GetIndexArrayForOperatorStringArray(mxProfile &input, m
 {
     output_index_array.SetNumberOfElements(operators.GetNumberOfElements());
     
-    for(int i=0; i<operators.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)operators.GetNumberOfElements(); i++)
     {
         int is_found = 0; //Indicator will show if the requested function was found
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements(); c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements(); c++)
         {
             //std::cout<<" '"<<input.GetVectorValuesLabels_C()[c]<<"' ";
             if(input.GetVectorValuesLabels_C()[c] == operators[i])
@@ -117,7 +117,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_min)
     {
         int is_found = 0;//Indicator will show if the requested function was found
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++) //vector_c_values_desc.NumberOfElements() && !is_found
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++) //vector_c_values_desc.NumberOfElements() && !is_found
         {
             if(input.GetVectorValuesLabels_C()[c] == this->m_s_min)
             {
@@ -131,7 +131,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_max)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_max)
             {
@@ -145,7 +145,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_med_minus)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_med_minus)
             {
@@ -159,7 +159,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_med_plus)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_med_plus)
             {
@@ -173,7 +173,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_avr)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_avr)
             {
@@ -187,7 +187,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_med_avr)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_med_avr)
             {
@@ -201,7 +201,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_minmax_avr)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_minmax_avr)
             {
@@ -215,7 +215,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_med_root)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_med_root)
             {
@@ -229,7 +229,7 @@ int mxProfileProcessing::GetIndexArrayForProfileFunction(mxProfile &input, unsig
     if(i_minmax_root)
     {
         int is_found = 0;
-        for(int c=0; c<input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
+        for(int c=0; c<(int)input.GetVectorValuesLabels_C().GetNumberOfElements() && !is_found; c++)
         {
             if(input.GetVectorValuesLabels_C()[c]==this->m_s_minmax_root)
             {
@@ -367,12 +367,12 @@ int mxProfileProcessing::Make_R_Profile_SphereDSE(mxImage &input_image, mxImage 
                             }
                             if(i_med_avr)
                             {
-                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (med_minus+med_plus)/2.0;
+                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (float)((med_minus+med_plus)/2.0);
                                 array_index++;
                             }
                             if(i_minmax_avr)
                             {
-                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = ((float)(min+max))/2.0;
+                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (float)(((float)(min+max))/2.0);
                                 array_index++;
                             }
                             if(i_med_root)
@@ -520,12 +520,12 @@ int mxProfileProcessing::Make_R_Profile_CircleDSE(mxImage &input_image, mxImage 
                             }
                             if(i_med_avr)
                             {
-                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (med_minus+med_plus)/2.0;
+                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (float)((med_minus+med_plus)/2.0);
                                 array_index++;
                             }
                             if(i_minmax_avr)
                             {
-                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = ((float)(min+max))/2.0;
+                                output_profile.GetVector(sm,rm,cm)->operator()(0,radius,array_index) = (float)(((float)(min+max))/2.0);
                                 array_index++;
                             }
                             if(i_med_root)
@@ -707,7 +707,7 @@ int mxProfileProcessing::ProfileMeasure(mxProfile &input, mxImage &output, mxArr
 //    }
     //cout<<"index_array: "<<index_array<<endl;
     
-    for(int i=0; i<index_array.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)index_array.GetNumberOfElements(); i++)
     {
         std::cout<<" "<<index_array[i];
     }
@@ -729,7 +729,7 @@ int mxProfileProcessing::ProfileMeasure(mxProfile &input, mxImage &output, mxArr
                         //We sum according to indexes in index_array
                         double sum = 0;
                         //cout<<input.matrix3d[s][r][c]->vector[0][p_r][(index_array[0])]<<",";
-                        for(int i=0; i<index_array.GetNumberOfElements(); i++)
+                        for(int i=0; i<(int)index_array.GetNumberOfElements(); i++)
                         {
                             sum = sum + input.GetVector(s,r,c)->operator()(0, p_r, index_array[i]);// matrix3d[s][r][c]->vector[0][p_r][(index_array[i])];
                         }
@@ -1236,16 +1236,16 @@ int mxProfileProcessing::Threshold(mxProfile &profile, mxImage &output_image, mx
     if(s_comparison==">")
     {
         //Now that we have the index array, we can calculate the function and threshold the original values based on it
-        for(int s=0; s<profile.GetGrid().GetNumberOfSlices(); s++)
+        for(int s=0; s<(int)profile.GetGrid().GetNumberOfSlices(); s++)
         {
-            for(int r=0; r<profile.GetGrid().GetNumberOfRows(); r++)
+            for(int r=0; r<(int)profile.GetGrid().GetNumberOfRows(); r++)
             {
-                for(int c=0; c<profile.GetGrid().GetNumberOfColumns(); c++)
+                for(int c=0; c<(int)profile.GetGrid().GetNumberOfColumns(); c++)
                 {
                     if(profile.IsVectorCreated(s,r,c))
                     {
                         double sum  = 0;
-                        for(int i=0; i<index_matrix.GetNumberOfRows(); i++)
+                        for(int i=0; i<(int)index_matrix.GetNumberOfRows(); i++)
                         {
                             sum += profile.GetVector(s,r,c)->operator()( (index_matrix(i,0)), (index_matrix(i,1)), (index_matrix(i,2)) );
                         }
@@ -1264,16 +1264,16 @@ int mxProfileProcessing::Threshold(mxProfile &profile, mxImage &output_image, mx
     if(s_comparison=="<")
     {
         //Now that we have the index array, we can calculate the function and threshold the original values based on it
-        for(int s=0; s<profile.GetGrid().GetNumberOfSlices(); s++)
+        for(int s=0; s<(int)profile.GetGrid().GetNumberOfSlices(); s++)
         {
-            for(int r=0; r<profile.GetGrid().GetNumberOfRows(); r++)
+            for(int r=0; r<(int)profile.GetGrid().GetNumberOfRows(); r++)
             {
-                for(int c=0; c<profile.GetGrid().GetNumberOfColumns(); c++)
+                for(int c=0; c<(int)profile.GetGrid().GetNumberOfColumns(); c++)
                 {
                     if(profile.IsVectorCreated(s,r,c))
                     {
                         double sum  = 0;
-                        for(int i=0; i<index_matrix.GetNumberOfRows(); i++)
+                        for(int i=0; i<(int)index_matrix.GetNumberOfRows(); i++)
                         {
                             sum += profile.GetVector(s,r,c)->operator()( (index_matrix(i,0)), (index_matrix(i,1)), (index_matrix(i,2)) );
                         }
@@ -1292,16 +1292,16 @@ int mxProfileProcessing::Threshold(mxProfile &profile, mxImage &output_image, mx
     if(s_comparison=="<")
     {
         //Now that we have the index array, we can calculate the function and threshold the original values based on it
-        for(int s=0; s<profile.GetGrid().GetNumberOfSlices(); s++)
+        for(int s=0; s<(int)profile.GetGrid().GetNumberOfSlices(); s++)
         {
-            for(int r=0; r<profile.GetGrid().GetNumberOfRows(); r++)
+            for(int r=0; r<(int)profile.GetGrid().GetNumberOfRows(); r++)
             {
-                for(int c=0; c<profile.GetGrid().GetNumberOfColumns(); c++)
+                for(int c=0; c<(int)profile.GetGrid().GetNumberOfColumns(); c++)
                 {
                     if(profile.IsVectorCreated(s,r,c))
                     {
                         double sum  = 0;
-                        for(int i=0; i<index_matrix.GetNumberOfRows(); i++)
+                        for(int i=0; i<(int)index_matrix.GetNumberOfRows(); i++)
                         {
                             sum += profile.GetVector(s,r,c)->operator()( (index_matrix(i,0)), (index_matrix(i,1)), (index_matrix(i,2)) );
                         }
@@ -1320,16 +1320,16 @@ int mxProfileProcessing::Threshold(mxProfile &profile, mxImage &output_image, mx
     if(s_comparison==">=")
     {
         //Now that we have the index array, we can calculate the function and threshold the original values based on it
-        for(int s=0; s<profile.GetGrid().GetNumberOfSlices(); s++)
+        for(int s=0; s<(int)profile.GetGrid().GetNumberOfSlices(); s++)
         {
-            for(int r=0; r<profile.GetGrid().GetNumberOfRows(); r++)
+            for(int r=0; r<(int)profile.GetGrid().GetNumberOfRows(); r++)
             {
-                for(int c=0; c<profile.GetGrid().GetNumberOfColumns(); c++)
+                for(int c=0; c<(int)profile.GetGrid().GetNumberOfColumns(); c++)
                 {
                     if(profile.IsVectorCreated(s,r,c))
                     {
                         double sum  = 0;
-                        for(int i=0; i<index_matrix.GetNumberOfRows(); i++)
+                        for(int i=0; i<(int)index_matrix.GetNumberOfRows(); i++)
                         {
                             sum += profile.GetVector(s,r,c)->operator()( (index_matrix(i,0)), (index_matrix(i,1)), (index_matrix(i,2)) );
                         }

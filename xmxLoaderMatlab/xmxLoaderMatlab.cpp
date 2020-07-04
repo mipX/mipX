@@ -54,17 +54,29 @@ int xmxLoaderMatlab::LoadImage(const char *file_name, const char *variable_name,
     //else var_name.Assign(variable_name);
     matvar_t *matvar;
     std::cout<<std::endl<<" variables: '";
+    int is_image_found = 0;
     while ( (matvar = Mat_VarReadNextInfo(mat)) != NULL )
     {
-        if(!variable_name)
+        if(!variable_name && !is_image_found)
         {
-            var_name.Assign(matvar->name);
+            ing_matvar = Mat_VarRead(mat,matvar->name);
+            if ( ing_matvar )
+            {
+                if(MAT_C_UINT16 == ing_matvar->class_type || MAT_C_DOUBLE == ing_matvar->class_type || MAT_C_SINGLE == ing_matvar->class_type)
+                {
+                    var_name.Assign(matvar->name);
+                    is_image_found = 1;
+                }
+            }
+            
+            //var_name.Assign(matvar->name);
         }
         
         std::cout<<matvar->name<<"' ";
         Mat_VarFree(matvar);
         matvar = NULL;
     }
+    
     
     ing_matvar = Mat_VarRead(mat,var_name.Get_C_String());
     if ( NULL == ing_matvar )
@@ -125,11 +137,30 @@ int xmxLoaderMatlab::LoadImage(const char *file_name, const char *variable_name,
         std::cout<<std::endl<<" data address: "<<ing_matvar->data;
         std::cout<<std::endl<<" internal: "<<ing_matvar->internal;
         
+        //--- Copied from matio.h file:
+        
+//        MAT_C_EMPTY    =  0, // Empty array
+//        MAT_C_CELL     =  1, // Matlab cell array class
+//        MAT_C_STRUCT   =  2, // Matlab structure class
+//        MAT_C_OBJECT   =  3, // Matlab object class
+//        MAT_C_CHAR     =  4, // Matlab character array class
+//        MAT_C_SPARSE   =  5, // Matlab sparse array class
+//        MAT_C_DOUBLE   =  6, // Matlab double-precision class
+//        MAT_C_SINGLE   =  7, // Matlab single-precision class
+//        MAT_C_INT8     =  8, // Matlab signed 8-bit integer class
+//        MAT_C_UINT8    =  9, // Matlab unsigned 8-bit integer class
+//        MAT_C_INT16    = 10, // Matlab signed 16-bit integer class
+//        MAT_C_UINT16   = 11, // Matlab unsigned 16-bit integer class
+//        MAT_C_INT32    = 12, // Matlab signed 32-bit integer class
+//        MAT_C_UINT32   = 13, // Matlab unsigned 32-bit integer class
+//        MAT_C_INT64    = 14, // Matlab signed 64-bit integer class
+//        MAT_C_UINT64   = 15, // Matlab unsigned 64-bit integer class
+//        MAT_C_FUNCTION = 16, // Matlab function class
+//        MAT_C_OPAQUE   = 17  // Matlab opaque class
         
         
         if ( MAT_C_SINGLE == ing_matvar->class_type )
         {
-
             const float *data = static_cast<const float*>(ing_matvar->data) ;
             float min = data[0];
             float max = data[0];
@@ -142,49 +173,6 @@ int xmxLoaderMatlab::LoadImage(const char *file_name, const char *variable_name,
             }
 
             float range = max - min + 1;
-
-//            image->SetDimensions(dimension_t, dimension_s, dimension_r, dimension_c);
-//            for(int i=0; i<dimension_t*dimension_s*dimension_r*dimension_c; ++i)
-//            {
-//                image->operator[](i) = (data[i] - min)/range * 65535.0;
-//            }
-
-//            // t,s,r,c
-//            image->SetDimensions(dimension_t, dimension_s, dimension_r, dimension_c);
-//            int i=0;
-//            for(unsigned int t=0; t<image->GetDimension_T(); t++)
-//            {
-//                for(unsigned int s=0; s<image->GetDimension_S(); s++)
-//                {
-//                    for(unsigned int r=0; r<image->GetDimension_R(); r++)
-//                    {
-//                        for(unsigned int c=0; c<image->GetDimension_C(); c++)
-//                        {
-//                            (*image)(t,s,r,c) = (data[i] - min)/range * 65535.0;
-//                            i++;
-//                        }
-//                    }
-//                }
-//            }
-            
-            
-//            // s,t,r,c
-//            image->SetDimensions(dimension_t, dimension_s, dimension_r, dimension_c);
-//            int i=0;
-//            for(unsigned int s=0; s<image->GetDimension_S(); s++)
-//            {
-//                for(unsigned int t=0; t<image->GetDimension_T(); t++)
-//                {
-//                    for(unsigned int r=0; r<image->GetDimension_R(); r++)
-//                    {
-//                        for(unsigned int c=0; c<image->GetDimension_C(); c++)
-//                        {
-//                            (*image)(t,s,r,c) = (data[i] - min)/range * 65535.0;
-//                            i++;
-//                        }
-//                    }
-//                }
-//            }
             
             // s,r,c,t
             image->SetDimensions(dimension_t, dimension_s, dimension_r, dimension_c);
@@ -203,35 +191,41 @@ int xmxLoaderMatlab::LoadImage(const char *file_name, const char *variable_name,
                     }
                 }
             }
-
-            
-            
         }
-        
-//        if ( MAT_C_SINGLE == ing_matvar->class_type )
-//        {
-//
-//            const float *data = static_cast<const float*>(ing_matvar->data) ;
-//            float min = data[0];
-//            float max = data[0];
-//            for(int i=0; i<ing_matvar->dims[0]*ing_matvar->dims[1]*ing_matvar->dims[2]; ++i)
-//            {
-//                if(data[i] > max) max = data[i];
-//                if(data[i] < min) min = data[i];
-//                //std::cout<<" "<<data[i];
-//            }
-//
-//            float range = max - min + 1;
-//
-//            image->SetDimensions(1, dimension_r, dimension_s, dimension_c);// (1,s,r,c) (1,s,c,r) (1,r,s,c)
-//            for(int i=0; i<dimension_s*dimension_r*dimension_c; i++)
-//            {
-//                image->operator[](i) = (data[i] - min)/range * 65535.0;
-//            }
-//
-//        }
-        
-        if ( MAT_C_UINT16 == ing_matvar->class_type )
+        else if ( MAT_C_DOUBLE == ing_matvar->class_type )
+        {
+            const double *data = static_cast<const double*>(ing_matvar->data) ;
+            double min = data[0];
+            double max = data[0];
+            
+            for(int i=0; i<xSize; i++) //ing_matvar->dims[0]*ing_matvar->dims[1]*ing_matvar->dims[2]; ++i)
+            {
+                if(data[i] > max) max = data[i];
+                if(data[i] < min) min = data[i];
+                //std::cout<<" "<<data[i];
+            }
+            
+            double range = max - min + 1;
+            
+            // s,r,c,t
+            image->SetDimensions(dimension_t, dimension_s, dimension_r, dimension_c);
+            int i=0;
+            for(unsigned int s=0; s<image->GetDimension_S(); s++)
+            {
+                for(unsigned int r=0; r<image->GetDimension_R(); r++)
+                {
+                    for(unsigned int c=0; c<image->GetDimension_C(); c++)
+                    {
+                        for(unsigned int t=0; t<image->GetDimension_T(); t++)
+                        {
+                            (*image)(t,s,r,c) = (data[i] - min)/range * 65535.0;
+                            i++;
+                        }
+                    }
+                }
+            }
+        }
+        else if ( MAT_C_UINT16 == ing_matvar->class_type )
         {
             const uint16_t *data = static_cast<const uint16_t*>(ing_matvar->data) ;
             //const float *data = static_cast<const float*>(ing_matvar->data) ;
@@ -252,6 +246,13 @@ int xmxLoaderMatlab::LoadImage(const char *file_name, const char *variable_name,
                 image->operator[](i) = ((double)(data[i] - min))/range * 65535.0;
             }
             
+        }
+        else
+        {
+            std::cout<<std::endl<<"xmxLoaderMatlab::LoadImage(): Error: Unsupported class_type = "<<ing_matvar->class_type<<std::endl;
+            Mat_VarFree(ing_matvar);
+            Mat_Close(mat);
+            return 0;
         }
         
         Mat_VarFree(ing_matvar);

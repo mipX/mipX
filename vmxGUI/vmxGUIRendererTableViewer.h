@@ -42,11 +42,19 @@
 #ifndef vmxGUIRendererTableViewer_H
     #define vmxGUIRendererTableViewer_H
 
-
+#include "mxMatrix.h"
+#include "mxList.h"
+//#include "mxString.h"
 #include "mxString.h"
 #include "vmxGUIWidget.h"
 //#include "vmxGUIRenderer.h"
 //#include "vmxGUIInteractorStyleImageViewer.h"
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
@@ -90,9 +98,10 @@
 #include <vtkOpenGLContextDevice2D.h>
 
 
-#include "mxMatrix.h"
-#include "mxList.h"
-#include "mxString.h"
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -200,6 +209,13 @@ public:
     /// Set the title of this multisheet table.
     void SetTitle(const char *table_title) { m_title.Assign(table_title); };
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

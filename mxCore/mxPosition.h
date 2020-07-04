@@ -131,21 +131,21 @@ public:
     int SetDistanceFromPosition(mxPosition &input_pos, double new_distance, int direction = 0);
     
     /// Set 2D positions from the given array.
-    int SetPositions2D(int *cr);
+    int SetPositions2D(double *cr);
     
     /// Set 3D positions from the given array.
-    int SetPositions3D(int *crs);
+    int SetPositions3D(double *crs);
     
     /// Set 4D positions from the given array.
-    int SetPositions4D(int *crst);
+    int SetPositions4D(double *crst);
 	
     /// Calls CopyFrom() method.
     mxPosition& operator =(mxPosition &position);
 
     /// Set positions.
-    void SetPosition(int t_position, int s_position, int r_position, int c_position);
-    void SetPosition(int s_position, int r_position, int c_position);
-    void SetPosition(int r_position, int c_position);
+    void SetPosition(double t_position, double s_position, double r_position, double c_position);
+    void SetPosition(double s_position, double r_position, double c_position);
+    void SetPosition(double r_position, double c_position);
     
 	/// Print position.
     mxPosition_API friend std::ostream& operator << (std::ostream &o, mxPosition &position);

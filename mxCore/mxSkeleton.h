@@ -18,6 +18,7 @@
 
 
 
+
 #if defined(mxSkeleton_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxSkeleton_API
 #else
@@ -50,8 +51,15 @@
 #include "mxGeometry.h"
 #include "mxImage.h"
 #include "mxPointList.h"
+#include "mxConnectedComponent3DStatic.h"
 
 #include <string.h>
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -104,6 +112,10 @@ public:
     
     /// Destructor.
 	~mxSkeletonLink();
+    
+    /// Create the 'link_positions' list from a starting 'port' port point and inserts all the positions till it gets to the next node point.
+    /// Enters the pixel values from the 'skeleton_image' to gray values in each point of the link.
+    int PopulateLinkPointsFromPortPoint(mxPoint &port, mxImage &skeleton_image, mxPoint &output_start_node_position, mxPoint &output_end_node_position);
 	
 	/// Reset the object to an initial state.
 	void Reset();
@@ -606,6 +618,11 @@ public:
 
 	/// Add a new scalar tag. Success 1, fail 0.
 	int AddScalarTag(mxString &tag, unsigned int &output_index);
+    int AddScalarTag(const char *tag, unsigned int &output_index)
+    {
+        mxString stag; stag.Assign(tag);
+        return this->AddScalarTag(stag, output_index);
+    };
 	
 	///Create a new link (sets the pointer to the skeleton in the link to this object).
 	mxSkeletonLink* AddLink(unsigned int t=0);
@@ -793,6 +810,13 @@ public:
     
     /// Create a skeleton from input point list.
     int CreateFromPointList(mxPointList *pl);
+    
+    /// Create a skeleton from input skeletonized image.
+    /// Note: creates a single connected skeleton. If there are multiple CCs in the image, only the first found connected component is processed.
+    int CreateFromSkeletonized3DImage(mxImage &skeleton_image, const char *scalar_tag);
+    
+    /// Create a skeleton from skeletonized image (with any number of connected components).
+    int CreateFromSkeletonizedImageOfDisconnectedComponents(mxImage &skeletonized_image, const char *scalar_tag);
 
     /// Copy the input skeleton to this skeleton (appends structure).
     int Add(mxSkeleton &input_skeleton);
@@ -812,7 +836,13 @@ public:
 
 	/// Grow a skeleton from this skeleton and a given start node (in this skeleton). Use this method when extracting a connected part of disconnected skeleton.
 	int GrowSkeletonFromNode(mxSkeletonNode *p_node, mxSkeleton &output_sk, unsigned int t2=0);
-
+    
+    /// Inserts scalars to points of skeleton such that they represent the index of the links.
+    int InsertScalarsAsIndexOfLink(const char *tag);
+    
+    /// Inserts scalars to points of skeleton such that they represent the index of disjoint (not connected) sub-skeletons that form this disconnected skeleton.
+    int InsertScalarsAsIndexOfSubSkeleton(const char *tag);
+    
 	/// Calculates the 3D radius at each position of the skeleton using the segmented image and store to input tag scalars.
 	/// Radius is the maximum inscribed sphere from skeleton position to vessel border. Succes 1, fail 0.
 	int RadiusAtEachPosition(mxImage &segmented_image, mxString &scalar_tag, unsigned int t=0);
@@ -851,6 +881,9 @@ public:
 	/// skeleton has more stub links than specified. CAUTION: CALL SetLinkMetricsAsOrderOfStubLinkFilteringAndNodeMerging() BEFORE THIS METHOD!
 	int PruningByLinkMetricsToLeaveGivenNumberOfStubLinks(mxSkeleton &output_sk, unsigned int number_of_stub_links, unsigned int t, unsigned int t2);
 	int PruningByLinkMetricsToLeaveGivenNumberOfStubLinks(mxSkeleton &output_sk, unsigned int number_of_stub_links);
+    
+    
+    int ExtractImageRegionUsingSkeletonizationVoxels(mxImage &input_image, mxImage &output_region_image);
 
 	/// Set the METRIC of the link to be equal to MINIMUM value of link scalars with given index.
 	int SetLinkMetricsToMinOfScalars(unsigned int scalar_index);
@@ -973,5 +1006,12 @@ public:
 
 
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 #endif

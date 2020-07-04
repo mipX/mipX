@@ -149,6 +149,12 @@ public:
         this->CrossProduct(V1,V2,Q1,Q2,&C1,&C2);
         return this->UnitVector(&C1,&C2,output1,output2);
     };
+    
+    
+    /// Makes a projection of a 'position_to_project' on the line. The output is the projected position and coefficient 'n' which defines where on the
+    /// vector was the projection made (if the projection falls inside the vector, 'n' is in range [0,1], otherwise it falls outside. If 'n'=0.5, the
+    /// projected position is exactly in the middle of the vector).
+    int ProjectPositionToLine(mxPosition &line_position1, mxPosition &line_position2, mxPosition &position_to_project, mxPosition &output_projected_position, double &n);
 };
 
 #endif

@@ -22,6 +22,10 @@
 #include "vmxGUIRenderer3DTrackballCamera.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 vmxGUIInteractorStyle3DTrackballCamera::vmxGUIInteractorStyle3DTrackballCamera()
@@ -35,7 +39,14 @@ vmxGUIInteractorStyle3DTrackballCamera::~vmxGUIInteractorStyle3DTrackballCamera(
 }
 
 
-vtkStandardNewMacro(vmxGUIInteractorStyle3DTrackballCamera);
+//vtkStandardNewMacro(vmxGUIInteractorStyle3DTrackballCamera);
+
+vmxGUIInteractorStyle3DTrackballCamera* vmxGUIInteractorStyle3DTrackballCamera::New()
+{
+	vmxGUIInteractorStyle3DTrackballCamera* i = new vmxGUIInteractorStyle3DTrackballCamera();
+	i->InitializeObjectBase();
+	return i;
+}
 
 
 void vmxGUIInteractorStyle3DTrackballCamera::OnLeftButtonDown()
@@ -62,6 +73,7 @@ void vmxGUIInteractorStyle3DTrackballCamera::OnLeftButtonDown()
     
     vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
 }
+
 
 
 void vmxGUIInteractorStyle3DTrackballCamera::OnLeftButtonUp()
@@ -169,6 +181,83 @@ void vmxGUIInteractorStyle3DTrackballCamera::OnKeyPress()
         return;
     }
     
+    if(key.compare("o") == 0)
+    {
+        // orthogonalize view.
+        
+        vtkCamera *c = m_gui_renderer->GetVTKRenderer()->GetActiveCamera();
+        double pn[3];
+        c->GetPosition(pn[0], pn[1], pn[2]);
+        double fn[3];
+        c->GetFocalPoint(fn[0], fn[1], fn[2]);
+        
+//        std::cout<<std::endl<<"Roll="<<m_gui_renderer->GetVTKRenderer()->GetActiveCamera()->GetRoll();
+//        std::cout<<std::endl<<"pn="<<pn[0]<<","<<pn[1]<<","<<pn[2];
+//        std::cout<<std::endl<<"fn="<<fn[0]<<","<<fn[1]<<","<<fn[2];
+//        double rl[3];
+//        rl[0] = (pn[0] - fn[0]);
+//        rl[1] = (pn[1] - fn[1]);
+//        rl[2] = (pn[2] - fn[2]);
+//        std::cout<<std::endl<<"rl="<<rl[0]<<","<<rl[1]<<","<<rl[2];
+//        std::cout<<std::endl<<std::endl;
+        
+        
+        double diff[3];
+        diff[0] = pn[0] - fn[0];
+        if(diff[0]<0) diff[0] = -diff[0];
+        diff[1] = pn[1] - fn[1];
+        if(diff[1]<0) diff[1] = -diff[1];
+        diff[2] = pn[2] - fn[2];
+        if(diff[2]<0) diff[2] = -diff[2];
+        
+        
+        if(diff[2]>diff[1] && diff[2]>diff[0])
+        {
+            c->SetPosition(fn[0], fn[1], pn[2]);
+        }
+        else if(diff[1]>diff[0])
+        {
+            c->SetPosition(fn[0], pn[1], fn[2]);
+        }
+        else
+        {
+            c->SetPosition(pn[0], fn[1], fn[2]);
+        }
+        
+        
+        double roll = m_gui_renderer->GetVTKRenderer()->GetActiveCamera()->GetRoll();
+        if(roll>135 && roll<=180)
+        {
+            c->SetRoll(180);
+        }
+        if(roll>-180 && roll<=-135)
+        {
+            c->SetRoll(-180);
+        }
+        if(roll>-135 && roll<=-45)
+        {
+            c->SetRoll(-90);
+        }
+        if(roll>45 && roll<=135)
+        {
+            c->SetRoll(90);
+        }
+        if(roll>0 && roll<=45)
+        {
+            c->SetRoll(0);
+        }
+        if(roll>-45 && roll<=0)
+        {
+            c->SetRoll(0);
+        }
+        
+        m_gui_renderer->GetVTKRenderer()->ResetCamera();
+        
+        rwi->Render();
+        
+        return;
+    }
+    
     // If the key press event has not been caught, invoke the event.
     m_gui_renderer->InvokeEvent(KeyPressEvent, this->m_gui_renderer, NULL);
 }
@@ -258,6 +347,18 @@ void vmxGUIRenderer3DTrackballCamera::DisplayProperties()
 }
 
 
+int* vmxGUIRenderer3DTrackballCamera::GetPickedIndexes()
+{ 
+	return m_picked_indexes; 
+}
+
+
+vtkInteractorStyle* vmxGUIRenderer3DTrackballCamera::GetVTKInteractorStyle()
+{ 
+	return m_interactor_style; 
+}
+
+
 void vmxGUIRenderer3DTrackballCamera::GetPickedWorldPosition(double &x, double &y, double &z)
 {
     x = m_pick_marker_actor->GetPosition()[0];
@@ -322,6 +423,30 @@ void vmxGUIRenderer3DTrackballCamera::internal_CreateCrossHairs(int size)
     m_pick_marker_actor->SetMapper(m_pick_marker_mapper);
     m_pick_marker_actor->GetProperty()->SetColor(1,0,0);
     m_pick_marker_actor->SetVisibility(0);
+}
+
+
+int vmxGUIRenderer3DTrackballCamera::IsPickedPositionsActorVisible()
+{ 
+	return m_pp_actor->GetVisibility(); 
+}
+
+
+void vmxGUIRenderer3DTrackballCamera::OnLeftButtonDrop()
+{
+	this->GetConnectionManager()->Execute(LeftButtonDropEvent, this);
+}
+
+
+void vmxGUIRenderer3DTrackballCamera::SetPickMarkerVisibility(int is_visible)
+{ 
+	m_pick_marker_actor->SetVisibility(is_visible); 
+}
+
+
+void vmxGUIRenderer3DTrackballCamera::SetVisibilityOfPickedPositions(int is_visible)
+{ 
+	m_pp_actor->SetVisibility(is_visible); 
 }
 
 
@@ -450,3 +575,9 @@ void vmxGUIRenderer3DTrackballCamera::UpdatePickedPositionsVisualization()
     //    m_labels_actor->SetMapper(m_labels_mapper);
     //    //-----
 }
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif

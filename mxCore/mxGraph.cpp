@@ -36,7 +36,7 @@ int mxGraphVertex::GetAdjacentVertices(mxArray<mxGraphVertex*> &adjacent_vertice
     
     mxListIterator< mxGraphEdge* > ite;
     int i=0;
-    for(ite.SetToBegin(m_edges), i=0; ite.IsValid() && i<adjacent_vertices.GetNumberOfElements(); ite.MoveToNext(), i++)
+    for(ite.SetToBegin(m_edges), i=0; ite.IsValid() && i<(int)adjacent_vertices.GetNumberOfElements(); ite.MoveToNext(), i++)
     {
         adjacent_vertices[i] = this->GetAdjacentVertex(ite.GetElement());
     }
@@ -114,7 +114,7 @@ int mxGraphVertex::SendUpdates()
 {
     if(!m_SP_is_updated) return 0;
     
-    for(int i=0; i<m_edges.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_edges.GetNumberOfElements(); i++)
     {
         mxGraphVertex *v = this->GetAdjacentVertex(m_edges[i]);
         
@@ -208,7 +208,7 @@ int mxGraph3D::Backtrack(mxGraphVertex *start_vertex, mxGraphVertex *end_vertex,
     {
         is_new_step_found = 0;
         mxGraphVertex *vertex_with_lowest_cost = current_vertex;
-        for(unsigned int i=0; i<current_vertex->GetNumberOfEdges(); i++)
+        for(int i=0; i<current_vertex->GetNumberOfEdges(); i++)//changed i to signed
         {
             mxGraphVertex *v = current_vertex->GetAdjacentVertex(current_vertex->m_edges[i]);
             if(v->GetCost() < vertex_with_lowest_cost->GetCost())
@@ -233,7 +233,7 @@ int mxGraph3D::Backtrack(mxGraphVertex *start_vertex, mxGraphVertex *end_vertex,
 
 void mxGraph3D::ConvergeForShortestPath(mxGraphVertex *vertex)
 {
-    for(unsigned int i=0; i<this->GetNumberOfVertices(); i++)
+    for(int i=0; i<this->GetNumberOfVertices(); i++)//changed i to signed
     {
         m_vertices[i].SetCost(-1);
     }
@@ -244,7 +244,7 @@ void mxGraph3D::ConvergeForShortestPath(mxGraphVertex *vertex)
     for(int is_converged = 0; !is_converged; )
     {
         is_converged = 1;
-        for(unsigned int i=0; i<this->GetNumberOfVertices(); i++)
+        for(int i=0; i<this->GetNumberOfVertices(); i++)//changed i to signed 
         {
             if(m_vertices[i].SendUpdates()) is_converged = 0;
         }

@@ -48,6 +48,10 @@
 #include "vmxPointList.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 /// App Main widget.
 
@@ -114,6 +118,11 @@ public:
 
 };
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

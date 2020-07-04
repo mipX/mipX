@@ -54,6 +54,12 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
 // Pre-declare the classes.
 class vmxAppFunctionWidget;
 class vmxAppMainWidget;
@@ -404,6 +410,10 @@ public:
 
 };
 
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

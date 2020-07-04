@@ -128,7 +128,7 @@ int mxProfile::GetIndexOfDimensionLabel(const char *label)
 
 int mxProfile::GetIndexOfValuesLabel(int dimensions_index, const char *label)
 {
-    for(int i=0; i<m_vector_values_labels[dimensions_index].GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_vector_values_labels[dimensions_index].GetNumberOfElements(); i++)
     {
         if(m_vector_values_labels[dimensions_index][i] == label)
         {
@@ -148,11 +148,11 @@ int mxProfile::IsVectorCreated(int s, int r, int c)
 
 void mxProfile::Reset()
 {
-	for(int s=0; s<this->m_grid.GetNumberOfSlices(); s++)
+	for(int s=0; s<(int)this->m_grid.GetNumberOfSlices(); s++)
 	{
-		for(int r=0; r<this->m_grid.GetNumberOfRows(); r++)
+		for(int r=0; r<(int)this->m_grid.GetNumberOfRows(); r++)
 		{
-			for(int c=0; c<this->m_grid.GetNumberOfColumns(); c++)
+			for(int c=0; c<(int)this->m_grid.GetNumberOfColumns(); c++)
 			{
                 delete this->m_grid(s,r,c);
 			}
@@ -179,11 +179,11 @@ void mxProfile::SetGridDimensions(int s, int r, int c)
 {
     if(!this->IsEmpty())
     {
-        for(int s=0; s<this->m_grid.GetNumberOfSlices(); s++)
+        for(int s=0; s<(int)this->m_grid.GetNumberOfSlices(); s++)
         {
-            for(int r=0; r<this->m_grid.GetNumberOfRows(); r++)
+            for(int r=0; r<(int)this->m_grid.GetNumberOfRows(); r++)
             {
-                for(int c=0; c<this->m_grid.GetNumberOfColumns(); c++)
+                for(int c=0; c<(int)this->m_grid.GetNumberOfColumns(); c++)
                 {
                     delete this->m_grid(s,r,c);
                 }
@@ -193,11 +193,11 @@ void mxProfile::SetGridDimensions(int s, int r, int c)
     
     m_grid.SetDimensions(s,r,c);
     
-    for(int s=0; s<this->m_grid.GetNumberOfSlices(); s++)
+    for(int s=0; s<(int)this->m_grid.GetNumberOfSlices(); s++)
     {
-        for(int r=0; r<this->m_grid.GetNumberOfRows(); r++)
+        for(int r=0; r<(int)this->m_grid.GetNumberOfRows(); r++)
         {
-            for(int c=0; c<this->m_grid.GetNumberOfColumns(); c++)
+            for(int c=0; c<(int)this->m_grid.GetNumberOfColumns(); c++)
             {
                 this->m_grid(s,r,c) = NULL;
             }
@@ -320,19 +320,19 @@ int mxProfile::SaveToFile(const char *file_name)
 	
 	//----- Write vector values description strings -----
 	output_file<<"d"<<std::endl;
-	for(int i=0; i<m_vector_values_labels[2].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[2][i])<<std::endl;
-    for(int i=0; i<m_vector_values_labels[1].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[1][i])<<std::endl;
-    for(int i=0; i<m_vector_values_labels[0].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[0][i])<<std::endl;
+	for(int i=0; i<(int)m_vector_values_labels[2].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[2][i])<<std::endl;
+    for(int i=0; i<(int)m_vector_values_labels[1].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[1][i])<<std::endl;
+    for(int i=0; i<(int)m_vector_values_labels[0].GetNumberOfElements(); i++) output_file<<"%"<<(m_vector_values_labels[0][i])<<std::endl;
     
 	//----- Write all the values -----
 	output_file<<"v"<<std::endl;
 
 	//Save all the points consisting of 3 index values and vector_size_s*vector_size_r*vector_size_c float values
-	for(int s=0; s<m_grid.GetNumberOfSlices(); s++)
+	for(int s=0; s<(int)m_grid.GetNumberOfSlices(); s++)
 	{
-		for(int r=0; r<m_grid.GetNumberOfRows(); r++)
+		for(int r=0; r<(int)m_grid.GetNumberOfRows(); r++)
 		{
-			for(int c=0; c<m_grid.GetNumberOfColumns(); c++)
+			for(int c=0; c<(int)m_grid.GetNumberOfColumns(); c++)
 			{
 				//If the vector at the given position exists
 				if(m_grid(s,r,c) != NULL)

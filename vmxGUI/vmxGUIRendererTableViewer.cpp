@@ -83,9 +83,9 @@ bool vmxGUIRendererTableViewerSheet::Paint(vtkContext2D *painter)
         }
     }
     
-    for(int r=0; r<table.GetNumberOfRows(); r++)
+    for(int r=0; r<(int)table.GetNumberOfRows(); r++)
     {
-        for(int c=0; c<table.GetNumberOfColumns(); c++)
+        for(int c=0; c<(int)table.GetNumberOfColumns(); c++)
         {
             painter->DrawRect(c*field_size[0], r*field_size[1], (c+1)*field_size[0], (r+1)*field_size[1]);
             painter->DrawString( ((2*c+1)*field_size[0])/2, ((2*r+1)*field_size[1])/2, table(r,c).Get_C_String());
@@ -99,7 +99,7 @@ bool vmxGUIRendererTableViewerSheet::Paint(vtkContext2D *painter)
     //------
 
     //--- paint sheet index ---
-    for(int i=0; i<m_renderer->m_sheets.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_renderer->m_sheets.GetNumberOfElements(); i++)
     {
         mxString index_str;
         index_str.AssignNumber(i);
@@ -215,7 +215,7 @@ void vmxGUIRendererTableViewer::RemoveData()
 
 void vmxGUIRendererTableViewer::SetSheetIndex(int sheet_index)
 {
-    if(sheet_index<0 || sheet_index>=m_sheets.GetNumberOfElements()) return;
+    if(sheet_index<0 || sheet_index>=(int)m_sheets.GetNumberOfElements()) return;
 
     m_current_sheet_index = sheet_index;
     

@@ -64,9 +64,16 @@
 #include "vmxImagePlaneWidget.h"
 #include "vmxImagePlanes.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkGenericDataObjectReader.h>
 #include <vtkImageData.h>
 #include <vtkImageCast.h>
+#include <vtkImageExtractComponents.h>
 #include <vtkImageFlip.h>
 #include <vtkImagePlaneWidget.h>
 #include <vtkImageShiftScale.h>
@@ -163,6 +170,9 @@ public:
     /// Get visibility of given component.
     int GetVisibilityOfComponent(int component_index);
     
+    /// Load a single color (RGB) PNG image.
+    virtual int LoadColorPNGImage(const char *file_name);
+    
     /// Load PNG image series from the array of given filen names.
     virtual int LoadPNGImages(vtkStringArray *file_names);
     
@@ -194,10 +204,10 @@ public:
     virtual int SetDimensions(unsigned int t, unsigned int s, unsigned int r, unsigned int c);
     
     /// Set size and element type to be equal to size of the input image (properties like spacing, origin, etc. are not modified).
-    virtual void SetDimensionsAs(mxBasicImage *image);
+    virtual void SetDimensionsAs(mxImageT<T> *image);
     
     /// Set size and properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
-    virtual void SetDimensionsAndPropertiesAs(mxBasicImage *image);
+    virtual void SetDimensionsAndPropertiesAs(mxImageT<T> *image);
     
     /// Color the opaque image plane.
     void SetMappingToOpaqueColor();
@@ -222,7 +232,7 @@ public:
     
     /// Set visual properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
     /// Note: size is not modified.
-    virtual void SetPropertiesAs(mxBasicImage *image);
+    virtual void SetPropertiesAs(mxImageT<T> *image);
     
     /// Set the renderer to which this object is assigned. The image planes will have this renderer as default independently of the default renderer of the interactor.
     void SetRenderer(vtkRenderer *renderer);

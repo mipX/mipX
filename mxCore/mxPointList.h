@@ -18,6 +18,8 @@ PURPOSE. See the above copyright notice for more information.
 
 
 
+
+
 #if defined(mxPointList_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxPointList_API
 #else
@@ -46,6 +48,12 @@ PURPOSE. See the above copyright notice for more information.
 #include "mxList.h"
 #include "mxPoint.h"
 #include "mxString.h"
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -232,5 +240,13 @@ public:
     mxPointListScalarTagElement* Scalar(int i) { return &(m_scalars[i]); };
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
+
 
 #endif

@@ -48,9 +48,16 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 /// VTK level multisheet table.
 
-class vmxTable : public mxTable
+class vmxTable_API vmxTable : public mxTable
 {
     
 public:
@@ -80,6 +87,11 @@ public:
 typedef mxDataObjectFactoryT<vmxTable> vmxTableFactory;
 
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

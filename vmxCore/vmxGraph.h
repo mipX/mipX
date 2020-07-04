@@ -45,6 +45,12 @@ PURPOSE. See the above copyright notice for more information.
 #include "mxDataObjectFactory.h"
 #include "mxGraph.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkActor.h>
 #include <vtkCardinalSpline.h>
 #include <vtkCellArray.h>
@@ -71,6 +77,10 @@ PURPOSE. See the above copyright notice for more information.
 #include <vtkTubeFilter.h>
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 // Pre-declaration.
@@ -226,6 +236,10 @@ public:
 
 typedef mxDataObjectFactoryT< vmxGraph > vmxGraphFactory;
 
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

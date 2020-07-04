@@ -40,10 +40,14 @@ set( ${TARGET_NAME}_SOURCES
     vmxAppProcessGraph.cpp
     vmxAppProcessImage.cpp
     vmxAppProcessPointList.cpp
+    vmxAppProcessProfile.cpp
+    vmxAppProcessSkeleton.cpp
     vmxAppReportWidget.cpp
     vmxAppSignalViewer.cpp
+    vmxAppSkeletonSliceViewer.cpp
     vmxAppTableViewer.cpp
     vmxAppWidget.cpp
+	${PROJECT_SOURCE_DIR}/../vmxGUI/tinyfiledialogs.c
 )
 
 set( ${TARGET_NAME}_HEADERS
@@ -58,10 +62,14 @@ set( ${TARGET_NAME}_HEADERS
     vmxAppProcessGraph.h
     vmxAppProcessImage.h
     vmxAppProcessPointList.h
+    vmxAppProcessProfile.h
+    vmxAppProcessSkeleton.h
     vmxAppReportWidget.h
     vmxAppSignalViewer.h
+    vmxAppSkeletonSliceViewer.h
     vmxAppTableViewer.h
     vmxAppWidget.h
+	${PROJECT_SOURCE_DIR}/../vmxGUI/tinyfiledialogs.h
 )
 
 set( ${TARGET_NAME}_LIBS
@@ -76,11 +84,13 @@ add_definitions( -DmxDataContainer_EXPORTS
     -DvmxAppDataLoader_EXPORTS
     -DmxFunctionConfig_EXPORTS
     -DvmxAppDataListWidget_EXPORTS
+	-DvmxAppFunctionInterface_EXPORTS
     -DvmxAppFunctionWidget_EXPORTS
     -DvmxAppHistogramViewer_EXPORTS
     -DvmxAppImageViewer_EXPORTS
     -DvmxAppOrthogonalImageViewer_EXPORTS
     -DvmxAppSignalViewer_EXPORTS
+    -DvmxAppSkeletonSliceViewer_EXPORTS
     -DvmxAppReportWidget_EXPORTS
     -DvmxAppTableViewer_EXPORTS
     -DvmxAppWidget_EXPORTS

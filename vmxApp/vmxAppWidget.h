@@ -64,6 +64,12 @@
 #include "vmxAppFunctionInterface.h"
 #include "vmxAppFunctionWidget.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 class vmxAppDataListWidget;
 class vmxAppMainWidget;
 class vmxAppFunctionWidget;
@@ -288,6 +294,11 @@ public:
     static int Slot_OnLeftButtonUpForDefaultRenderer3D(vmxGUIConnection *connection);
 };
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 

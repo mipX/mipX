@@ -65,6 +65,10 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 // Pre-declaration.
@@ -234,6 +238,12 @@ public:
     int ShowInputText();
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

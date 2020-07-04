@@ -47,6 +47,14 @@
 #include <iostream>
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 // Macro to be used to abort the function (stop from further execution).
 // The syntax is made in such a way to allow to use MIPX_FUNCTION_ABORT_AND_EXIT as a normal command.
 #define MIPX_FUNCTION_ABORT_AND_EXIT do{ this->Abort(); return; }while(0)
@@ -331,6 +339,13 @@ public:
     void SetTitleLong(const char *title_long) { m_title_long.Assign(title_long); };
 
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

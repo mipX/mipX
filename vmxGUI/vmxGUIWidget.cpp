@@ -1040,7 +1040,7 @@ mxArray<vmxGUIWidget*> vmxGUIWidgetCollection::GetWidgets()
     a.SetNumberOfElements(m_objects.GetNumberOfElements());
     mxListIterator<vmxGUIWidget*> it;
     int i=0;
-    for(it.SetToBegin(m_objects), i=0; it.IsValid() && i<a.GetNumberOfElements(); it.MoveToNext(), i++)
+    for(it.SetToBegin(m_objects), i=0; it.IsValid() && i<(int)a.GetNumberOfElements(); it.MoveToNext(), i++)
     {
         a[i] = it.GetElement();
     }
@@ -1255,13 +1255,13 @@ vmxGUIRenderer::vmxGUIRenderer()
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_is_capturing_event = 0;
     m_number_of_picked_positions = 0;
-    m_font_size = 16;
+    m_font_size = 14;//16;
     
     m_command_text_actor_separator = 3;
     m_command_text_actor_coordinate_x = 0 + m_command_text_actor_separator;
-    m_command_text_actor_color_RGB[0] = 1;
-    m_command_text_actor_color_RGB[1] = 1;
-    m_command_text_actor_color_RGB[2] = 1;
+    m_command_text_actor_color_RGB[0] = 0.3;
+    m_command_text_actor_color_RGB[1] = 0.3;
+    m_command_text_actor_color_RGB[2] = 0.3;
     
 //    int separator = 3;
 //    int x_position = 0 + separator;

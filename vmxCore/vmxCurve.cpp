@@ -75,7 +75,7 @@ void vmxCurve::Update()
 {
     m_array_x->Initialize();
     m_array_y->Initialize();
-    for(int i=0; i<this->GetNumberOfSamples(); i++)
+    for(int i=0; i<(int)this->GetNumberOfSamples(); i++)
     {
         m_array_x->InsertValue(i, this->X(i));
         m_array_y->InsertValue(i, this->Y(i));

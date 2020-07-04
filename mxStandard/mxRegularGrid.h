@@ -293,64 +293,76 @@ double mxRegularGrid<T>::GetSpacing_T()
 template<class T>
 int mxRegularGrid<T>::IndexFromWorldCoordinates(double w_t, double w_z, double w_y, double w_x, int &out_t, int &out_s, int &out_r, int &out_c)
 {
-    // index = (world_coordinates - origin) / Orientation_matrix / spacing.
+//    // index = (world_coordinates - origin) / Orientation_matrix / spacing.
+//
+//    //Orientation is calculated as follows:
+//    //   [ xr yr zr 1 ]
+//    // M=[ xc yc zc 1 ]
+//    //   [ xs ys zs 1 ]
+//    //   [ 0  0  0  1 ]
+//    // xs = (yr * zc) - (zr * yc)
+//    // ys = (zr * xc) - (xr * zc)
+//    // zs = (xr * yc) - (yr * xc)
+//
+//    double xc = this->m_orientation[0]; double yc = this->m_orientation[1]; double zc = this->m_orientation[2];
+//    double xr = this->m_orientation[3]; double yr = this->m_orientation[4]; double zr = this->m_orientation[5];
+//    double xs = this->m_orientation[6]; double ys = this->m_orientation[7]; double zs = this->m_orientation[8];
+//
+//
+//    // Since M is orthogonal matrix, to get the inverse rotation, we just need to transpose it:
+//    //       [ xr xc xs 1 ]
+//    // M^T = [ yr yc ys 1 ]
+//    //       [ zr zc zs 1 ]
+//    //       [ 0  0  0  1 ]
+//    //
+//    //
+//    //       [ lx ]   [ xr*lx + xc*ly + xs*lz ]
+//    // M^T * [ ly ] = [ yr*lx + yc*ly + ys*lz ]
+//    //       [ lz ]   [ zr*lx + zc*ly + zs*lz ]
+//    //       [  1 ]   [            1          ]
+//    // where lx = w_x - origin_x, ly = w_y - origin_y, lz = w_z - origin_z.
+//
+//    double lx = w_x - this->m_origin[0]; double ly = w_y - this->m_origin[1]; double lz = w_z - this->m_origin[2];
+//
+//    double si_x = xr*lx + xc*ly + xs*lz; double si_y = yr*lx + yc*ly + ys*lz; double si_z = zr*lx + zc*ly + zs*lz;
+//
+//    // Finally, the image index is calculated from si values:
+//    out_c = (int) (si_x / this->m_spacing[0]);
+//    out_r = (int) (si_y / this->m_spacing[1]);
+//    out_s = (int) (si_z / this->m_spacing[2]);
+//    out_t = (int) ((w_t - this->m_origin[3]) / this->m_spacing[3]);
+//
+//    //    // Make absolute values out of the calculated ones - it could be that visualization planes have different positive/negative directions.
+//    //    if(out_s<0) out_s = -out_s;
+//    //    if(out_r<0) out_r = -out_r;
+//    //    if(out_c<0) out_c = -out_c;
+//
+//    if(out_t>= ((int)this->GetNumberOfTimeSeries())) return 0;
+//    if(out_s>= ((int)this->GetNumberOfSlices())) return 0;
+//    if(out_r>= ((int)this->GetNumberOfRows())) return 0;
+//    if(out_c>= ((int)this->GetNumberOfColumns())) return 0;
+//
+//    //Without orientation taken into account, the equations are:
+//    //  out_s = (int)((w_s - m_origin_CRST[2]) / m_spacing_CRST[2]);
+//    //  out_r = (int)((w_r - m_origin_CRST[1]) / m_spacing_CRST[1]);
+//    //  out_c = (int)((w_c - m_origin_CRST[0]) / m_spacing_CRST[0]);
+//    //    if(out_t<0 || out_t>= ((int)this->GetNumberOfTimeSeries())) return 0;
+//    //    if(out_s<0 || out_s>= ((int)this->GetNumberOfSlices())) return 0;
+//    //    if(out_r<0 || out_r>= ((int)this->GetNumberOfRows())) return 0;
+//    //    if(out_c<0 || out_c>= ((int)this->GetNumberOfColumns())) return 0;
+//
+//    return 1;
     
-    //Orientation is calculated as follows:
-    //   [ xr yr zr 1 ]
-    // M=[ xc yc zc 1 ]
-    //   [ xs ys zs 1 ]
-    //   [ 0  0  0  1 ]
-    // xs = (yr * zc) - (zr * yc)
-    // ys = (zr * xc) - (xr * zc)
-    // zs = (xr * yc) - (yr * xc)
-    
-    double xc = this->m_orientation[0]; double yc = this->m_orientation[1]; double zc = this->m_orientation[2];
-    double xr = this->m_orientation[3]; double yr = this->m_orientation[4]; double zr = this->m_orientation[5];
-    double xs = this->m_orientation[6]; double ys = this->m_orientation[7]; double zs = this->m_orientation[8];
-    
-    
-    // Since M is orthogonal matrix, to get the inverse rotation, we just need to transpose it:
-    //       [ xr xc xs 1 ]
-    // M^T = [ yr yc ys 1 ]
-    //       [ zr zc zs 1 ]
-    //       [ 0  0  0  1 ]
-    //
-    //
-    //       [ lx ]   [ xr*lx + xc*ly + xs*lz ]
-    // M^T * [ ly ] = [ yr*lx + yc*ly + ys*lz ]
-    //       [ lz ]   [ zr*lx + zc*ly + zs*lz ]
-    //       [  1 ]   [            1          ]
-    // where lx = w_x - origin_x, ly = w_y - origin_y, lz = w_z - origin_z.
-    
-    double lx = w_x - this->m_origin[0]; double ly = w_y - this->m_origin[1]; double lz = w_z - this->m_origin[2];
-    
-    double si_x = xr*lx + xc*ly + xs*lz; double si_y = yr*lx + yc*ly + ys*lz; double si_z = zr*lx + zc*ly + zs*lz;
+    double lx = w_x - this->m_origin[0];
+    double ly = w_y - this->m_origin[1];
+    double lz = w_z - this->m_origin[2];
     
     // Finally, the image index is calculated from si values:
-    out_c = (int) (si_x / this->m_spacing[0]);
-    out_r = (int) (si_y / this->m_spacing[1]);
-    out_s = (int) (si_z / this->m_spacing[2]);
+    out_c = (int) (lx / this->m_spacing[0]);
+    out_r = (int) (ly / this->m_spacing[1]);
+    out_s = (int) (lz / this->m_spacing[2]);
     out_t = (int) ((w_t - this->m_origin[3]) / this->m_spacing[3]);
-    
-    //    // Make absolute values out of the calculated ones - it could be that visualization planes have different positive/negative directions.
-    //    if(out_s<0) out_s = -out_s;
-    //    if(out_r<0) out_r = -out_r;
-    //    if(out_c<0) out_c = -out_c;
-    
-    if(out_t>= ((int)this->GetNumberOfTimeSeries())) return 0;
-    if(out_s>= ((int)this->GetNumberOfSlices())) return 0;
-    if(out_r>= ((int)this->GetNumberOfRows())) return 0;
-    if(out_c>= ((int)this->GetNumberOfColumns())) return 0;
-    
-    //Without orientation taken into account, the equations are:
-    //  out_s = (int)((w_s - m_origin_CRST[2]) / m_spacing_CRST[2]);
-    //  out_r = (int)((w_r - m_origin_CRST[1]) / m_spacing_CRST[1]);
-    //  out_c = (int)((w_c - m_origin_CRST[0]) / m_spacing_CRST[0]);
-    //	if(out_t<0 || out_t>= ((int)this->GetNumberOfTimeSeries())) return 0;
-    //	if(out_s<0 || out_s>= ((int)this->GetNumberOfSlices())) return 0;
-    //	if(out_r<0 || out_r>= ((int)this->GetNumberOfRows())) return 0;
-    //	if(out_c<0 || out_c>= ((int)this->GetNumberOfColumns())) return 0;
-    
+
     return 1;
 }
 
@@ -427,36 +439,37 @@ void mxRegularGrid<T>::SetVisualizationPropertiesAs(mxRegularGrid<T> &grid)
 template<class T>
 int mxRegularGrid<T>::WorldCoordinatesFromIndexes(int t, int s, int r, int c, double &out_w_t, double &out_w_z, double &out_w_y, double &out_w_x)
 {
-    // world_coordinates = origin  + Orientation_matrix * (index * spacing).
-    //Orientation is calculated as follows:
-    //   [ xr yr zr Tx ]
-    // M=[ xc yc zc Ty ]
-    //   [ xs ys zs Tz ]
-    //   [ 0  0  0  1  ]
-    // xs = (yr * zc) - (zr * yc)
-    // ys = (zr * xc) - (xr * zc)
-    // zs = (xr * yc) - (yr * xc)
+//    // world_coordinates = origin  + Orientation_matrix * (index * spacing).
+//    //Orientation is calculated as follows:
+//    //   [ xr yr zr Tx ]
+//    // M=[ xc yc zc Ty ]
+//    //   [ xs ys zs Tz ]
+//    //   [ 0  0  0  1  ]
+//    // xs = (yr * zc) - (zr * yc)
+//    // ys = (zr * xc) - (xr * zc)
+//    // zs = (xr * yc) - (yr * xc)
+//
+//    double xc = this->m_orientation[0]; double yc = this->m_orientation[1]; double zc = this->m_orientation[2];
+//    double xr = this->m_orientation[3]; double yr = this->m_orientation[4]; double zr = this->m_orientation[5];
+//    double xs = this->m_orientation[6]; double ys = this->m_orientation[7]; double zs = this->m_orientation[8];
+//
+//
+//    // World Position:
+//    //       [ xr yr zr 0 ]   [lx]   [ xr*lx + yr*ly + zr*lz ]
+//    // R   = [ xc yc zc 0 ] * [ly] = [ xc*lx + yc*ly + zc*lz ]
+//    //       [ xs ys zs 0 ]   [lz]   [ xs*lx + ys*ly + zs*lz ]
+//    //       [ 0  0  0  1 ]   [ 0]   [          0            ]
+//    //
+//    // where lx = c * spacing_x, ly = r * spacing_y, lz = s * spacing_z.
     
-    double xc = this->m_orientation[0]; double yc = this->m_orientation[1]; double zc = this->m_orientation[2];
-    double xr = this->m_orientation[3]; double yr = this->m_orientation[4]; double zr = this->m_orientation[5];
-    double xs = this->m_orientation[6]; double ys = this->m_orientation[7]; double zs = this->m_orientation[8];
-    
-    
-    // World Position:
-    //       [ xr yr zr 0 ]   [lx]   [ xr*lx + yr*ly + zr*lz ]
-    // R   = [ xc yc zc 0 ] * [ly] = [ xc*lx + yc*ly + zc*lz ]
-    //       [ xs ys zs 0 ]   [lz]   [ xs*lx + ys*ly + zs*lz ]
-    //       [ 0  0  0  1 ]   [ 0]   [          0            ]
-    //
-    // where lx = c * spacing_x, ly = r * spacing_y, lz = s * spacing_z.
     
     double lx = c * this->m_spacing[0];
     double ly = r * this->m_spacing[1];
     double lz = s * this->m_spacing[2];
     
-    out_w_x = this->m_origin[0] + xr*lx + yr*ly + zr*lz;
-    out_w_y = this->m_origin[1] + xc*lx + yc*ly + zc*lz;
-    out_w_z = this->m_origin[2] + xs*lx + ys*ly + zs*lz;
+    out_w_x = this->m_origin[0] + lx;// xr*lx + yr*ly + zr*lz;
+    out_w_y = this->m_origin[1] + ly;// xc*lx + yc*ly + zc*lz;
+    out_w_z = this->m_origin[2] + lz;// xs*lx + ys*ly + zs*lz;
     out_w_t = this->m_origin[3] + t * this->m_spacing[3];
     
     return 1;

@@ -43,6 +43,15 @@
     #define vmxSkeleton_H
 
 
+#include "mxDataObjectFactory.h"
+#include "mxSkeleton.h"
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkCommand.h>
 #include <vtkSplineWidget.h>
 #include <vtkRenderer.h>
@@ -68,8 +77,14 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
 
-#include "mxDataObjectFactory.h"
-#include "mxSkeleton.h"
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 class vmxSkeleton;//predeclare the class;
@@ -302,6 +317,13 @@ public:
 
 
 typedef mxDataObjectFactoryT< vmxSkeleton > vmxSkeletonFactory;
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

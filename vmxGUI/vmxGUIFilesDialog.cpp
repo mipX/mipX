@@ -422,7 +422,9 @@ int vmxGUIFilesDialog::DisplayFolder(const char *directory_path)
     {
         char *home;
 #if defined(_MSC_VER)
+#pragma warning (disable : 4996)
         home = getenv("USERPROFILE");// for Microsoft Windows use environment variable: USERPROFILE
+#pragma warning (default : 4996)
 #else
         home = getenv("HOME");// for Unix-type systems use environment variable: HOME
 #endif
@@ -522,7 +524,9 @@ int vmxGUIFilesDialog::SaveFile(const char *directory_path)
     {
         char *home;
 #if defined(_MSC_VER)
+#pragma warning (disable : 4996)
         home = getenv("USERPROFILE");// for Microsoft Windows use environment variable: USERPROFILE
+#pragma warning (default : 4996)
 #else
         home = getenv("HOME");// for Unix-type systems use environment variable: HOME
 #endif
@@ -608,7 +612,9 @@ int vmxGUIFilesDialog::SelectExistingFolder(const char *directory_path)
     {
         char *home;
 #if defined(_MSC_VER)
+#pragma warning (disable : 4996)
         home = getenv("USERPROFILE");// for Microsoft Windows use environment variable: USERPROFILE
+#pragma warning (default : 4996)
 #else
         home = getenv("HOME");// for Unix-type systems use environment variable: HOME
 #endif

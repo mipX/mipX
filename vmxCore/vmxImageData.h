@@ -60,6 +60,12 @@
 #include <stdint.h>
 #include "mxImage.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkGenericDataObjectReader.h>
 #include <vtkImageData.h>
 #include <vtkImageCast.h>
@@ -87,9 +93,16 @@
 #include <vtkTypeUInt16Array.h>
 #include <vtkTypeUInt8Array.h>
 #include <vtkWeakPointer.h>
+#include <vtkXMLImageDataWriter.h>
+#include <vtkXMLImageDataReader.h>
 
 #include <vtkXMLImageDataReader.h>
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 /// VTK level image template as a data object of a structured grid of elements.
@@ -159,6 +172,10 @@ public:
     
     /// Reset the object.
     virtual void Reset();
+
+    /// Save to VTI (vtk image) file, where 'scalar_size_in_bytes' is scalar size defined
+    /// in number of bytes (e.g. if scalar_size_in_bytes=2 we are recording to vtk 16 unsigned file).
+    void SaveToVTIFile(const char *file_name, unsigned int scalar_size_in_bytes);
     
     /// Save to VTK structured points file, where 'scalar_size_in_bytes' is scalar size defined
     /// in number of bytes (e.g. if scalar_size_in_bytes=2 we are recording to vtk 16 unsigned file).
@@ -194,14 +211,14 @@ public:
     virtual int SetDimensions(unsigned int t, unsigned int s, unsigned int r, unsigned int c);
     
     /// Set size and element type to be equal to size of the input image (properties like spacing, origin, etc. are not modified).
-    virtual void SetDimensionsAs(mxBasicImage *image);
+    virtual void SetDimensionsAs(mxImageT<T> *image);
     
     /// Set size and properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
-    virtual void SetDimensionsAndPropertiesAs(mxBasicImage *image);
+    virtual void SetDimensionsAndPropertiesAs(mxImageT<T> *image);
     
     /// Set visual properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
     /// Note: size is not modified.
-    virtual void SetPropertiesAs(mxBasicImage *image);
+    virtual void SetPropertiesAs(mxImageT<T> *image);
     
     /// Take over data from an existing vtk image data. Shallow copy is made and this object will be the owner of the data.
     /// This means that the input vtk image data is left without any data elements. Input parameters 'number_of_time_series' and
@@ -226,7 +243,9 @@ typedef vmxImageData16U vmxImageData;
 
 
 
-
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 #endif

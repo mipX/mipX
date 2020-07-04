@@ -27,7 +27,7 @@
 int mxSkeletonization::Backtrack(mxImage &input, mxIndex &higher_value_index, mxIndex &lower_value_index, mxList< mxIndex > &output)
 {
     if(input.IsEmpty()) return 0;
-    if( higher_value_index.S() >= input.GetDimension_S() || higher_value_index.R() >= input.GetDimension_R() || higher_value_index.C() >= input.GetDimension_C() ) return 0;
+    if( higher_value_index.S() >= (int)input.GetDimension_S() || higher_value_index.R() >= (int)input.GetDimension_R() || higher_value_index.C() >= (int)input.GetDimension_C() ) return 0;
     if( higher_value_index.S() < 0 || higher_value_index.R() < 0 || higher_value_index.C() < 0 ) return 0;
     if(input(higher_value_index.S(), higher_value_index.R(), higher_value_index.C()) == 0) return 0;
     
@@ -153,7 +153,7 @@ int mxSkeletonization::Backtrack_Iterative(mxImage &input, mxIndex &start_index,
 int mxSkeletonization::ConvergeFromStartIndex(mxImage &input, mxIndex &start_index, mxImage &output)
 {
     if(input.IsEmpty()) return 0;
-    if( start_index.S() >= input.GetDimension_S() || start_index.R() >= input.GetDimension_R() || start_index.C() >= input.GetDimension_C() ) return 0;
+    if( start_index.S() >= (int)input.GetDimension_S() || start_index.R() >= (int)input.GetDimension_R() || start_index.C() >= (int)input.GetDimension_C() ) return 0;
     if( start_index.S() < 0 || start_index.R() < 0 || start_index.C() < 0 ) return 0;
     if(input(start_index.S(), start_index.R(), start_index.C()) == 0) return 0;
     
@@ -695,7 +695,7 @@ int mxSkeletonization::OrderedSkeletonization(mxImage &input, mxImage &output, u
                         // Determine the distance
                         unsigned int squared_radius = 0;
                         int is_radius_found = 0;
-                        for(squared_radius=0, is_radius_found=0; squared_radius<g.GetMaxSphereSquaredRadius()-1 && !is_radius_found; squared_radius++)
+                        for(squared_radius=0, is_radius_found=0; squared_radius<(unsigned int)g.GetMaxSphereSquaredRadius()-1 && !is_radius_found; squared_radius++)
                         {
                             int sn,rn,cn;
                             for(g.ForSphere(s,r,c,squared_radius); g.GetSphere(squared_radius+1, sn,rn,cn); )

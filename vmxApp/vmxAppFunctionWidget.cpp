@@ -84,7 +84,7 @@ int vmxAppFunctionDataInputWidget::LoadConfigurationStep(mxFunctionConfigStep *c
 int vmxAppFunctionDataInputWidget::LoadDataContainerStep(mxFunctionConfigStep *config_step, mxDataContainerStep *container_step)
 {
     // get all items (names of data) that have been entered
-    for(int i=0; i<m_number_of_data_inputs; i++)
+    for(int i=0; i< (int)m_number_of_data_inputs; i++)
     {
         mxList<mxString> items_list;
         m_input_widget[i].GetInputItems(items_list);
@@ -219,13 +219,13 @@ int vmxAppFunctionOptionsWidget::LoadConfigurationStep(mxFunctionConfigStep *con
 
 int vmxAppFunctionOptionsWidget::LoadDataContainerStep(mxFunctionConfigStep *config_step, mxDataContainerStep *container_step)
 {
-    for(int i=0; i<m_number_of_checkbox_inputs; i++)
+    for(int i=0; i< (int)m_number_of_checkbox_inputs; i++)
     {
         mxArray<vmxGUIButtonGroupItem *> array_of_checked_items;
         m_check_boxes[i].GetCheckedItems(array_of_checked_items);
         
         mxList<mxString> list_of_chosen_options;
-        for(int j=0; j<array_of_checked_items.GetNumberOfElements(); j++)
+        for(int j=0; j< (int)array_of_checked_items.GetNumberOfElements(); j++)
         {
             list_of_chosen_options.AddToEnd(array_of_checked_items[j]->m_text);
         }
@@ -235,7 +235,7 @@ int vmxAppFunctionOptionsWidget::LoadDataContainerStep(mxFunctionConfigStep *con
     }
 
     
-    for(int i=0; i<m_number_of_radiobutton_inputs; i++)
+    for(int i=0; i< (int)m_number_of_radiobutton_inputs; i++)
     {
         mxArray<vmxGUIButtonGroupItem *> array_of_checked_items;
         m_radio_buttons[i].GetCheckedItems(array_of_checked_items);
@@ -349,14 +349,14 @@ int vmxAppFunctionParametersWidget::LoadConfigurationStep(mxFunctionConfigStep *
 
 int vmxAppFunctionParametersWidget::LoadDataContainerStep(mxFunctionConfigStep *config_step, mxDataContainerStep *container_step)
 {
-    for(int i=0; i<m_number_of_int_inputs; i++)
+    for(int i=0; i< (int)m_number_of_int_inputs; i++)
     {
         int n;
         m_input_int_widgets[i].m_input.ToNumber(n);
         container_step->m_integers.AddToEnd(n);
     }
 
-    for(int i=0; i<m_number_of_double_inputs; i++)
+    for(int i=0; i< (int)m_number_of_double_inputs; i++)
     {
         double n;
         m_input_double_widgets[i].m_input.ToNumber(n);
@@ -432,7 +432,7 @@ int vmxAppFunctionStringsWidget::LoadConfigurationStep(mxFunctionConfigStep *con
 
 int vmxAppFunctionStringsWidget::LoadDataContainerStep(mxFunctionConfigStep *config_step, mxDataContainerStep *container_step)
 {
-    for(int i=0; i<m_number_of_string_inputs; i++)
+    for(int i=0; i< (int)m_number_of_string_inputs; i++)
     {
         container_step->m_strings.AddToEnd(m_input_string_widgets[i].m_input);
     }

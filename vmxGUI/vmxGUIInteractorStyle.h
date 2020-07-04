@@ -66,6 +66,13 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 // forward declaration.
 class vmxGUIBaseObject;
 class vmxGUIMainWidget;
@@ -179,6 +186,13 @@ public:
     };
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

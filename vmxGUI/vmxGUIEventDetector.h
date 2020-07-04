@@ -48,6 +48,13 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 /// Detect a double click. Double click is a sequence of 2 button_down events in which the position of both events is close
 /// enough and time interval between them is short enough (specified in the class).
 
@@ -90,7 +97,7 @@ public:
     {
         m_time_of_left_click_in_ms2 = std::chrono::time_point_cast<std::chrono::milliseconds>(clock::now());
         
-        long time_diff = (m_time_of_left_click_in_ms2 - m_time_of_left_click_in_ms).count();
+        long time_diff = (long)(m_time_of_left_click_in_ms2 - m_time_of_left_click_in_ms).count();
         m_time_of_left_click_in_ms = m_time_of_left_click_in_ms2;
         
         //cout<<" time_diff="<<time_diff<<"  ";
@@ -370,6 +377,12 @@ public:
     int IsMultipleSelectionDetected(){return m_is_CTRL_key_down;};
 };
 
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

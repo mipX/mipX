@@ -49,9 +49,6 @@ class MainApp : public vmxAppMainWidget
 {
 public:
     
-//    mxScopedPointer< vmxImage > image;
-//    mxScopedPointer< vmxImage > image2;
-    
     
     vmxAppImageViewer m_image_viewer1;
     vmxAppImageViewer m_image_viewer2;
@@ -61,132 +58,9 @@ public:
     PWVPaPdFunctionList m_pwv_pa_pd_functions;
     
     
-//    vmxGUIButtonGroup m_create_Pa_curve_push_button;
-//    vmxGUIButtonGroup m_create_Pd_curve_push_button;
-    
-    
 public:
     
     
-//    static int Slot_CreatePaCurveButtonClicked(vmxGUIConnection *connection)
-//    {
-//        MainApp *ma = static_cast<MainApp*> (connection->GetSlotCallerObject());
-//
-//        std::cout<<" "<<ma->m_image_viewer.GetRenderer()->GetPickedIndexes()[0]<<", "<<ma->m_image_viewer.GetRenderer()->GetPickedIndexes()[1]<<", "<<ma->m_image_viewer.GetRenderer()->GetPickedIndexes()[2];
-//
-//        mxGeometry g;
-//        g.SetDimensions(ma->image->GetDimension_S(), ma->image->GetDimension_R(), ma->image->GetDimension_C());
-//        int value = 0;
-//        for(unsigned int radius = 0; radius<300 && !value; radius++)
-//        {
-//            int rn,cn;
-//            for(g.ForCircle(ma->m_image_viewer.GetRenderer()->GetPickedIndexes()[1], ma->m_image_viewer.GetRenderer()->GetPickedIndexes()[0],radius); g.GetCircle(radius+1, rn,cn); )
-//            {
-//                if(ma->image->operator()(0,rn,cn) >= 100 )
-//                {
-//                    value = ma->image->operator()(0,rn,cn);
-//                    break;
-//                }
-//            }
-//        }
-//
-//        std::cout<<std::endl<<" value = "<<value<<std::endl;
-//
-//        if(!value) return 0;
-//
-//        vmxCurve *curve = static_cast<vmxCurve*> (ma->GetDataListWidget()->Create("vmxCurve","Pa"));
-//
-//        mxList<int> list_c, list_r;
-//        for( int c=0; c<ma->image->GetDimension_C(); c++)
-//        {
-//            for( int r=0; r<ma->image->GetDimension_R(); r++)
-//            {
-//                if(ma->image->operator()(r,c) == value )
-//                {
-//                    list_c.AddToEnd(c);
-//                    list_r.AddToEnd(r);
-//                }
-//            }
-//        }
-//
-//        curve->SetNumberOfSamples(list_c.GetNumberOfElements());
-//        mxListIterator<int> itc, itr;
-//        int i=0;
-//        for(itc.SetToBegin(list_c), itr.SetToBegin(list_r), i=0; itc.IsValid() && itr.IsValid(); itc.MoveToNext(), itr.MoveToNext(), i++)
-//        {
-//            curve->X(i) = itc.GetElement();
-//            curve->Y(i) = itr.GetElement();
-//        }
-//
-//        curve->SetColor(255, 0,0,1);
-//
-//        curve->Update();
-//
-//        ma->RedoPlacement();
-//
-//        return 1;
-//    };
-
-//
-//    static int Slot_CreatePdCurveButtonClicked(vmxGUIConnection *connection)
-//    {
-//        MainApp *ma = static_cast<MainApp*> (connection->GetSlotCallerObject());
-//
-//        std::cout<<" "<<ma->m_image_viewer2.GetRenderer()->GetPickedIndexes()[0]<<", "<<ma->m_image_viewer2.GetRenderer()->GetPickedIndexes()[1]<<", "<<ma->m_image_viewer2.GetRenderer()->GetPickedIndexes()[2];
-//
-//        mxGeometry g;
-//        g.SetDimensions(ma->image2->GetDimension_S(), ma->image2->GetDimension_R(), ma->image2->GetDimension_C());
-//        int value = 0;
-//        for(unsigned int radius = 0; radius<300 && !value; radius++)
-//        {
-//            int rn,cn;
-//            for(g.ForCircle(ma->m_image_viewer2.GetRenderer()->GetPickedIndexes()[1], ma->m_image_viewer2.GetRenderer()->GetPickedIndexes()[0],radius); g.GetCircle(radius+1, rn,cn); )
-//            {
-//                if(ma->image2->operator()(0,rn,cn) >= 100 )
-//                {
-//                    value = ma->image2->operator()(0,rn,cn);
-//                    break;
-//                }
-//            }
-//        }
-//
-//        std::cout<<std::endl<<" value = "<<value<<std::endl;
-//
-//        if(!value) return 0;
-//
-//        vmxCurve *curve = static_cast<vmxCurve*> (ma->GetDataListWidget()->Create("vmxCurve","Pd"));
-//
-//        mxList<int> list_c, list_r;
-//        for( int c=0; c<ma->image2->GetDimension_C(); c++)
-//        {
-//            for( int r=0; r<ma->image2->GetDimension_R(); r++)
-//            {
-//                if(ma->image2->operator()(r,c) == value )
-//                {
-//                    list_c.AddToEnd(c);
-//                    list_r.AddToEnd(r);
-//                }
-//            }
-//        }
-//
-//        curve->SetNumberOfSamples(list_c.GetNumberOfElements());
-//        mxListIterator<int> itc, itr;
-//        int i=0;
-//        for(itc.SetToBegin(list_c), itr.SetToBegin(list_r), i=0; itc.IsValid() && itr.IsValid(); itc.MoveToNext(), itr.MoveToNext(), i++)
-//        {
-//            curve->X(i) = itc.GetElement();
-//            curve->Y(i) = itr.GetElement();
-//        }
-//
-//        curve->SetColor(0,255,0,1);
-//
-//        curve->Update();
-//
-//        ma->RedoPlacement();
-//
-//        return 1;
-//    };
-//
     
     
     

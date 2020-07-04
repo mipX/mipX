@@ -64,6 +64,9 @@ public:
     
     /// Analyses the histogram of the image and creates a new images with values scaled in such way that there are no empty values in the histogram.
     int CompactValues(mxImage &input, mxImage &output);
+
+    /// Finds the absolute difference of pixel values from 2 inputs (the same as absolute value of subtraction result).
+    int DifferenceAbsolute(mxImage &input, mxImage &input2, mxImage &output);
     
     /// Make the histogram of the input image.
     int Histogram(mxImage &input, mxArray<int> &output);
@@ -71,12 +74,17 @@ public:
     
     /// Histogram of a single slice (with indexes s,t).
     int Histogram(mxImage &input, unsigned int t, unsigned int s, mxCurve &output);
+    int Histogram(mxImage &input, unsigned int t, unsigned int s, mxArray<int> &output);
+    int Histogram(mxImage &input, mxImage &mask, unsigned int t, unsigned int s, mxCurve &output);
     
     /// Invert values of voxels (negative) based on found maximum and minimum voxel values.
     int InvertValues(mxImage &input, mxImage &output);
     
     /// Mask the input image with image mask (e.g. a segmented image with 0 value for background).
     int Mask(mxImage &input, mxImage &mask, mxImage &output);
+    
+    /// Rescale values to give input range [min_included, max_included].
+    int RescaleValueRange(mxImage &input, mxImageScalar min_included, mxImageScalar max_included, mxImage &output);
     
     /// Threshold the input image with given value (all values equalt to and above it will be recorded in the output). The rest is background (zero value).
     int Threshold(mxImage &input, mxImageScalar threshold, mxImage &output);

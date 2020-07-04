@@ -25,6 +25,8 @@
 // AND SAVING, BUT THE PROGRAM WOULD NOT CRASH.
 
 
+
+
 #if defined(mxProfile_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxProfile_API
 #else
@@ -63,6 +65,11 @@
 #include "mxRegularGrid.h"
 #include "mxString.h"
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -277,6 +284,12 @@ public:
     int LoadFromFile(const char *file_name);
 
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

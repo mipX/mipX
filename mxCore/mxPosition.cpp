@@ -79,9 +79,9 @@ void mxPosition::CopyFrom(mxPosition &position)
 
 unsigned int mxPosition::DistanceCityBlock(mxPosition &position)
 {
-    int ds = this->m_positions[2] - position.m_positions[2];
-    int dr = this->m_positions[1] - position.m_positions[1];
-    int dc = this->m_positions[0] - position.m_positions[0];
+    int ds = (int)(this->m_positions[2] - position.m_positions[2]);
+    int dr = (int)(this->m_positions[1] - position.m_positions[1]);
+    int dc = (int)(this->m_positions[0] - position.m_positions[0]);
     if(ds<0) ds = -ds;
     if(dr<0) dr = -dr;
     if(dc<0) dc = -dc;
@@ -99,9 +99,9 @@ double mxPosition::DistanceEuclidean(mxPosition &position)
 
 unsigned int mxPosition::DistanceMaximumNorm(mxPosition &position)
 {
-    int ds = this->m_positions[2] - position.m_positions[2];
-    int dr = this->m_positions[1] - position.m_positions[1];
-    int dc = this->m_positions[0] - position.m_positions[0];
+    int ds = (int)(this->m_positions[2] - position.m_positions[2]);
+    int dr = (int)(this->m_positions[1] - position.m_positions[1]);
+    int dc = (int)(this->m_positions[0] - position.m_positions[0]);
     if(ds<0) ds = -ds;
     if(dr<0) dr = -dr;
     if(dc<0) dc = -dc;
@@ -116,7 +116,7 @@ unsigned int mxPosition::DistanceMaximumNorm(mxPosition &position)
 
 unsigned int mxPosition::DistanceSquaredEuclidean(mxPosition &position)
 {
-    return ( (this->m_positions[2]-position.m_positions[2])*(this->m_positions[2]-position.m_positions[2]) +
+    return (unsigned int)( (this->m_positions[2]-position.m_positions[2])*(this->m_positions[2]-position.m_positions[2]) +
             (this->m_positions[1]-position.m_positions[1])*(this->m_positions[1]-position.m_positions[1]) +
             (this->m_positions[0]-position.m_positions[0])*(this->m_positions[0]-position.m_positions[0]) );
 }
@@ -212,7 +212,7 @@ int mxPosition::SetDistanceFromPosition(mxPosition &input_pos, double new_distan
 
 
 
-void mxPosition::SetPosition(int t_position, int s_position, int r_position, int c_position)
+void mxPosition::SetPosition(double t_position, double s_position, double r_position, double c_position)
 {
     this->m_positions[0] = c_position;
     this->m_positions[1] = r_position;
@@ -221,7 +221,7 @@ void mxPosition::SetPosition(int t_position, int s_position, int r_position, int
 }
 
 
-void mxPosition::SetPosition(int s_position, int r_position, int c_position)
+void mxPosition::SetPosition(double s_position, double r_position, double c_position)
 {
     this->m_positions[0] = c_position;
     this->m_positions[1] = r_position;
@@ -229,14 +229,14 @@ void mxPosition::SetPosition(int s_position, int r_position, int c_position)
 }
 
 
-void mxPosition::SetPosition(int r_position, int c_position)
+void mxPosition::SetPosition(double r_position, double c_position)
 {
     this->m_positions[0] = c_position;
     this->m_positions[1] = r_position;
 }
 
 
-int mxPosition::SetPositions2D(int *cr)
+int mxPosition::SetPositions2D(double *cr)
 {
     if(!cr) return 0;
     this->m_positions[0] = cr[0];
@@ -245,7 +245,7 @@ int mxPosition::SetPositions2D(int *cr)
 }
 
 
-int mxPosition::SetPositions3D(int *crs)
+int mxPosition::SetPositions3D(double *crs)
 {
     if(!crs) return 0;
     this->m_positions[0] = crs[0];
@@ -255,7 +255,7 @@ int mxPosition::SetPositions3D(int *crs)
 }
 
 
-int mxPosition::SetPositions4D(int *crst)
+int mxPosition::SetPositions4D(double *crst)
 {
     if(!crst) return 0;
     this->m_positions[0] = crst[0];

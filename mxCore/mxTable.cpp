@@ -164,7 +164,7 @@ int mxTableSheet::internalLoadFromFile(const char *file_name)
     
     //Load elements as strings
     unsigned int rn = 0, cn = 0;
-    for(int j=0; j<this->GetNumberOfElements() && input_file.getline(text_line, amount_of_characters_to_load); j++)
+    for(int j=0; j<(int)this->GetNumberOfElements() && input_file.getline(text_line, amount_of_characters_to_load); j++)
     {
         if(rn>=this->GetNumberOfRows()) { input_file.close(); return 0; }
         m_data(rn,cn).Append(text_line);
@@ -287,11 +287,11 @@ int mxTableSheet::SetDimensions(int r, int c)
     m_labels_of_rows.SetNumberOfElements(r);
     
     // We set defult row and column labels as ther index values.
-    for(int i=0; i<m_labels_of_columns.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_labels_of_columns.GetNumberOfElements(); i++)
     {
         m_labels_of_columns[i].AssignNumber(i);
     }
-    for(int i=0; i<m_labels_of_rows.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_labels_of_rows.GetNumberOfElements(); i++)
     {
         m_labels_of_rows[i].AssignNumber(i);
     }
@@ -787,7 +787,7 @@ int mxTable::SetNumberOfSheets(unsigned int number_of_sheets)
 {
     if(number_of_sheets==0) return 0;
     m_sheets.Reset();
-    for(int i=0; i<number_of_sheets; i++ ) { this->AddSheet(); }
+    for(int i=0; i<(int)number_of_sheets; i++ ) { this->AddSheet(); }
     return 1;
 }
 

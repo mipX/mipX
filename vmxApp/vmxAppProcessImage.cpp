@@ -32,8 +32,6 @@ vmxAppProcessImage_CompactValues::vmxAppProcessImage_CompactValues()
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Compact values");
     this->GetConfig()->SetTitleLong("Compact values");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -42,7 +40,7 @@ void vmxAppProcessImage_CompactValues::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -61,6 +59,8 @@ void vmxAppProcessImage_CompactValues::Execute()
             
             mxGIP gip;
             gip.CompactValues(*image, *compacted_image);
+            
+            compacted_image->SetMappingToOpaqueGrayScale();
             
         }
     }
@@ -87,8 +87,6 @@ vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Threshold");
     this->GetConfig()->SetTitleLong("Thresholding");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -97,7 +95,7 @@ void vmxAppProcessImage_Thresholding::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -126,6 +124,8 @@ void vmxAppProcessImage_Thresholding::Execute()
 
             mxGIP gip;
             gip.Threshold(*image, threshold, *thresholded_image);
+            
+            thresholded_image->SetMappingToOpaqueGrayScale();
             
         }
     }
@@ -157,8 +157,6 @@ vmxAppProcessImage_CreateMesh::vmxAppProcessImage_CreateMesh()
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Create Mesh");
     this->GetConfig()->SetTitleLong("Create Mesh");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -167,7 +165,7 @@ void vmxAppProcessImage_CreateMesh::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -215,279 +213,140 @@ void vmxAppProcessImage_CreateMesh::StartInMainThread()
 
 
 
-
-vmxAppProcessImage_Create_RC_Profile::vmxAppProcessImage_Create_RC_Profile()
+vmxAppProcessImage_Subtract::vmxAppProcessImage_Subtract()
 {
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()";
-    
-    this->GetConfig()->SetNumberOfSteps(0);
-    this->GetConfig()->SetTitleInMenu("Image>>Create RC Profile");
-    this->GetConfig()->SetTitleLong("Create RC Profile");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
-}
-
-
-
-void vmxAppProcessImage_Create_RC_Profile::Execute()
-{
-    //vmxImage img;
-    //mxArray< mxDataObject* > ia = this->GetData()->GetDataObjectsOfType(img.GetClassName().Get_C_String());
-    
-    mxArray<mxDataObject *> selected_data_objects;
-    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
-    
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
-    {
-        vmxImage img;
-        if(selected_data_objects[i]->GetClassName()==img.GetClassName())
-        {
-            char const *input_string = tinyfd_inputBox("Enter Threshold value as INT number", "", "");
-            if (!input_string) return ;
-            
-            int threshold = std::stoi(input_string);
-            
-            uint64_t min_value_included, max_value_included;
-            img.GetVoxelValueFullRange(min_value_included, max_value_included);
-            if(threshold<min_value_included || threshold>max_value_included) return;
-            
-            mxString name;
-            //name.Assign("m_");
-            name.Append(selected_data_objects[i]->GetObjectName());
-            
-            vmxImage *image = static_cast<vmxImage*>(selected_data_objects[i]);
-            if(!image) return;
-            
-            vmxImage mask;
-            mxGIP gip;
-            gip.Threshold(*image, threshold, mask);
-    
-            char const *input_string2 = tinyfd_inputBox("Enter Radius limit as INT number", "", "");
-            if (!input_string2) return ;
-            
-            int radius_limit = std::stoi(input_string2);
-            if(radius_limit<2 || radius_limit > 20) radius_limit = 10;
-            
-            vmxProfile prf_temp;
-            vmxProfile *prf = static_cast< vmxProfile* > (this->GetAppMainWidget()->GetDataListWidget()->Create(prf_temp.GetClassName().Get_C_String(), name.Get_C_String()));
-            if(!prf) return;
-            
-            mxProfileProcessing prprc;
-            prprc.Make_R_Profile_CircleDSE(*image, mask, *prf, radius_limit);
-            
-            //mesh->CreatePolyData(image, threshold);
-            //mesh->CreateActorByLookupTableScalarColoring(0,255);
-        }
-    }
-
-    
-    
-}
-
-
-void vmxAppProcessImage_Create_RC_Profile::StartInMainThread()
-{
-    this->Execute();
-}
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-vmxAppProcessImage_Create_RS_Profile::vmxAppProcessImage_Create_RS_Profile()
-{
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()";
-    
-    this->GetConfig()->SetNumberOfSteps(0);
-    this->GetConfig()->SetTitleInMenu("Image>>Create RS Profile");
-    this->GetConfig()->SetTitleLong("Create RS Profile");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
-}
-
-
-
-void vmxAppProcessImage_Create_RS_Profile::Execute()
-{
-    //vmxImage img;
-    //mxArray< mxDataObject* > ia = this->GetData()->GetDataObjectsOfType(img.GetClassName().Get_C_String());
-    
-    mxArray<mxDataObject *> selected_data_objects;
-    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
-    
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
-    {
-        vmxImage img;
-        if(selected_data_objects[i]->GetClassName()==img.GetClassName())
-        {
-            char const *input_string = tinyfd_inputBox("Enter Threshold value as INT number", "", "");
-            if (!input_string) return ;
-            
-            int threshold = std::stoi(input_string);
-            
-            uint64_t min_value_included, max_value_included;
-            img.GetVoxelValueFullRange(min_value_included, max_value_included);
-            if(threshold<min_value_included || threshold>max_value_included) return;
-            
-            mxString name;
-            //name.Assign("m_");
-            name.Append(selected_data_objects[i]->GetObjectName());
-            
-            vmxImage *image = static_cast<vmxImage*>(selected_data_objects[i]);
-            if(!image) return;
-            
-            vmxImage mask;
-            mxGIP gip;
-            gip.Threshold(*image, threshold, mask);
-            
-            char const *input_string2 = tinyfd_inputBox("Enter Radius limit as INT number", "", "");
-            if (!input_string2) return ;
-            
-            int radius_limit = std::stoi(input_string2);
-            if(radius_limit<2 || radius_limit > 20) radius_limit = 10;
-            
-            vmxProfile prf_temp;
-            vmxProfile *prf = static_cast< vmxProfile* > (this->GetAppMainWidget()->GetDataListWidget()->Create(prf_temp.GetClassName().Get_C_String(), name.Get_C_String()));
-            if(!prf) return;
-            
-            mxProfileProcessing prprc;
-            prprc.Make_R_Profile_SphereDSE(*image, mask, *prf, radius_limit);
-            
-            //mesh->CreatePolyData(image, threshold);
-            //mesh->CreateActorByLookupTableScalarColoring(0,255);
-        }
-    }
-    
-    
-    
-}
-
-
-void vmxAppProcessImage_Create_RS_Profile::StartInMainThread()
-{
-    this->Execute();
-}
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-vmxAppProcessImage_ProfileMeasure::vmxAppProcessImage_ProfileMeasure()
-{
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()";
-    
     this->GetConfig()->SetNumberOfSteps(1);
-    this->GetConfig()->SetTitleInMenu("Image>>Profile Measure");
-    this->GetConfig()->SetTitleLong("Profile Measure");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
+    this->GetConfig()->SetTitleInMenu("Image>>Absolute difference");//Subtract Images");
+    this->GetConfig()->SetTitleLong("Subtract Images");
 }
 
 
-void vmxAppProcessImage_ProfileMeasure::Step_0()
+void vmxAppProcessImage_Subtract::Step_0()
 {
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::Step_0()";
-    
-    this->GetConfig()->AddInputDataObjects("Input profile:");
-    mxList<mxString> list_of_operators;
-    list_of_operators.AddNewToEnd()->Assign("min");
-    list_of_operators.AddNewToEnd()->Assign("max");
-    list_of_operators.AddNewToEnd()->Assign("avr");
-    list_of_operators.AddNewToEnd()->Assign("med(-)");
-    list_of_operators.AddNewToEnd()->Assign("med(+)");
-    list_of_operators.AddNewToEnd()->Assign("med_avr");
-    list_of_operators.AddNewToEnd()->Assign("minmax_avr");
-    list_of_operators.AddNewToEnd()->Assign("med_root");
-    list_of_operators.AddNewToEnd()->Assign("minmax_root");
-    
-    this->GetConfig()->AddInputCheckBoxOptions("Operators:", &list_of_operators);
-    //this->GetConfig()->AddInputString("Output image:", "thresholded");
-    //this->GetConfig()->AddOutputCurveXYNew("Output curve:");
+    this->GetConfig()->AddInputDataObjects("Image:");
+    this->GetConfig()->AddInputDataObjects("Image to subtract:");
+//    mxList<mxString> list_of_options;
+//    list_of_options.AddNewToEnd()->Assign("Absolute");
+//    list_of_options.AddNewToEnd()->Assign("Leveled to Zero for negative values");
+//
+//    this->GetConfig()->AddInputRadioButtonOptions("Options:", &list_of_options);
 }
 
 
-void vmxAppProcessImage_ProfileMeasure::Execute()
+void vmxAppProcessImage_Subtract::Execute()
 {
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::Execute()";
-    vmxProfile prf_temp;
-    mxArray< mxDataObject* > ia = this->GetData()->GetDataObjectsOfType(prf_temp.GetClassName().Get_C_String());
+    vmxImage img_temp;
+    mxArray< mxDataObject* > ia = this->GetData()->GetDataObjectsOfType(img_temp.GetClassName().Get_C_String());
     
-    if(ia.IsEmpty())
+    if(ia.GetNumberOfElements()!=2)
     {
-        std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::Execute() error: array of images is empty.";
+        std::cout<<std::endl<<"vmxAppProcessImage_Subtract::Execute() error: array of images is empty.";
         this->Abort();
         return;
     }
     
-    vmxProfile *prf = static_cast<vmxProfile*>(ia[0]);
-    if(!prf)
+    vmxImage *img1 = static_cast<vmxImage*>(ia[0]);
+    vmxImage *img2 = static_cast<vmxImage*>(ia[1]);
+    
+    if(!img1 || !img2)
     {
-        std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::Execute() error: pointer to profile is NULL.";
+        std::cout<<std::endl<<"vmxAppProcessImage_Subtract::Execute() error: pointer to image is NULL.";
         this->Abort();
         return;
     }
     
     mxString name_string;
-    name_string.Assign("pm_");
-    mxArray< mxString > operators =  this->GetData()->GetSelectedCheckBoxOptions("Operators:");
+    name_string.Assign("diff_");
     
-    if(operators.IsEmpty())
-    {
-        std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::Execute() error: array of operators is empty.";
-        this->Abort();
-        return;
-    }
-    std::cout<<std::endl<<"Operators:";
-    for(int i=0; i<operators.GetNumberOfElements(); i++)
-    {
-        std::cout<<"  '"<<operators[i].Get_C_String()<<"'";
-        name_string.Append("_");
-        name_string.Append( operators[i].Get_C_String() );
-    }
-    
-
-    
-    vmxImage image;
-    
-    mxProfileProcessing prprc;
-    prprc.ProfileMeasure(*prf, image, operators, mxProfileProcessing::GREATER);
-    
-    uint64_t min_value_included, max_value_included;
-    image.GetVoxelMinAndMaxValues(min_value_included, max_value_included);
-    
-    int threshold = max_value_included - 1;
-    
-//    char const *input_string = tinyfd_inputBox("Enter Threshold value as INT number", "", "");
-//    if (!input_string) return ;
+//    mxArray< mxString > operators =  this->GetData()->GetSelectedCheckBoxOptions("Options:");
 //
-//    int threshold = std::stoi(input_string);
-//
-//    uint64_t min_value_included, max_value_included;
-//    image.GetVoxelValueFullRange(min_value_included, max_value_included);
-//    if(threshold<min_value_included || threshold>max_value_included) return;
-
+//    if(operators.IsEmpty())
+//    {
+//        std::cout<<std::endl<<"vmxAppProcessImage_Subtract::Execute() error: array of operators is empty.";
+//        this->Abort();
+//        return;
+//    }
+//    std::cout<<std::endl<<"Operators:";
+//    for(int i=0; i<operators.GetNumberOfElements(); i++)
+//    {
+//        std::cout<<"  '"<<operators[i].Get_C_String()<<"'";
+//        name_string.Append("_");
+//        name_string.Append( operators[i].Get_C_String() );
+//    }
     
-    //image.SetVisibility(1);
-    //image.SetMappingToOpaqueGrayScale();
-    
-    
-    vmxImage *image_segmented = static_cast<vmxImage*> (this->GetAppMainWidget()->GetDataListWidget()->Create(image.GetClassName().Get_C_String(),name_string.Get_C_String()));
+   
+    name_string.Append(img1->GetObjectName());
+    vmxImage *image_diff = static_cast<vmxImage*> (this->GetAppMainWidget()->GetDataListWidget()->Create(img_temp.GetClassName().Get_C_String(),name_string.Get_C_String()));
     
     mxGIP gip;
-    gip.Threshold(image, threshold, *image_segmented);
-    //image_segmented->SetVisibility(1);
-    //image_segmented->SetMappingToOpaqueGrayScale();
+    gip.DifferenceAbsolute(*img1, *img2, *image_diff);
     
+    image_diff->SetMappingToOpaqueGrayScale();
 }
 
 
-void vmxAppProcessImage_ProfileMeasure::StartInMainThread()
+void vmxAppProcessImage_Subtract::StartInMainThread()
+{
+    this->Execute();
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppProcessImage_Mask::vmxAppProcessImage_Mask()
+{
+    this->GetConfig()->SetNumberOfSteps(1);
+    this->GetConfig()->SetTitleInMenu("Image>>Mask");
+    this->GetConfig()->SetTitleLong("Mask Images");
+}
+
+
+void vmxAppProcessImage_Mask::Step_0()
+{
+    this->GetConfig()->AddInputDataObjects("Image to mask:");
+    this->GetConfig()->AddInputDataObjects("Mask image:");
+}
+
+
+void vmxAppProcessImage_Mask::Execute()
+{
+    vmxImage img_temp;
+    mxArray< mxDataObject* > ia = this->GetData()->GetDataObjectsOfType(img_temp.GetClassName().Get_C_String());
+    
+    if(ia.GetNumberOfElements()!=2)
+    {
+        std::cout<<std::endl<<"vmxAppProcessImage_Mask::Execute() error: array of images is empty.";
+        this->Abort();
+        return;
+    }
+    
+    vmxImage *img1 = static_cast<vmxImage*>(ia[0]);
+    vmxImage *img2 = static_cast<vmxImage*>(ia[1]);
+    
+    if(!img1 || !img2)
+    {
+        std::cout<<std::endl<<"vmxAppProcessImage_Mask::Execute() error: pointer to image is NULL.";
+        this->Abort();
+        return;
+    }
+    
+    mxString name_string;
+    name_string.Assign("msk_");
+    
+    name_string.Append(img1->GetObjectName());
+    vmxImage *image_out = static_cast<vmxImage*> (this->GetAppMainWidget()->GetDataListWidget()->Create(img_temp.GetClassName().Get_C_String(),name_string.Get_C_String()));
+    
+    mxGIP gip;
+    gip.Mask(*img1, *img2, *image_out);
+    
+    image_out->SetMappingToOpaqueGrayScale();
+}
+
+
+void vmxAppProcessImage_Mask::StartInMainThread()
 {
     this->Execute();
 }
@@ -501,13 +360,9 @@ void vmxAppProcessImage_ProfileMeasure::StartInMainThread()
 
 vmxAppProcessImage_ExtractCenterlines::vmxAppProcessImage_ExtractCenterlines()
 {
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()";
-    
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Extract Centerlines");
     this->GetConfig()->SetTitleLong("Extract Centerlines");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -516,7 +371,7 @@ void vmxAppProcessImage_ExtractCenterlines::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -589,13 +444,9 @@ void vmxAppProcessImage_ExtractCenterlines::StartInMainThread()
 
 vmxAppProcessImage_ExtractLargestCC::vmxAppProcessImage_ExtractLargestCC()
 {
-    //std::cout<<std::endl<<"vmxAppProcessImage_Thresholding::vmxAppProcessImage_Thresholding()";
-    
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Extract Largest CC");
     this->GetConfig()->SetTitleLong("Extract Largest CC");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -604,7 +455,7 @@ void vmxAppProcessImage_ExtractLargestCC::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -642,7 +493,7 @@ void vmxAppProcessImage_ExtractLargestCC::Execute()
                 return;
             }
             
-            //std::cout<<std::endl<<" ext dims: ("<<extracted->GetDimension_T()<<","<<extracted->GetDimension_S()<<","<<extracted->GetDimension_R()<<","<<extracted->GetDimension_C()<<")";
+            extracted->SetMappingToOpaqueGrayScale();
         }
     }
 }
@@ -665,8 +516,6 @@ vmxAppProcessImage_Filter_4_Neighbors::vmxAppProcessImage_Filter_4_Neighbors()
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Filter 4 neighbors");
     this->GetConfig()->SetTitleLong("Filter 4 neighbors");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -675,7 +524,7 @@ void vmxAppProcessImage_Filter_4_Neighbors::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -695,6 +544,7 @@ void vmxAppProcessImage_Filter_4_Neighbors::Execute()
             mxBIP bip;
             bip.FilterWith_4_Neghborhood(*image, *output_image);
             
+            output_image->SetMappingToOpaqueGrayScale();
         }
     }
 }
@@ -719,8 +569,6 @@ vmxAppProcessImage_ProcessPhaseContrast::vmxAppProcessImage_ProcessPhaseContrast
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Process PC");
     this->GetConfig()->SetTitleLong("Process PC");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -729,7 +577,7 @@ void vmxAppProcessImage_ProcessPhaseContrast::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -952,8 +800,6 @@ void vmxAppProcessImage_ProcessPhaseContrast::Execute()
                 }
             }
             
-            //output_image->Copy(&seg_3d_img);
-            
             
             vmxImage steps_img;
             {
@@ -998,9 +844,7 @@ void vmxAppProcessImage_ProcessPhaseContrast::Execute()
             
             output_image->Copy(&steps_img);
 
-                
-                
-            
+            output_image->SetMappingToOpaqueGrayScale();
             
         }
     }
@@ -1025,8 +869,6 @@ vmxAppProcessImage_GraphReportXTK::vmxAppProcessImage_GraphReportXTK()
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Report Graph");
     this->GetConfig()->SetTitleLong("Report Graph");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -1035,7 +877,7 @@ void vmxAppProcessImage_GraphReportXTK::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
 
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxGraph graph_temp;
         if(selected_data_objects[i]->GetClassName()==graph_temp.GetClassName())
@@ -1046,11 +888,6 @@ void vmxAppProcessImage_GraphReportXTK::Execute()
 
             vmxGraph *graph = static_cast<vmxGraph*>(selected_data_objects[i]);
             if(!graph) return;
-
-            //vmxGraph *output_image = static_cast< vmxGraph* > (this->GetAppMainWidget()->GetDataListWidget()->Create(img.GetClassName().Get_C_String(), name.Get_C_String()));
-            //if(!output_image) return;
-
-            //output_image->SetPropertiesAs(image);
             
             char const * extension_filter[2] = { "*.htm", "*.html" };
             char const *save_file_name = tinyfd_saveFileDialog("Save Report", selected_data_objects[i]->GetObjectName().Get_C_String(), 2, extension_filter, NULL);
@@ -1064,7 +901,6 @@ void vmxAppProcessImage_GraphReportXTK::Execute()
             
             vmxAppReportGenerator rg;
             
-            //graph.GetObjectName().Assign("Centerline");
             rg.Create_XTK_ReportForGraph(graph, save_file_name);
 
         }
@@ -1101,14 +937,63 @@ void vmxAppProcessImage_GraphReportXTK::StartInMainThread()
 
 
 
+vmxAppProcessImage_SkeletonReportXTK::vmxAppProcessImage_SkeletonReportXTK()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Image>>Report Skeleton");
+    this->GetConfig()->SetTitleLong("Report Skeleton");
+}
+
+
+void vmxAppProcessImage_SkeletonReportXTK::Execute()
+{
+    mxArray<mxDataObject *> selected_data_objects;
+    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
+    
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
+    {
+        vmxSkeleton temp;
+        if(selected_data_objects[i]->GetClassName()==temp.GetClassName())
+        {
+            vmxSkeleton *skl = static_cast<vmxSkeleton*>(selected_data_objects[i]);
+            if(!skl) return;
+            
+            char const * extension_filter[2] = { "*.htm", "*.html" };
+            char const *save_file_name = tinyfd_saveFileDialog("Save Report", selected_data_objects[i]->GetObjectName().Get_C_String(), 2, extension_filter, NULL);
+            
+            if(!save_file_name)
+            {
+                std::cout<<std::endl<<"vmxAppProcessImage_SkeletonReportXTK::Execute(): save_file_name is NULL";
+                return ;
+            }
+            
+            vmxAppReportGenerator rg;
+            
+            rg.Create_XTK_ReportForSkeleton(skl, save_file_name);
+            
+        }
+    }
+}
+
+
+void vmxAppProcessImage_SkeletonReportXTK::StartInMainThread()
+{
+    this->Execute();
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 vmxAppProcessImage_OrderedSkeletonization::vmxAppProcessImage_OrderedSkeletonization()
 {
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Ordered Skeletonization");
     this->GetConfig()->SetTitleLong("Ordered Skeletonization");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -1117,7 +1002,7 @@ void vmxAppProcessImage_OrderedSkeletonization::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
 
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -1141,6 +1026,8 @@ void vmxAppProcessImage_OrderedSkeletonization::Execute()
 
             mxSkeletonization skl;
             skl.OrderedSkeletonization(pv, *output_image);
+            
+            output_image->SetMappingToOpaqueGrayScale();
         }
     }
 }
@@ -1163,8 +1050,6 @@ vmxAppProcessImage_CreateGraphFromImage::vmxAppProcessImage_CreateGraphFromImage
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Create Graph From Image");
     this->GetConfig()->SetTitleLong("Create Graph From Image");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -1173,7 +1058,7 @@ void vmxAppProcessImage_CreateGraphFromImage::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -1218,8 +1103,6 @@ vmxAppProcessImage_FilterNodeMultiPahts::vmxAppProcessImage_FilterNodeMultiPahts
     this->GetConfig()->SetNumberOfSteps(0);
     this->GetConfig()->SetTitleInMenu("Image>>Filter Graph Node Multi Pahts");
     this->GetConfig()->SetTitleLong("Filter Graph Node Multi Pahts");
-    //this->GetConfig()->SetHelp("Calculate the distensibility of Aorta from segmented cross-sectional 2D+time (CINE) images.");
-    //this->DeclareBatchCall("AorticPWV", "", "AorticDistensibility", "<Image>");
 }
 
 
@@ -1228,7 +1111,7 @@ void vmxAppProcessImage_FilterNodeMultiPahts::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -1248,6 +1131,7 @@ void vmxAppProcessImage_FilterNodeMultiPahts::Execute()
             mxSkeletonization skl;
             skl.FilterMultipathsInNodeConnectedComponents(*image, *output_image);
             
+            output_image->SetMappingToOpaqueGrayScale();
         }
     }
 }

@@ -18,6 +18,7 @@
 
 
 
+
 #if defined(mxCurve_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxCurve_API
 #else
@@ -50,6 +51,12 @@
 //#include <strstream>
 #include <fstream>
 //#include <iomanip>
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 /// 2D curve (x and y=f(x) values) as pair of arrays of x and corresponding y values.
@@ -154,6 +161,9 @@ public:
 
     /// Sort value arrays of the curve (both X and Y) by sorting X values in scending order (and copying their corresponding Y values).
     void Sort_X_Ascending();
+    
+    /// Swap X and Y axis (X values become Y values and vice versa).
+    void Swap_X_and_Y_values();
 
     /// Returns X value for given input index.
     double& X(unsigned int index);
@@ -166,6 +176,12 @@ public:
     double Y_FX(double x_value);
     
 };
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 #endif

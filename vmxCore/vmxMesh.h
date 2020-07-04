@@ -43,6 +43,18 @@
 
 
 
+#include "mxArray.h"
+#include "mxImage.h"
+#include "mxDataObject.h"
+#include "mxDataObjectFactory.h"
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
 #include <vtkActor.h>
 #include <vtkContourFilter.h>
 #include <vtkGenericDataObjectWriter.h>
@@ -65,10 +77,14 @@
 #include <vtkXMLPolyDataReader.h>
 
 
-#include "mxArray.h"
-#include "mxBasicImage.h"
-#include "mxDataObject.h"
-#include "mxDataObjectFactory.h"
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 
@@ -177,7 +193,7 @@ public:
     void CreateActorByLookupTableScalarColoring(double scalar_min_value, double scalar_max_value);
     
     /// Create the polydata from the input mxBasicImage image data. The poly data is created from voxel values above the input threshold value.
-    void CreatePolyData(mxBasicImage *image, int threshold);
+    void CreatePolyData(mxImage *image, int threshold);
 
     /// Get bounds of the object in 3D space. If not applicable (e.g. object is a 2D signal) return fail 0.
     virtual int GetBoundsInWorldCoordinates(double &x_min, double &x_max, double &y_min, double &y_max, double &z_min, double &z_max);
@@ -253,6 +269,13 @@ public:
 
 
 typedef mxDataObjectFactoryT<vmxMesh> vmxMeshFactory;
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

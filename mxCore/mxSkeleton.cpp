@@ -50,6 +50,203 @@ mxSkeletonLink::~mxSkeletonLink()
 }
 
 
+int mxSkeletonLink::PopulateLinkPointsFromPortPoint(mxPoint &port, mxImage &skeleton_image, mxPoint &output_start_node_position, mxPoint &output_end_node_position)
+{
+    mxGeometry g, g2;
+    g.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+    g2.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+    
+    mxVoxel p;
+    mxPoint pos;
+    p.S() = (int)(port.S());
+    p.R() = (int)(port.R());
+    p.C() = (int)(port.C());
+    p.V() = (int)(port.V(0));
+    
+    //Check  if the 'port' is really a port point
+    int sn,rn,cn;
+    int number_of_neighbors = 0;
+    int number_of_node_neighbors = 0;//The number of neighbors that have 1 or more than 2 neighboring points
+    
+    //for(g.ForCoordinates(p.S(),p.R(),p.C(),g.Neighborhood26StartIndex()); g.Get_26_Neighbors(sn,rn,cn); )
+    for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn,rn,cn); )
+    {
+        //Non-zero neighbor
+        if(skeleton_image(sn,rn,cn)!=0)
+        {
+            //Increase the number of found neighbors
+            number_of_neighbors++;
+            
+            int n = 0;
+            {
+                mxGeometry g3;
+                g3.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+                int snn,rnn,cnn;
+                for(g3.For_26_Neighborhood(sn,rn,cn); g3.Get_26_Neighborhood(snn,rnn,cnn); )
+                {
+                    if(skeleton_image(snn,rnn,cnn)!=0) n++;
+                }
+            }
+
+            
+            //if(skeleton_image.NumberOfNonZeroVexelsIn_26_Neighborhood(sn,rn,cn)!=2)
+            if(n!=2)
+            {
+                //If this is the first found node
+                if(number_of_node_neighbors==0)
+                {
+                    //... set the start node position and value
+                    output_start_node_position.SetPosition(sn,rn,cn);
+                    output_start_node_position.V(0) = skeleton_image(sn,rn,cn);
+                }
+                //If one node was already found...
+                if(number_of_node_neighbors==1)
+                {
+                    //... set the end node position and value
+                    output_end_node_position.SetPosition(sn,rn,cn);
+                    output_end_node_position.V(0) = skeleton_image(sn,rn,cn);
+                }
+                
+                //Node neighbor found
+                number_of_node_neighbors++;
+            }
+        }
+    }
+    
+    //In order for the point to be a port point it must have 2 neighbors of which at least one is a node point
+    if(!(number_of_neighbors==2 && number_of_node_neighbors>0))
+    {
+        //Reset found node positions
+        output_start_node_position.SetPosition(0,0,0);
+//        output_start_node_position.SetValuesToZero();
+        output_end_node_position.SetPosition(0,0,0);
+//        output_end_node_position.SetValuesToZero();
+        return 0;
+    }
+    
+    //At this point we know that 'port' is really a port point and at least output_start_node_position was found
+    
+    //If list of positions is not empty, empty it...
+    if(!this->IsListOfPositionsEmpty()) this->GetPositionsList()->Reset();//m_link_positions.Reset();
+    
+    //If both neighbors are node points...
+    if(number_of_node_neighbors==2)
+    {
+        //... add current point to the list and exit with success
+        pos.SetPosition(p.S(),p.R(),p.C());
+        pos.V(0) = skeleton_image(p.S(),p.R(),p.C());
+        this->GetPositionsList()->AddToEnd(pos);
+        this->m_skeletonization_voxels.AddToEnd(p);
+        return 1;
+    }
+    
+    //If the algorithm came to here, it means that one node was found - now it searches for path positions and end node
+    
+//    //Track the connected pixels to the next node - insert all the pixels in the 'm_link_positions' list
+//    mxList< mxVoxel > l;
+//    l.AddToEnd(p);
+//    bdRegion3D rg;
+//    rg.AddPoint(p.S(),p.R(),p.C());
+//    while(!l.IsEmpty())
+//    {
+//        p = l.GetLeftEnd();
+//
+//        for(g.ForCoordinates(p.S(),p.R(),p.C(),g.Neighborhood26StartIndex()); g.Get_26_Neighbors(sn,rn,cn); )
+//        {
+//            //Candidate for entering it in the list
+//            if(skeleton_image(sn,rn,cn)!=0)
+//            {
+//                //If the point belongs to the path...
+//                if(skeleton_image.NumberOfNonZeroVexelsIn_26_Neighborhood(sn,rn,cn)==2)
+//                {
+//                    //Check if it was not already entered into the list (check in the temp_region)
+//                    if(!rg.IsPointInRegion(sn,rn,cn))
+//                    {
+//                        //If not, enter to the list
+//                        p(sn,rn,cn);
+//                        p.SetValue(skeleton_image(sn,rn,cn));
+//                        l.AddToRightEnd(p);
+//                        rg.AddPoint(sn,rn,cn);
+//                        pos(sn,rn,cn);
+//                        pos.V(0) = skeleton_image(sn,rn,cn);
+//                        link->GetPositionsList()->AddToRightEnd(pos);
+//                        link->m_link_skeletonization_voxels.AddToRightEnd(p);
+//                    }
+//                }
+//                //If the point belongs to the node...
+//                else
+//                {
+//                    //... enter it as the end node position
+//                    output_end_node_position(sn,rn,cn);
+//                    output_end_node_position.V(0) = skeleton_image(sn,rn,cn);
+//                }
+//            }
+//        }
+//        l.DeleteLeftEnd();
+//    }
+    
+    //Track the connected pixels to the next node - insert all the pixels in the 'm_link_positions' list
+    mxList< mxVoxel > l;
+    l.AddToEnd(p);
+    mxConnectedComponent3DStatic<int> rg;
+    rg.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+    rg.AddPoint(p.S(),p.R(),p.C());
+    while(!l.IsEmpty())
+    {
+        p = l.GetBeginElement();
+        
+        //for(g.ForCoordinates(p.S(),p.R(),p.C(),g.Neighborhood26StartIndex()); g.Get_26_Neighbors(sn,rn,cn); )
+        for(g.For_26_Neighborhood(p.S(),p.R(),p.C()); g.Get_26_Neighborhood(sn,rn,cn); )
+        {
+            //Candidate for entering it in the list
+            if(skeleton_image(sn,rn,cn)!=0)
+            {
+                //If the point belongs to the path...
+                
+                int n = 0;
+                {
+                    mxGeometry g3;
+                    g3.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+                    int snn,rnn,cnn;
+                    for(g3.For_26_Neighborhood(sn,rn,cn); g3.Get_26_Neighborhood(snn,rnn,cnn); )
+                    {
+                        if(skeleton_image(snn,rnn,cnn)!=0) n++;
+                    }
+                }
+                
+                if(n==2)
+                {
+                    //Check if it was not already entered into the list (check in the temp_region)
+                    if(!rg.IsPointInConnectedComponent(sn,rn,cn))
+                    {
+                        //If not, enter to the list
+                        p.SetIndex(sn,rn,cn);
+                        p.SetValue(skeleton_image(sn,rn,cn));
+                        l.AddToEnd(p);
+                        rg.AddPoint(sn,rn,cn);
+                        pos.SetPosition(sn,rn,cn);
+                        pos.V(0) = skeleton_image(sn,rn,cn);
+                        this->GetPositionsList()->AddToEnd(pos);
+                        this->m_skeletonization_voxels.AddToEnd(p);
+                    }
+                }
+                //If the point belongs to the node...
+                else
+                {
+                    //... enter it as the end node position
+                    output_end_node_position.SetPosition(sn,rn,cn);
+                    output_end_node_position.V(0) = skeleton_image(sn,rn,cn);
+                }
+            }
+        }
+        l.DeleteBegin();
+    }
+
+    return 1;
+}
+
+
+
 void mxSkeletonLink::CorrectLink()
 {
     // Iteratively delete positions while they are the same as node1.
@@ -197,7 +394,7 @@ int mxSkeletonLink::GetArrayOfPositionPointersIncludingNodes(mxArray< mxPoint* >
     
     mxListIterator< mxPoint > it;
     int i=1;
-    for(it.SetToBegin(m_positions), i=1; it.IsValid() && i<output_array_of_position_pointers.GetNumberOfElements()-1; it.MoveToNext(), i++ )
+    for(it.SetToBegin(m_positions), i=1; it.IsValid() && i<(int)output_array_of_position_pointers.GetNumberOfElements()-1; it.MoveToNext(), i++ )
     {
         mxPoint *pp = it.GetElementAddress();
         output_array_of_position_pointers[i] = pp;
@@ -517,7 +714,7 @@ int mxSkeletonLink::Smooth(double prev_3, double prev_2, double prev_1, double n
 
 	//Copy the list into the array
 	int i=0;
-	for(itp.SetToBegin(m_positions), i=0; itp.IsValid() && i<a.GetNumberOfElements(); itp.MoveToNext(), i++)
+	for(itp.SetToBegin(m_positions), i=0; itp.IsValid() && i<(int)a.GetNumberOfElements(); itp.MoveToNext(), i++)
 	{
 		mxPoint *p = itp.GetElementAddress();
 		a[i] = (*p);
@@ -650,7 +847,7 @@ int mxSkeletonLink::Sample(int number_of_samples)
         mxList<mxPoint> list_of_positions;
         
         double d = 1.0 / ((double) number_of_samples+1);
-        for(unsigned int i=1; i<=number_of_samples; i++)
+        for(int i=1; i<=number_of_samples; i++)
         {
             double nd = ((double)i)*d;// / l);
             list_of_normalized_distances.AddToEnd(nd);
@@ -687,7 +884,7 @@ int mxSkeletonLink::Sample(int number_of_samples)
         cumulative_distances_array[cumulative_distances_array.GetNumberOfElements()-1] = cumulative_distance;
         cumulative_distances_positions[cumulative_distances_positions.GetNumberOfElements()-1] = psn->GetPosition();
         //The 'cumulative_distance' now has the WHOLE distance of the link path, so we devide entered distances with this one to normalize
-        for(i=0; i<cumulative_distances_array.GetNumberOfElements(); i++) cumulative_distances_array[i] = cumulative_distances_array[i]/cumulative_distance;
+        for(i=0; i<(int)cumulative_distances_array.GetNumberOfElements(); i++) cumulative_distances_array[i] = cumulative_distances_array[i]/cumulative_distance;
         
         
         //Cumulative array: [0]=0,...[noel-1]=1; noel = n_o_positions +2;
@@ -700,7 +897,7 @@ int mxSkeletonLink::Sample(int number_of_samples)
             
             //... and find between which normalized cumulative distances it belongs
             int is_distance_found = 0;
-            for(i=0; i<cumulative_distances_array.GetNumberOfElements()-1 && !is_distance_found; i++)
+            for(i=0; i<(int)cumulative_distances_array.GetNumberOfElements()-1 && !is_distance_found; i++)
             {
                 //If the distance is exactly the same (desired position already exists in the list of positions), just enter to output list of added positions
                 if(cumulative_distances_array[i]==normalized_distance)
@@ -1406,7 +1603,7 @@ void mxSkeleton::Reset()
     m_origin[0] = m_origin[1] = m_origin[2] = m_origin[3] = 0;
     m_spacing[0] = m_spacing[1] = m_spacing[2] = m_spacing[3] = 1;
     
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         m_scalars[i].Reset();
     }
@@ -1712,7 +1909,7 @@ int mxSkeleton::GetScalarTagIndex(mxString &tag, unsigned int &output_index)
 int mxSkeleton::AddScalarTag(mxString &tag, unsigned int &output_index)
 {
     // Find the lowest available index to add a tag.
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         if(!m_scalars[i].IsUsed())
         {
@@ -3492,7 +3689,7 @@ int mxSkeleton::CreateFromPointList(mxPointList *pl)
     }
     
     // Copy the tags list.
-    for(int i=0; i<pl->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)pl->GetMaximumNumberOfScalars(); i++)
     {
         if(pl->Scalar(i)->IsUsed())
         {
@@ -3507,11 +3704,315 @@ int mxSkeleton::CreateFromPointList(mxPointList *pl)
 
 
 
+int mxSkeleton::CreateFromSkeletonized3DImage(mxImage &skeleton_image, const char *scalar_tag)
+{
+    if(skeleton_image.IsEmpty()) return 0;
+    
+    this->Reset();
+    
+    unsigned int scalar_index;
+    if(!this->AddScalarTag(scalar_tag, scalar_index)) return 0;
+    
+    // Find the first non-zero pixel
+    mxVoxel p;
+    {
+        int is_pixel_found = 0;
+        for(unsigned int s=0; s<skeleton_image.GetDimension_S() && !is_pixel_found; s++)
+        {
+            for(unsigned int r=0; r<skeleton_image.GetDimension_R() && !is_pixel_found; r++)
+            {
+                for(unsigned int c=0; c<skeleton_image.GetDimension_C() && !is_pixel_found; c++)
+                {
+                    if(skeleton_image(s,r,c)!=0)
+                    {
+                        p.SetIndex(s,r,c);
+                        is_pixel_found = 1;
+                    }
+                }
+            }
+        }
+        
+        // If no pixel is found, image is empty!
+        if(!is_pixel_found) return 0;
+    }
+    
+    // Copy the skeleton into the 3D region for faster access
+    mxConnectedComponent3DStatic<int> rg, rg_node_temp;// rg is region of the whole skeleton, rg_node_temp is region of processed node's pixels
+    rg.CreateFromImage_26Neighborhood(skeleton_image, p.S(), p.R(), p.C());
+    rg_node_temp.SetDimensions(skeleton_image.GetDimension_S(),skeleton_image.GetDimension_R(),skeleton_image.GetDimension_C());
+    mxGeometry g;
+    g.SetDimensions(skeleton_image.GetDimension_S(),skeleton_image.GetDimension_R(),skeleton_image.GetDimension_C());
+    
+    mxSkeletonNode *p_skeleton_node;
+    mxPoint pos;
+    
+    
+    //This is the list of skeleton node ports. Each element of the list is a list of ports for that node.
+    mxList< mxList< mxPoint > > list_of_node_ports;
+    //This is a pointer to one element of the list of node ports. So, it points to a list which contains all the ports of a node.
+    mxList< mxPoint > *p_node_ports;
+    
+    
+    // 1. Go through all the skeleton points and find the nodes
+    int s,r,c, sn,rn,cn;
+    int number_of_pixels_in_node;
+    mxConnectedComponent3DStaticIterator<int> it;
+    
+    for(it.SetToBegin(&rg); it.IsValid(); it.MoveToNext())
+    {
+        it.GetCoordinates(s,r,c);// DODAO_2018_04_06_!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        int n = 0;//number of non zero voxels in 26 neighborhoood
+        {
+            for(g.For_26_Neighborhood(s,r,c); g.Get_26_Neighborhood(sn,rn,cn); )
+            {
+                if(skeleton_image(sn,rn,cn)) n++;
+            }
+        }
+        
+        //n = skeleton_image. NumberOfNonZeroVexelsIn_26_Neighborhood(s,r,c);
+        if((n!=0) && (n!=2) && (!rg_node_temp.IsPointInConnectedComponent(s,r,c)))
+        {
+            //Add a new node to the skeleton
+            mxPoint pos; pos.SetPosition(s,r,c);
+            this->AddNodeWithPosition(pos, &p_skeleton_node);
+            
+            
+            p_skeleton_node->GetPosition().V(scalar_index) = skeleton_image(s,r,c);
+            mxVoxel *voxel_temp = p_skeleton_node->GetSkeletonizationVoxels()->AddNewToEnd();
+            voxel_temp->SetIndex(s,r,c);
+            voxel_temp->SetValue(skeleton_image(s,r,c));
+            number_of_pixels_in_node = 1;
+            mxList< mxVoxel > l;
+            p.SetIndex(s,r,c);
+            l.AddToEnd(p);
+            rg_node_temp.AddPoint(s,r,c);
+            
+            //Add a new node for which we have to find ports
+            p_node_ports = list_of_node_ports.AddNewToEnd();
+            
+            //Find the whole region of the node (all the pixels)
+            while(!l.IsEmpty())
+            {
+                p = l.GetBeginElement();
+                
+                //for(g.ForCoordinates(p.S(),p.R(),p.C(),g.Neighborhood26StartIndex()); g.Get_26_Neighbors(sn,rn,cn); )
+                for(g.For_26_Neighborhood(p.S(), p.R(), p.C()); g.Get_26_Neighborhood(sn,rn,cn); )
+                {
+                    //If the point is in the skeleton
+                    if(skeleton_image(sn,rn,cn)!=0)
+                    {
+                        //If pixel might be part of the node...
+                        int n2 = 0;//number of non zero voxels in 26 neighborhoood
+                        {
+                            mxGeometry g2;
+                            g2.SetDimensions(skeleton_image.GetDimension_S(), skeleton_image.GetDimension_R(), skeleton_image.GetDimension_C());
+                            int snn,rnn,cnn;
+                            for(g2.For_26_Neighborhood(sn,rn,cn); g2.Get_26_Neighborhood(snn,rnn,cnn); )
+                            {
+                                if(skeleton_image(snn,rnn,cnn)) n2++;
+                            }
+                        }
+                        
+                        //if(skeleton_image.NumberOfNonZeroVexelsIn_26_Neighborhood(sn,rn,cn)!=2)
+                        if(n2!=2)
+                        {
+                            //If the pixel is not already in the node
+                            if(!rg_node_temp.IsPointInConnectedComponent(sn,rn,cn))
+                            {
+                                //Update the sum of all node pixels and number of pixels in the node
+                                pos = p_skeleton_node->GetPosition();
+                                p_skeleton_node->GetPosition().SetPosition(pos.S()+sn, pos.R()+rn, pos.C()+cn);
+                                mxVoxel *voxel_temp2 = p_skeleton_node->GetSkeletonizationVoxels()->AddNewToEnd();
+                                voxel_temp2->SetIndex(sn,rn,cn);
+                                voxel_temp2->SetValue(skeleton_image(sn,rn,cn));
+                                double gray_value = p_skeleton_node->GetPosition().V(scalar_index);
+                                p_skeleton_node->GetPosition().V(scalar_index) = gray_value+((double)skeleton_image(sn,rn,cn));
+                                number_of_pixels_in_node++;
+                                p.SetIndex(sn,rn,cn);
+                                l.AddToEnd(p);
+                                int value = (int) p.V();
+                                rg_node_temp.AddPoint(p.S(),p.R(),p.C(),value);
+                            }
+                            
+                        }
+                        //If the pixel is a port of the node add it to the list of current node's ports
+                        else
+                        {
+                            pos.SetPosition(sn,rn,cn);
+                            p_node_ports->AddToEnd(pos);//No need to add value of pixel - will be done later
+                        }
+                    }
+                }
+                
+                l.DeleteBegin();
+            }
+            
+            //At this moment the *p_skeleton_node contains the sum of all the node pixels and list_of_node_ports contains
+            // list of node's ports. The position of node is calculated by deviding the sum
+            // with the number_of_pixels_in_node (same goes for its value)
+            
+            pos = p_skeleton_node->GetPosition();
+            p_skeleton_node->GetPosition().SetPosition((pos.S()/((double)(number_of_pixels_in_node))), (pos.R()/((double)(number_of_pixels_in_node))), (pos.C()/((double)(number_of_pixels_in_node))));
+            double gray_value = p_skeleton_node->GetPosition().V(scalar_index);
+            p_skeleton_node->GetPosition().V(scalar_index) = gray_value/((double)(number_of_pixels_in_node));
+        }
+    }
+    
+    //At this moment all the nodes with their ports have been entered into the skeleton node list.
+    
+    
+    //----- 2. Using all the nodes build the links, add them to the skeleton and connect with nodes -----
+    
+    //We have to check if the link has already been found - it is defined by its start/end node end their ports
+    mxSkeletonLink *p_skeleton_link, *p_link; //, temp_link;
+    mxPoint start_node_pos,end_node_pos;//We have to deklare these variables and pass them to function, but we won't use them.
+    mxListIterator< mxSkeletonNode > itn;
+    int progress_counter_calculator_index = 0;
+    for(itn.SetToBegin(this->GetNodes()); itn.IsValid(); itn.MoveToNext())
+    {
+        progress_counter_calculator_index++;
+//        this->SetProgressCounterRelativeValue(50+ ((progress_counter_calculator_index*40)/output_skeleton.GetNodes()->GetNumberOfElements()));
+//        if(this->IsAbortRequested()) return 0;
+        
+        p_skeleton_node = itn.GetElementAddress();
+        //Get the pointer to node_ports
+        p_node_ports = list_of_node_ports.GetBeginElementAddress();
+        
+        //Erase list of ports one by one
+        while(!p_node_ports->IsEmpty())
+        {
+            pos = p_node_ports->GetBeginElement();
+            
+            //Check if the port position is in one of the links - if the port is not found it belongs to a new link
+            if(!(this->GetLinkPointerForGivenPort(pos,&p_link)))
+            {
+                //Create a new link
+                p_skeleton_link = this->AddLink();
+                //Add the positions to the link positions list
+                p_skeleton_link->PopulateLinkPointsFromPortPoint(pos,skeleton_image,start_node_pos,end_node_pos);
+                //this-> CreateLinkPositionsFromPortPosition(p_skeleton_link,pos,skeleton_image,start_node_pos,end_node_pos);
+                //Connect the link with the node using the void pointer in link
+                //(mxSkeletonNode *)(p_skeleton_link->GetNode_1());
+                p_skeleton_link->SetNode_1(p_skeleton_node);
+            }
+            //If the link already exists, just fill in the end values:
+            else
+            {
+                //(mxSkeletonNode*) (p_link->GetNode_2());
+                p_link->SetNode_2(p_skeleton_node);
+            }
+            
+            p_node_ports->DeleteBegin();
+        }
+        
+        //Erase the node_port
+        list_of_node_ports.DeleteBegin();
+    }
+    
+    
+    
+    //At this point skeleton links are connected to nodes, we have to go through all the links and connect NODES to the links
+    // (fill in the list 'm_node_links' in the node)
+    mxListIterator< mxSkeletonLink > itl;
+    //for(itl.SetLeftEnd(output_skeleton.GetLinks()); itl.IsValid(); itl.MoveRight())
+    for(itl.SetToBegin(this->GetLinks()); itl.IsValid(); itl.MoveToNext())
+    {
+        p_link = itl.GetElementAddress();
+        p_link->GetNode_1()->GetLinksList()->AddToEnd(p_link);
+        p_link->GetNode_2()->GetLinksList()->AddToEnd(p_link);
+    }
+    
+    this->SetOrigin(skeleton_image.GetOrigin_T(), skeleton_image.GetOrigin_S(), skeleton_image.GetOrigin_R(), skeleton_image.GetOrigin_C());
+    
+    this->SetSpacing(skeleton_image.GetSpacing_T(), skeleton_image.GetSpacing_S(), skeleton_image.GetSpacing_R(), skeleton_image.GetSpacing_C());
+    
+    //output_skeleton.m_origin[0] = skeleton_image.GetOrigin_C(); output_skeleton.m_origin[1] = skeleton_image.GetOrigin_R();
+    //output_skeleton.m_origin[2] = skeleton_image.GetOrigin_S(); output_skeleton.m_origin[3] = skeleton_image.GetOrigin_T();
+    //output_skeleton.m_spacing[0] = skeleton_image.GetSpacing_C(); output_skeleton.m_spacing[1] = skeleton_image.GetSpacing_R();
+    //output_skeleton.m_spacing[2] = skeleton_image.GetSpacing_S(); output_skeleton.m_spacing[3] = skeleton_image.GetSpacing_T();
+    
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[0] = skeleton_image.GetOrientation_Cx();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[1] = skeleton_image.GetOrientation_Cy();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[2] = skeleton_image.GetOrientation_Cz();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[3] = skeleton_image.GetOrientation_Rx();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[4] = skeleton_image.GetOrientation_Ry();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[5] = skeleton_image.GetOrientation_Rz();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[6] = skeleton_image.GetOrientation_Sx();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[7] = skeleton_image.GetOrientation_Sy();
+//    output_skeleton.m_orientation_CxCyCzRxRyRzSxSySz[8] = skeleton_image.GetOrientation_Sz();
+    
+   
+    
+    return 1;
+}
+
+
+
+int mxSkeleton::CreateFromSkeletonizedImageOfDisconnectedComponents(mxImage &skeletonized_image, const char *scalar_tag)
+{
+    if(skeletonized_image.IsEmpty()) return 0;
+    
+    this->Reset();
+    
+    mxImage temp_image;
+    temp_image.Copy(&skeletonized_image);
+    
+    mxGeometry g;
+    g.SetDimensions(skeletonized_image.GetDimension_S(), skeletonized_image.GetDimension_R(), skeletonized_image.GetDimension_C());
+    
+    
+    mxVoxel p;
+    int sn, rn, cn;
+    for(unsigned int s=0; s<temp_image.GetDimension_S(); s++)
+    {
+        for(unsigned int r=0; r<temp_image.GetDimension_R(); r++)
+        {
+            for(unsigned int c=0; c<temp_image.GetDimension_C(); c++)
+            {
+                //Search for a new connected component...
+                if(temp_image(s,r,c)!=0)
+                {
+                    //... create a skeleton for it and copy to thhis skeleton...
+                    p.SetIndex(s,r,c);
+                    mxSkeleton sk;
+                    sk.CreateFromSkeletonized3DImage(temp_image, scalar_tag);
+                    this->Add(&sk);
+                    
+                    //... mark the CC as processed.
+                    mxList< mxVoxel > l;
+                    l.AddToEnd(p);
+                    temp_image(s,r,c) = 0;
+                    while(!l.IsEmpty())
+                    {
+                        p = l.GetBeginElement();
+                        for(g.For_26_Neighborhood(p.S(),p.R(),p.C()); g.Get_26_Neighborhood(sn,rn,cn); )
+                        {
+                            if(temp_image(sn,rn,cn)!=0)
+                            {
+                                temp_image(sn, rn, cn) = 0;
+                                p.SetIndex(sn,rn,cn);
+                                l.AddToEnd(p);
+                            }
+                        }
+                        l.DeleteBegin();
+                    }
+                }
+            }
+        }
+    }
+    
+    return 1;
+}
+
+
+
+
 int mxSkeleton::Add(mxSkeleton *p_input_skeleton)
 {
-    if(p_input_skeleton==NULL)
+    if(!p_input_skeleton)
     {
-        std::cout<<"mxSkeleton::Add(): Pointer to input skeleton is NULL!"<<std::endl;
+        std::cout<<std::endl<<"mxSkeleton::Add(): Pointer to input skeleton is NULL!"<<std::endl;
         return 0;
     }
     if(!p_input_skeleton->IsEmpty())
@@ -3752,6 +4253,133 @@ int mxSkeleton::GrowSkeletonFromNode(mxSkeletonNode *p_node, mxSkeleton &output_
 }
 
 
+int mxSkeleton::InsertScalarsAsIndexOfLink(const char *tag)
+{
+    if(this->IsEmpty()) return 0;
+    
+    unsigned int scalar_index;
+    if(!this->AddScalarTag(tag, scalar_index))
+    {
+        std::cout<<std::endl<<"mxSkeleton::InsertScalarsAsIndexOfLink(): Error: mxSkeleton::AddScalarTag() returned 0.";
+        return 0;
+    }
+    
+    std::cout<<std::endl<<"scalar_index="<<scalar_index;
+    
+    //For each link of the p_output_skeleton, caluclate the radius
+    mxSkeletonLink *psl;
+    mxListIterator< mxSkeletonLink > itl;
+    int i = 0;
+    for(itl.SetToBegin(this->GetLinks()), i=0; itl.IsValid(); itl.MoveToNext(), i++)
+    {
+        psl = itl.GetElementAddress();
+        mxListIterator< mxPoint > itp;
+        
+        for(itp.SetToBegin(psl->GetPositionsList()); itp.IsValid(); itp.MoveToNext())
+        {
+            mxPoint *p = itp.GetElementAddress();
+        
+            //Now put the index to the adequate scalar tag.
+            p->V(scalar_index) = (double)i;
+        }
+    }
+    return 1;
+}
+
+
+int mxSkeleton::InsertScalarsAsIndexOfSubSkeleton(const char *tag)
+{
+    if(this->IsEmpty()) return 0;
+    
+    unsigned int scalar_index;
+    if(!this->AddScalarTag(tag, scalar_index)) return 0;
+
+    
+    if(this->IsEmpty()) return 0;
+    
+    // We will use metric values to grow skeleton region from the starting node. First, we will back up the
+    // existing metrics (in case some other function wants to use them later).
+    mxList< double > node_metrics;
+    mxListIterator< mxSkeletonNode > itn;
+    for(itn.SetToBegin(this->GetNodes()); itn.IsValid(); itn.MoveToNext())
+    {
+        mxSkeletonNode *psn = itn.GetElementAddress();
+        node_metrics.AddToEnd(psn->GetMetricValue());
+    }
+    
+    
+    // Now reset all the node metrics to -1 (this will indicate that the region was not yet grown to this node),
+    // except the starting node which we set to 1.
+    for(itn.SetToBegin(this->GetNodes()); itn.IsValid(); itn.MoveToNext())
+    {
+        mxSkeletonNode *psn = itn.GetElementAddress();
+        psn->GetMetricValue() = -1;
+    }
+    
+    double index = 1;
+    mxListIterator< mxSkeletonNode > itn1;
+    for(itn1.SetToBegin(this->GetNodes()); itn1.IsValid(); itn1.MoveToNext())
+    {
+        if(itn1.GetElementAddress()->GetMetricValue()<0)
+        {
+            mxSkeletonNode *p_node = itn1.GetElementAddress();
+            
+            //Do the region growing
+            mxList< mxSkeletonNode* > l;
+            l.AddToBegin(p_node);
+            mxSkeletonLink *psl;
+  //          int is_path_found = 0;
+            while(!l.IsEmpty())
+            {
+                mxSkeletonNode *psn = l.GetBeginElement();
+                
+                mxListIterator< mxSkeletonLink* >  itl;
+                for(itl.SetToBegin(psn->GetLinksList()); itl.IsValid(); itl.MoveToNext())
+                {
+                    //If there are no positions in the link, insert one position in between the nodes
+                    if(itl.GetElement()->GetNumberOfPositions()==0)
+                    {
+                        mxPoint *pos = itl.GetElement()->GetPositionsList()->AddNewToEnd();
+                        pos->S() = ( itl.GetElement()->GetNode_1_Position()->S() + itl.GetElement()->GetNode_2_Position()->S() ) / 2.0;
+                        pos->R() = ( itl.GetElement()->GetNode_1_Position()->R() + itl.GetElement()->GetNode_2_Position()->R() ) / 2.0;
+                        pos->C() = ( itl.GetElement()->GetNode_1_Position()->C() + itl.GetElement()->GetNode_2_Position()->C() ) / 2.0;
+                    }
+                    psl = itl.GetElement();
+                    mxSkeletonNode *psnn = psl->GetNode_2();
+                    if(psnn==psn) psnn = psl->GetNode_2();
+                    
+                    if(psnn->GetMetricValue()<0)
+                    {
+                        l.AddToEnd(psnn);
+                        mxListIterator< mxPoint > itp;
+                        for(itp.SetToBegin(itl.GetElement()->GetPositionsList()); itp.IsValid(); itp.MoveToNext())
+                        {
+                            itp.GetElementAddress()->V(scalar_index) = index;
+                        }
+                    }
+                }
+                psn->GetMetricValue() = 1;
+                l.DeleteBegin();
+            }
+        }
+        index += 1;
+//        if(!is_index_random) index += 1;
+//        else index = rand() % 10;//make 10 possible index values (labels)
+    }
+    
+    //Restore all the metrics before exiting the function
+    for(itn.SetToBegin(this->GetNodes()); itn.IsValid(); itn.MoveToNext())
+    {
+        mxSkeletonNode *psn = itn.GetElementAddress();
+        psn->GetMetricValue() = node_metrics.GetBeginElement();
+        node_metrics.DeleteBegin();
+    }
+    
+    return 1;
+}
+
+
+
 int mxSkeleton::RadiusAtEachPosition(mxImage &segmented_image, mxString &scalar_tag, unsigned int t)
 {
 	if(this->IsEmpty()) return 0; 
@@ -3788,7 +4416,7 @@ int mxSkeleton::RadiusAtEachPosition(mxImage &segmented_image, mxString &scalar_
 					}
 				}
 				squared_radius++;
-				if(squared_radius > g.GetMaxSphereSquaredRadius()-1) { is_radius_found = 1; }
+				if(squared_radius > (unsigned int)g.GetMaxSphereSquaredRadius()-1) { is_radius_found = 1; }
 			}
 
 			//Now put the calculated radius to the adequate scalar tag.
@@ -4263,6 +4891,78 @@ int mxSkeleton::PruningByLinkMetricsToLeaveGivenNumberOfStubLinks(mxSkeleton &ou
 }
 
 
+int mxSkeleton::ExtractImageRegionUsingSkeletonizationVoxels(mxImage &input_image, mxImage &output_region_image)
+{
+    if(this->IsEmpty()) return 0;
+    if(input_image.IsEmpty()) return 0;
+    if(!input_image.IsEqualInDimensions_3D(output_region_image)) return 0;
+
+    mxGeometry g;
+    g.SetDimensions(input_image.GetDimension_S(),input_image.GetDimension_R(),input_image.GetDimension_C());
+
+    //----- 1. Put all the links in the output image -----
+    mxListIterator< mxSkeletonLink > itl;
+    
+    for(itl.SetToBegin(this->GetLinks()); itl.IsValid(); itl.MoveToNext())
+    {
+        mxListIterator< mxVoxel > itp;
+        for(itp.SetToBegin(itl.GetElementAddress()->GetSkeletonizationVoxels()); itp.IsValid(); itp.MoveToNext())
+        {
+            mxVoxel *pp = itp.GetElementAddress();
+            if(input_image(pp->S(),pp->R(),pp->C()) !=0 )
+            {
+                output_region_image(pp->S(),pp->R(),pp->C()) = 255;
+                int squared_radius = 1;
+                int is_border_found = 0;
+                while(!is_border_found)
+                {
+                    int sn, rn, cn;
+                    for(g.ForSphere(pp->S(),pp->R(),pp->C(), squared_radius); g.GetSphere(squared_radius, sn,rn,cn); )
+                    //for(g.ForCoordinates(pp->S(),pp->R(),pp->C(),g.SphereSquaredRadiusStartIndex(squared_radius));
+                    //    g.Get_Sphere(g.SphereSquaredRadiusEndIndex(squared_radius),sn,rn,cn); )
+                    {
+                        if(input_image(sn,rn,cn)==0) is_border_found = 1;//This will stop radius growing, but this radius value will be processed to the end.
+                        else { output_region_image(sn,rn,cn) = 255; }
+                    }
+                    squared_radius++;
+                }
+            }
+        }
+    }
+
+    //----- 2. Put all the nodes in the output image -----
+    mxListIterator< mxSkeletonNode > itn;
+    for(itn.SetToBegin(this->GetNodes()); itn.IsValid(); itn.MoveToNext())
+    {
+        mxListIterator< mxVoxel > itp;
+        for(itp.SetToBegin(itn.GetElementAddress()->GetSkeletonizationVoxels()); itp.IsValid(); itp.MoveToNext())
+        {
+            mxVoxel *pp = itp.GetElementAddress();
+            if(input_image(pp->S(),pp->R(),pp->C()) != 0)
+            {
+                output_region_image(pp->S(),pp->R(),pp->C()) = 255;
+                int squared_radius = 1;
+                int is_border_found = 0;
+                while(!is_border_found)
+                {
+                    int sn, rn, cn;
+                    //for(g.ForCoordinates(pp->S(),pp->R(),pp->C(),g.SphereSquaredRadiusStartIndex(squared_radius));
+                    //    g.Get_Sphere(g.SphereSquaredRadiusEndIndex(squared_radius),sn,rn,cn); )
+                    for(g.ForSphere(pp->S(),pp->R(),pp->C(), squared_radius); g.GetSphere(squared_radius, sn,rn,cn); )
+                    {
+                        if(input_image(sn,rn,cn)==0) is_border_found = 1;//This will stop radius growing, but this radius value will be processed to the end.
+                        else { output_region_image(sn,rn,cn) = 255; }
+                    }
+                    squared_radius++;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+
+
 int mxSkeleton::SetLinkMetricsToMinOfScalars(unsigned int scalar_index)
 {
 	for(unsigned int t=0; t<this->GetNumberOfTimeSeries(); t++)
@@ -4276,7 +4976,7 @@ int mxSkeleton::SetLinkMetricsToMinOfScalars(unsigned int scalar_index)
 int mxSkeleton::SetLinkMetricsToMinOfScalars(unsigned int scalar_index, unsigned int t)
 {
 	if(this->IsEmpty()) return 0;
-	if(scalar_index >= this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
+	if(scalar_index >= (unsigned int)this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
 
 	mxSkeletonLink *psl;
 	mxListIterator<mxSkeletonLink> itl;
@@ -4309,7 +5009,7 @@ int mxSkeleton::SetLinkMetricsToMaxOfScalars(unsigned int scalar_index)
 int mxSkeleton::SetLinkMetricsToMaxOfScalars(unsigned int scalar_index, unsigned int t)
 {
 	if(this->IsEmpty()) return 0;
-	if(scalar_index >= this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
+	if(scalar_index >= (unsigned int)this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
 
 	mxSkeletonLink *psl;
 	mxListIterator<mxSkeletonLink> itl;
@@ -4342,7 +5042,7 @@ int mxSkeleton::SetLinkMetricsToAverageOfScalars(unsigned int scalar_index)
 int mxSkeleton::SetLinkMetricsToAverageOfScalars(unsigned int scalar_index, unsigned int t)
 {
 	if(this->IsEmpty()) return 0;
-	if(scalar_index >= this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
+	if(scalar_index >= (unsigned int)this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
 
 	mxSkeletonLink *psl;
 	mxListIterator<mxSkeletonLink> itl;
@@ -4413,7 +5113,7 @@ int mxSkeleton::SetLinkMetricsToInverseOfMaxOfScalars(unsigned int scalar_index)
 int mxSkeleton::SetLinkMetricsToInverseOfMaxOfScalars(unsigned int scalar_index, unsigned int t)
 {
 	if(this->IsEmpty()) return 0;
-	if(scalar_index >= this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
+	if(scalar_index >= (unsigned int)this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
 
 	mxSkeletonLink *psl;
 	mxListIterator<mxSkeletonLink> itl;
@@ -4447,7 +5147,7 @@ int mxSkeleton::SetLinkMetricsToInverseOfAverageOfScalars(unsigned int scalar_in
 int mxSkeleton::SetLinkMetricsToInverseOfAverageOfScalars(unsigned int scalar_index, unsigned int t)
 {
 	if(this->IsEmpty()) return 0;
-	if(scalar_index >= this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
+	if(scalar_index >= (unsigned int)this->GetNodes(t)->GetBeginElement().GetPosition().GetNumberOfValues()) return 0;
 
 	mxSkeletonLink *psl;
 	mxListIterator<mxSkeletonLink> itl;
@@ -5196,7 +5896,7 @@ void mxSkeleton::SaveToTextFileOfPositions_v3(const char *file_name, const char 
     file<<"t"<<std::endl;
     
     int number_of_recorded_tags = 0;
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         if(this->m_scalars[i].m_is_used)
         {
@@ -5207,7 +5907,7 @@ void mxSkeleton::SaveToTextFileOfPositions_v3(const char *file_name, const char 
     indexes_of_recorded_tags.SetNumberOfElements(number_of_recorded_tags);
     
     //std::cout<<std::endl<<"this->GetMaximumNumberOfScalars()="<<this->GetMaximumNumberOfScalars();
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         //std::cout<<std::endl<<"this->m_scalars["<<i<<"].m_is_used="<<this->m_scalars[i].m_is_used;
         if(this->m_scalars[i].m_is_used)

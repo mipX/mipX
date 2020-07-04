@@ -38,6 +38,7 @@
 
 
 
+
 #ifndef mxString_H
 	#define mxString_H
 
@@ -47,6 +48,12 @@
 //#include <iostream>
 #include <string>
 #include "mxList.h"
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -249,6 +256,12 @@ public:
 	mxString_API friend std::ostream& operator << (std::ostream &o, mxString &s);
 	mxString_API friend std::stringstream& operator << (std::stringstream &o, mxString &s);
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

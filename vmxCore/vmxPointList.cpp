@@ -109,7 +109,7 @@ int vmxPointList::HasActor(vtkActor *actor)
 
 int vmxPointList::InterpolateUsingCardinalSpline(int new_number_of_points)
 {
-    if(new_number_of_points<=this->GetNumberOfElements()) return 0;
+    if(new_number_of_points<=(int)this->GetNumberOfElements()) return 0;
     if(this->GetNumberOfElements()<3) return 0;
     
     
@@ -380,7 +380,7 @@ void vmxPointList::Update()
 		
 		m_vtk_points->InsertPoint(n_of_points, p->C(), p->R(), p->S());
 		
-		for(int j=0; j<m_vtk_scalars.GetNumberOfElements(); j++)
+		for(int j=0; j<(int)m_vtk_scalars.GetNumberOfElements(); j++)
 		{
 			double v = p->V(j);
 			m_vtk_scalars[j]->InsertTuple(n_of_points, &v);

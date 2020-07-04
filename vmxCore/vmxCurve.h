@@ -47,6 +47,12 @@
 #include "mxList.h"
 #include "mxMatrix.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkDataArray.h>
 #include <vtkFieldData.h>
 #include <vtkXYPlotActor.h>
@@ -72,10 +78,15 @@
 #include <vtkDoubleArray.h>
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 
 /// Helper class for curve color assignent.
 
-class vmxCurveColor
+class vmxCurve_API vmxCurveColor
 {
 public:
     
@@ -89,7 +100,7 @@ public:
 
 /// VTK level 2D curve (xy signal).
 
-class vmxCurve : public mxCurve
+class vmxCurve_API vmxCurve : public mxCurve
 {
     
 public:
@@ -140,6 +151,10 @@ typedef mxDataObjectFactoryT<vmxCurve> vmxCurveFactory;
 
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

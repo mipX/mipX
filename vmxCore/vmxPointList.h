@@ -51,6 +51,12 @@
 #include "mxPointList.h"
 #include "mxString.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkActor.h>
 #include <vtkActor2D.h>
 #include <vtkCardinalSpline.h>
@@ -73,6 +79,10 @@
 #include <vtkSphereSource.h>
 #include <vtkStringArray.h>
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 /// VTK level calss for visualization of point list.
@@ -212,6 +222,11 @@ public:
 
 typedef mxDataObjectFactoryT<vmxPointList> vmxPointListFactory;
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

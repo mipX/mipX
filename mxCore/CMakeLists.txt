@@ -33,7 +33,7 @@ set( ${TARGET_NAME}_SOURCES
 )
 
 set( ${TARGET_NAME}_HEADERS
-    mxBasicImage.h
+    mxConnectedComponent3DStatic.h
     mxCurve.h
     mxDataObject.h
     mxDataObjectFactory.h
@@ -60,6 +60,7 @@ set( ${TARGET_NAME}_LIBS
 
 add_definitions( -DmxCurve_EXPORTS
     -DmxDataObject_EXPORTS
+	-DmxDataObjectFactory_EXPORTS
     -DmxDataObjectTree_EXPORTS
     -DmxFunctionObject_EXPORTS
     -DmxFunctionObjectProgressIndicator_EXPORTS

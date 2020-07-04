@@ -204,7 +204,7 @@ int vmxGUIMenu::CopySelectedItemsToClipBoard()
     if(!m_clip_board) return 0;
     
     m_clip_board->m_data_text.Clear();
-    for(unsigned int i=0; i<this->GetNumberOfItems(); i++)
+    for(int i=0; i<this->GetNumberOfItems(); i++)
     {
         if(m_item_pointers[i]->m_is_selected)
         {
@@ -283,7 +283,7 @@ int vmxGUIMenu::GetPickedCheckBoxIndex(int picked_item_index, int pos1, int pos2
     double a2 = ((double)actor_size[0])/((double)this->GetMaxNumberOfCheckBoxes());
     int checkbox_index = a1/a2;;
     
-    if(checkbox_index<0 || checkbox_index>=m_items[picked_item_index].m_number_of_check_boxes) return -1;
+    if(checkbox_index<0 || checkbox_index>=(int)m_items[picked_item_index].m_number_of_check_boxes) return -1;
     
     //cout<<" "<<checkbox_index<<" ";
     
@@ -458,7 +458,7 @@ int vmxGUIMenu::IsMenuPicked(int pos1, int pos2)
 int vmxGUIMenu::IsMultipleItemsSelected()
 {
     int c = 0;
-    for(unsigned int i=0; i<this->GetNumberOfItems(); i++)
+    for(int i=0; i<this->GetNumberOfItems(); i++)
     {
         if(m_item_pointers[i]->m_is_selected)
         {

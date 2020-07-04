@@ -54,13 +54,21 @@
 //#include <iomanip>
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 /// Pre-declare class of graph edges.
 class mxGraphEdge;
 
 
 /// Vertex of a graph.
 
-class mxGraphVertex
+class mxGraph_API mxGraphVertex
 {
     
 public:
@@ -141,7 +149,7 @@ public:
 
 /// Edge of a graph.
 
-class mxGraphEdge
+class mxGraph_API mxGraphEdge
 {
     
 public:
@@ -197,7 +205,7 @@ public:
 
 /// Graph (undirectional). This structure exists only in space.
 
-class mxGraph3D
+class mxGraph_API mxGraph3D
 {
     
 private:
@@ -267,7 +275,7 @@ public:
 
 /// Graph (undirectional). Consists of an array of space graphs (mxGraph3D) for each time instance.
 
-class mxGraph : public mxDataObject
+class mxGraph_API mxGraph : public mxDataObject
 {
     
 protected:
@@ -383,6 +391,13 @@ public:
     /// Set spacing.
     void SetSpacing(double s, double r, double c) { m_spacing[2] = s; m_spacing[1] = r; m_spacing[0] = c; };
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 #endif

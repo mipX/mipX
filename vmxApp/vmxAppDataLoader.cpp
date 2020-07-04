@@ -26,6 +26,65 @@
 
 
 
+vmxAppDataLoader_LoadProfile::vmxAppDataLoader_LoadProfile()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Load>>Profile");
+    this->GetConfig()->SetTitleLong("Load Profile");
+}
+
+
+void vmxAppDataLoader_LoadProfile::StartInMainThread()
+{
+    char const * extension_filter[2] = { "*.prf", "*.PRF" };
+    const char *file_name_to_open = tinyfd_openFileDialog("Read Profile file(s)", "", 2, extension_filter, NULL, 1);
+    
+    if (! file_name_to_open)
+    {
+        std::cout<<std::endl<<"vmxAppDataLoader_LoadProfile::StartInMainThread(): file_name_to_open is NULL";
+        return ;
+    }
+    
+    mxList< mxString > list_of_File_names;
+    mxString s;
+    s.Assign(file_name_to_open);
+    s.ExtractStrings('|', list_of_File_names);
+    
+    mxListIterator< mxString > it;
+    for(it.SetToBegin(list_of_File_names); it.IsValid(); it.MoveToNext())
+    {
+        mxString dir, name, ext;
+        it.GetElementAddress()->ExtractFilePathParts(dir, name, ext);
+        
+        vmxProfile temp;
+//        if(!temp.LoadFromFile(it.GetElementAddress()->Get_C_String()))
+//        {
+//
+//            tinyfd_messageBox("Error", "Open Profile file failed", "ok", "error", 1);
+//            return ;
+//        }
+        
+        vmxProfile *pr = static_cast< vmxProfile* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp.GetClassName().Get_C_String(), name.Get_C_String()));
+        //pr->Copy(&temp);
+        //pr->Update();
+        
+        if(!pr->LoadFromFile(it.GetElementAddress()->Get_C_String()))
+        {
+            
+            tinyfd_messageBox("Error", "Open Profile file failed", "ok", "error", 1);
+            return ;
+        }
+        pr->Update();
+        
+    }
+    
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
 
 vmxAppDataLoader_LoadPointList::vmxAppDataLoader_LoadPointList()
 {
@@ -183,7 +242,9 @@ void vmxAppDataLoader_LoadDicom::StartInMainThread()
     }
     vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp_image.GetClassName().Get_C_String(), name.Get_C_String()));
     image->Copy(&temp_image);
-    //image->SetMappingToOpaqueGrayScale();
+    
+    image->SetMappingToOpaqueGrayScale();
+    
 
     
     
@@ -334,12 +395,134 @@ void vmxAppDataLoader_LoadVTKImage::StartInMainThread()
         
         vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp.GetClassName().Get_C_String(), name.Get_C_String()));
         image->Copy(&temp);
+        
+//        if(!image->LoadVTKFile(it.GetElementAddress()->Get_C_String()))
+//        {
+//            tinyfd_messageBox("Error", "Open VTK file failed", "ok", "error", 1);
+//            image->SetDimensions(1,1,1,1);
+//            return ;
+//        }
+        
+        image->SetMappingToOpaqueGrayScale();
     }
 }
 
 
 
 //-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppDataLoader_LoadPNGImages::vmxAppDataLoader_LoadPNGImages()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Load>>PNG image");
+    this->GetConfig()->SetTitleLong("Load PNG image");
+}
+
+
+void vmxAppDataLoader_LoadPNGImages::StartInMainThread()
+{
+    char const * extension_filter[2] = { "*.png", "*.PNG" };
+    const char *file_name_to_open = tinyfd_openFileDialog("Read PNG image file", "", 2, extension_filter, NULL, 1);
+    
+    if (! file_name_to_open)
+    {
+        std::cout<<std::endl<<"vmxAppDataLoader_LoadPNGImages::StartInMainThread(): file_name_to_open is NULL";
+        return ;
+    }
+    
+    mxList< mxString > list_of_File_names;
+    mxString s;
+    s.Assign(file_name_to_open);
+    s.ExtractStrings('|', list_of_File_names);
+    
+    mxListIterator< mxString > it;
+    for(it.SetToBegin(list_of_File_names); it.IsValid(); it.MoveToNext())
+    {
+        mxString dir, name, ext;
+        it.GetElementAddress()->ExtractFilePathParts(dir, name, ext);
+        
+        vtkSmartPointer<vtkStringArray> file_names = vtkSmartPointer<vtkStringArray>::New();
+        file_names->InsertNextValue(it.GetElementAddress()->Get_C_String());
+        
+        vmxImage temp;
+        if(!temp.LoadPNGImages(file_names))
+        {
+            tinyfd_messageBox("Error", "Open PNG file failed", "ok", "error", 1);
+            return ;
+        }
+        
+        vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp.GetClassName().Get_C_String(), name.Get_C_String()));
+        image->Copy(&temp);
+        
+        //image->Update();
+        image->SetMappingToOpaqueGrayScale();
+        
+    }
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppDataLoader_LoadColorPNGImages::vmxAppDataLoader_LoadColorPNGImages()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Load>>Color (RGB) PNG image");
+    this->GetConfig()->SetTitleLong("Load Color (RGB) PNG image");
+}
+
+
+void vmxAppDataLoader_LoadColorPNGImages::StartInMainThread()
+{
+    char const * extension_filter[2] = { "*.png", "*.PNG" };
+    const char *file_name_to_open = tinyfd_openFileDialog("Read Color (RGB) PNG image file", "", 2, extension_filter, NULL, 0);
+    
+    if (! file_name_to_open)
+    {
+        std::cout<<std::endl<<"vmxAppDataLoader_LoadColorPNGImages::StartInMainThread(): file_name_to_open is NULL";
+        return ;
+    }
+    
+    //mxList< mxString > list_of_File_names;
+    //mxString s;
+    //s.Assign(file_name_to_open);
+    //s.ExtractStrings('|', list_of_File_names);
+    
+    //mxListIterator< mxString > it;
+    //for(it.SetToBegin(list_of_File_names); it.IsValid(); it.MoveToNext())
+    {
+        mxString st, dir, name, ext;
+        st.Assign(file_name_to_open);
+        st.ExtractFilePathParts(dir, name, ext);
+        //it.GetElementAddress()->ExtractFilePathParts(dir, name, ext);
+        
+        //vtkSmartPointer<vtkStringArray> file_names = vtkSmartPointer<vtkStringArray>::New();
+        //file_names->InsertNextValue(it.GetElementAddress()->Get_C_String());
+        
+        vmxImage temp;
+        if(!temp.LoadColorPNGImage(file_name_to_open))
+        {
+            tinyfd_messageBox("Error", "Open PNG file failed", "ok", "error", 1);
+            return ;
+        }
+        
+        vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp.GetClassName().Get_C_String(), name.Get_C_String()));
+        image->Copy(&temp);
+        
+        //image->Update();
+        image->SetMappingToOpaqueGrayScale();
+        
+    }
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
 
 
 #if defined(MIPX_BUILD_LOADER_MATLAB)
@@ -394,6 +577,9 @@ void vmxAppDataLoader_LoadMatlabImage::StartInMainThread()
     vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp_image.GetClassName().Get_C_String(), name.Get_C_String()));
     image->Copy(&temp_image);
     
+    
+    image->SetMappingToOpaqueGrayScale();
+    
 }
 
 #endif
@@ -442,6 +628,8 @@ void vmxAppDataLoader_LoadNiftiImage::StartInMainThread()
     
     vmxImage *image = static_cast< vmxImage* > (this->GetAppMainWidget()->GetDataListWidget()->Create(temp_image.GetClassName().Get_C_String(), name.Get_C_String()));
     image->Copy(&temp_image);
+    
+    image->SetMappingToOpaqueGrayScale();
 }
 
 #endif
@@ -566,7 +754,7 @@ void vmxAppDataLoader_SaveImageToVTKFile::StartInMainThread()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -594,6 +782,100 @@ void vmxAppDataLoader_SaveImageToVTKFile::StartInMainThread()
 
 
 //-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppDataLoader_SaveImageToVTIFile::vmxAppDataLoader_SaveImageToVTIFile()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Save>>Image to VTI file");
+    this->GetConfig()->SetTitleLong("Save image to VTI file");
+}
+
+
+void vmxAppDataLoader_SaveImageToVTIFile::StartInMainThread()
+{
+    mxArray<mxDataObject *> selected_data_objects;
+    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
+    
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
+    {
+        vmxImage img;
+        if(selected_data_objects[i]->GetClassName()==img.GetClassName())
+        {
+            char const * extension_filter[2] = { "*.vti", "*.VTI" };
+            char const *save_file_name = tinyfd_saveFileDialog("Save image to VTI file", selected_data_objects[i]->GetObjectName().Get_C_String(), 2, extension_filter, NULL);
+            
+            if (!save_file_name)
+            {
+                std::cout<<std::endl<<"vmxAppDataLoader_SaveImageToVTIFile::StartInMainThread(): save_file_name is NULL";
+                return ;
+            }
+            
+            vmxImage *image = static_cast<vmxImage*>(selected_data_objects[i]);
+    
+            if(image)
+            {
+                image->SaveToVTIFile(save_file_name, image->GetScalarSizeInBytes());
+                return;// MAKE SURE WE SAVE ONE IMAGE AT A TIME.
+            }
+        }
+    }
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppDataLoader_SaveImageToPNGFiles::vmxAppDataLoader_SaveImageToPNGFiles()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Save>>Image to PNG file(s)");
+    this->GetConfig()->SetTitleLong("Save image to PNG file(s)");
+}
+
+
+void vmxAppDataLoader_SaveImageToPNGFiles::StartInMainThread()
+{
+    mxArray<mxDataObject *> selected_data_objects;
+    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
+    
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
+    {
+        vmxImage img;
+        if(selected_data_objects[i]->GetClassName()==img.GetClassName())
+        {
+            char const * extension_filter[2] = { "*.png", "*.PNG" };
+            char const *save_file_name = tinyfd_saveFileDialog("Save image to PNG file(s)", selected_data_objects[i]->GetObjectName().Get_C_String(), 2, extension_filter, NULL);
+            
+            if (!save_file_name)
+            {
+                std::cout<<std::endl<<"vmxAppDataLoader_SaveImageToPNGFiles::StartInMainThread(): save_file_name is NULL";
+                return ;
+            }
+            
+            vmxImage *image = static_cast<vmxImage*>(selected_data_objects[i]);
+            if(image)
+            {
+                //std::cout<<std::endl<<"image->GetScalarSizeInBytes() = "<<image->GetScalarSizeInBytes();
+                image->SaveToPNGImages(save_file_name, image->GetScalarSizeInBytes());// SaveToPNG8UImages(save_file_name);//, image->GetScalarSizeInBytes());
+                return;// MAKE SURE WE SAVE ONE IMAGE AT A TIME.
+            }
+        }
+    }
+}
+
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 
 
 #if defined(MIPX_BUILD_LOADER_MATLAB)
@@ -657,7 +939,7 @@ void vmxAppDataLoader_SavePointListToPSLFile::StartInMainThread()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxPointList pl;
         if(selected_data_objects[i]->GetClassName() == pl.GetClassName())
@@ -700,7 +982,7 @@ void vmxAppDataLoader_SaveSkeletonToSKLFile::StartInMainThread()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxSkeleton skl;
         if(selected_data_objects[i]->GetClassName() == skl.GetClassName())
@@ -743,7 +1025,7 @@ void vmxAppDataLoader_SaveCurveToMatlabFile::StartInMainThread()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxCurve crv;
         if(selected_data_objects[i]->GetClassName() == crv.GetClassName())
@@ -761,6 +1043,49 @@ void vmxAppDataLoader_SaveCurveToMatlabFile::StartInMainThread()
             if(p)
             {
                 p->SaveToMatlabFile(save_file_name);
+                return;
+            }
+        }
+    }
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+vmxAppDataLoader_SaveProfileToPRFFile::vmxAppDataLoader_SaveProfileToPRFFile()
+{
+    this->GetConfig()->SetNumberOfSteps(0);
+    this->GetConfig()->SetTitleInMenu("Save>>Profile to PRF file");
+    this->GetConfig()->SetTitleLong("Save Profile to PRF file");
+}
+
+
+void vmxAppDataLoader_SaveProfileToPRFFile::StartInMainThread()
+{
+    mxArray<mxDataObject *> selected_data_objects;
+    this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
+    
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
+    {
+        vmxProfile prf;
+        if(selected_data_objects[i]->GetClassName() == prf.GetClassName())
+        {
+            char const * extension_filter[2] = { "*.prf", "*.PRF" };
+            char const *save_file_name = tinyfd_saveFileDialog("Save Profile to PRF file", selected_data_objects[i]->GetObjectName().Get_C_String(), 2, extension_filter, NULL);
+            
+            if (!save_file_name)
+            {
+                std::cout<<std::endl<<"vmxAppDataLoader_SaveProfileToPRFFile::StartInMainThread(): save_file_name is NULL";
+                return ;
+            }
+            
+            vmxProfile *p = static_cast< vmxProfile* >(selected_data_objects[i]);
+            if(p)
+            {
+                p->SaveToFile(save_file_name);
                 return;
             }
         }

@@ -172,7 +172,7 @@ mxFunctionConfigStep* mxFunctionConfig::GetCurrentStep()
 
 mxFunctionConfigStep* mxFunctionConfig::GetStep(unsigned int step_index)
 {
-	if(step_index >= this->GetNumberOfSteps())
+	if(step_index >= (unsigned int)this->GetNumberOfSteps())
     {
         return NULL;
     }
@@ -208,7 +208,7 @@ void mxFunctionConfig::ResetCurrentStep()
 
 int mxFunctionConfig::SetIndexOfCurrentStep(int step_index)
 {
-    if(step_index < m_number_of_steps)
+    if(step_index < (int)m_number_of_steps)
     {
         m_index_of_current_step = step_index;
         return 1;

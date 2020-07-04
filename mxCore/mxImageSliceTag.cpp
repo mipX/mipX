@@ -106,7 +106,7 @@ int mxImageSliceTag::GetValueAsArrayOfDoubles(const char *tag_number1, const cha
     
     mxListIterator< double > it;
     int i=0;
-    for(it.SetToBegin(l), i=0; it.IsValid() && i<output_values.GetNumberOfElements(); it.MoveToNext(), i++)
+    for(it.SetToBegin(l), i=0; it.IsValid() && i<(int)output_values.GetNumberOfElements(); it.MoveToNext(), i++)
     {
         output_values[i] = it.GetElement();
     }
@@ -116,7 +116,7 @@ int mxImageSliceTag::GetValueAsArrayOfDoubles(const char *tag_number1, const cha
 
 int mxImageSliceTag::IndexOfDicomTagNumber(const char *tag_number1, const char *tag_number2)
 {
-    for(int i=0; i<m_dicom_tag_names.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_dicom_tag_names.GetNumberOfElements(); i++)
     {
         if( (m_dicom_tag_names[i].m_number1 == tag_number1) && (m_dicom_tag_names[i].m_number2 == tag_number2) )
         {

@@ -55,6 +55,9 @@
 #ifndef vmxImagePlaneWidget_H
 	#define vmxImagePlaneWidget_H
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 #include <chrono>

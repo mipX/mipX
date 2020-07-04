@@ -32,7 +32,7 @@ void vmxAppDataListWidgetMouseLeftClickSlot::Execute(vmxGUIListWidgetItem *list_
     
     mxDataObject *data_object = static_cast<mxDataObject*>(list_widget_item->GetData());
     
-    if(picked_checkbox_index>=0 && picked_checkbox_index<data_object->GetNumberOfVisualizationComponents())
+    if(picked_checkbox_index>=0 && picked_checkbox_index< (int)data_object->GetNumberOfVisualizationComponents())
     {
         data_object->SetVisibilityOfComponent(picked_checkbox_index, list_widget_item->IsChecked(picked_checkbox_index));
     }
@@ -75,7 +75,7 @@ void vmxAppDataListWidget::UpdateListWidget()
                 vmxGUIListWidgetItem *item = m_list_widget.AddItem(ito.GetElement()->GetObjectName().Get_C_String(), controller_item, ito.GetElement()->GetNumberOfVisualizationComponents());
                 item->AttachSlot(new vmxAppDataListWidgetMouseLeftClickSlot);
                 item->SetData(ito.GetElement());
-                for(int i=0; i<ito.GetElement()->GetNumberOfVisualizationComponents(); i++)
+                for(int i=0; i< (int)ito.GetElement()->GetNumberOfVisualizationComponents(); i++)
                 {
                     item->m_checkboxes[i] = ito.GetElement()->GetVisibilityOfComponent(i);
                 }
@@ -169,7 +169,7 @@ int vmxAppDataListWidget::GetSelectedDataObjects(mxArray< mxDataObject* > &selec
     this->GetListWidget()->GetSelectedItems(selected_items);
     
     int number_of_selected_data_objects = 0;
-    for(int i=0; i<selected_items.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_items.GetNumberOfElements(); i++)
     {
         if(!selected_items[i]->IsController())
         {
@@ -180,7 +180,7 @@ int vmxAppDataListWidget::GetSelectedDataObjects(mxArray< mxDataObject* > &selec
     
     selected_data_objects.SetNumberOfElements(number_of_selected_data_objects);
     int j=0;
-    for(int i=0; i<selected_items.GetNumberOfElements() && j<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_items.GetNumberOfElements() && j< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         if(!selected_items[i]->IsController())
         {

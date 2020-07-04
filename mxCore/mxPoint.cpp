@@ -69,10 +69,10 @@ int mxPoint::IsEqualValueAndPositionIn_4D(mxPoint &point)
 void mxPoint::Print(std::ostream &s, mxArray<int> &indexes_of_values_for_printing)
 {
     s<<"("<<this->T()<<","<<this->S()<<","<<this->R()<<","<<this->C()<<"){";
-    for(unsigned int i=0; i<indexes_of_values_for_printing.GetNumberOfElements() && i<this->GetNumberOfValues(); i++)
+    for(unsigned int i=0; i<indexes_of_values_for_printing.GetNumberOfElements() && i<(unsigned int)this->GetNumberOfValues(); i++)
     {
         s<<this->V(indexes_of_values_for_printing[i]);
-        if(i<indexes_of_values_for_printing.GetNumberOfElements()-1 && i<this->GetNumberOfValues()-1) s<<",";
+        if(i<indexes_of_values_for_printing.GetNumberOfElements()-1 && i<(unsigned int)this->GetNumberOfValues()-1) s<<",";
     }
     s<<"}";
 }
@@ -81,10 +81,10 @@ void mxPoint::Print(std::ostream &s, mxArray<int> &indexes_of_values_for_printin
 void mxPoint::Print(std::stringstream &s, mxArray<int> &indexes_of_values_for_printing)
 {
     s<<"("<<this->T()<<","<<this->S()<<","<<this->R()<<","<<this->C()<<"){";
-    for(unsigned int i=0; i<indexes_of_values_for_printing.GetNumberOfElements() && i<this->GetNumberOfValues(); i++)
+    for(unsigned int i=0; i<indexes_of_values_for_printing.GetNumberOfElements() && i<(unsigned int)this->GetNumberOfValues(); i++)
     {
         s<<this->V(indexes_of_values_for_printing[i]);
-        if(i<indexes_of_values_for_printing.GetNumberOfElements()-1 && i<this->GetNumberOfValues()-1) s<<",";
+        if(i<indexes_of_values_for_printing.GetNumberOfElements()-1 && i<(unsigned int)this->GetNumberOfValues()-1) s<<",";
     }
     s<<"}";
 }

@@ -341,7 +341,7 @@ int mxArrayFunctions::LoadFromStringOfDoubleValues(mxArray<T> &a, char *array_st
     
     // Find '['
     int i=0;
-    for(i=0; array_string[i]!='[' && i<number_of_characters_in_array_string; i++)
+    for(i=0; array_string[i]!='[' && i<(int)number_of_characters_in_array_string; i++)
     {
         if(i==number_of_characters_in_array_string-1)
         {
@@ -353,7 +353,7 @@ int mxArrayFunctions::LoadFromStringOfDoubleValues(mxArray<T> &a, char *array_st
     
     // Find ']'
     int i2 = i;
-    for(i2=i; array_string[i2]!=']' && i2<number_of_characters_in_array_string; i2++)
+    for(i2=i; array_string[i2]!=']' && i2<(int)number_of_characters_in_array_string; i2++)
     {
         if(i2==number_of_characters_in_array_string-1)
         {

@@ -77,7 +77,7 @@ void mxPointList::AddPositions(mxPointList &pl)
 int mxPointList::AddScalarTag(const char *tag, unsigned int &output_index)
 {
     // Find the lowest available index to add a tag.
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         if(!m_scalars[i].m_is_used)
         {
@@ -101,7 +101,7 @@ int mxPointList::Copy(mxPointList *l)
     m_positions = l->m_positions;
     
     // copy scalars.
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         m_scalars[i].Copy(l->Scalar(i));
     }
@@ -140,7 +140,7 @@ unsigned int mxPointList::GetNumberOfElements()
 
 int mxPointList::GetScalarIndex(const char *tag, unsigned int &output_index)
 {
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         if(m_scalars[i].m_is_used)
         {
@@ -338,7 +338,7 @@ void mxPointList::Reset()
 {
     m_positions.Reset();
     
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         m_scalars[i].Reset();
     }
@@ -367,7 +367,7 @@ int mxPointList::SaveToPSLFile(const char *file_name)
 	// Tags for scalars
     output_file<<"t"<<std::endl;
     //std::cout<<std::endl<<"this->GetMaximumNumberOfScalars()="<<this->GetMaximumNumberOfScalars();
-    for(int i=0; i<this->GetMaximumNumberOfScalars(); i++)
+    for(int i=0; i<(int)this->GetMaximumNumberOfScalars(); i++)
     {
         //std::cout<<std::endl<<"this->m_scalars["<<i<<"].m_is_used="<<this->m_scalars[i].m_is_used;
         if(this->m_scalars[i].m_is_used)

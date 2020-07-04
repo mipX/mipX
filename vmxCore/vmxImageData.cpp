@@ -305,7 +305,7 @@ int vmxImageDataT<T>::LoadPNGImages(const char *file_name_root, unsigned int num
     
     vtkSmartPointer<vtkStringArray> file_names = vtkSmartPointer<vtkStringArray>::New();
         
-    for(int s=slice_start_index; s<=slice_end_index; s++)
+    for(int s=slice_start_index; s<=(int)slice_end_index; s++)
     {
         mxString file_name;
         file_name.Assign(file_name_root);
@@ -403,6 +403,69 @@ void vmxImageDataT<T>::Reset()
 
 
 template<class T>
+void vmxImageDataT<T>::SaveToVTIFile(const char *file_name, unsigned int scalar_size_in_bytes)
+{
+    vtkSmartPointer<vtkImageCast> image_cast = vtkSmartPointer<vtkImageCast>::New();
+    image_cast->SetInputData(this->m_vtk_image_data);
+    switch (scalar_size_in_bytes)
+    {
+        case 1:
+            image_cast->SetOutputScalarTypeToUnsignedChar();
+            break;
+        case 2:
+            image_cast->SetOutputScalarTypeToUnsignedShort();
+            break;
+        case 4:
+            image_cast->SetOutputScalarTypeToUnsignedInt();
+            break;
+            //        case 8:
+            //            image_cast->SetOutputScalarTypeToUnsignedLong();
+            //            break;
+    }
+    image_cast->Update();
+    
+    
+//    mxString header_string;
+//    header_string.Append("T");
+//    header_string.AppendNumber((int)this->GetDimension_T());
+//    header_string.Append("t");
+//    header_string.Append("S");
+//    header_string.AppendNumber((int)this->GetDimension_S());
+//    header_string.Append("s");
+//    double Cx, Cy, Cz;
+//    this->GetOrientation_C_Vector(Cx, Cy, Cz);
+//    header_string.Append("O"); header_string.AppendNumber(Cx);
+//    header_string.Append(" "); header_string.AppendNumber(Cy);
+//    header_string.Append(" "); header_string.AppendNumber(Cz);
+//    double Rx, Ry, Rz;
+//    this->GetOrientation_R_Vector(Rx, Ry, Rz);
+//    header_string.Append(" "); header_string.AppendNumber(Rx);
+//    header_string.Append(" "); header_string.AppendNumber(Ry);
+//    header_string.Append(" "); header_string.AppendNumber(Rz);
+//    header_string.Append("o");
+//
+//    writer->SetHeader(header_string.Get_C_String());
+    
+    
+    vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
+    
+    
+    mxString file_string;
+    file_string.Assign(file_name);
+    if( (file_string[file_string.GetNumberOfCharacters()-1]!='i' && file_string[file_string.GetNumberOfCharacters()-1]!='I') || (file_string[file_string.GetNumberOfCharacters()-2]!='t' && file_string[file_string.GetNumberOfCharacters()-2]!='T') || (file_string[file_string.GetNumberOfCharacters()-3]!='v' && file_string[file_string.GetNumberOfCharacters()-3]!='V') || file_string[file_string.GetNumberOfCharacters()-4]!='.' )
+    {
+        file_string.Append(".vti");
+    }
+    
+    writer->SetInputConnection(image_cast->GetOutputPort());
+    writer->SetFileName(file_string.Get_C_String());
+    //writer->SetFileTypeToBinary();
+    writer->Update();
+    writer->Write();
+}
+
+
+template<class T>
 void vmxImageDataT<T>::SaveToVTKFile(const char *file_name, unsigned int scalar_size_in_bytes)
 {
     vtkSmartPointer<vtkImageCast> image_cast = vtkSmartPointer<vtkImageCast>::New();
@@ -446,6 +509,9 @@ void vmxImageDataT<T>::SaveToVTKFile(const char *file_name, unsigned int scalar_
     header_string.Append("o");
     
     writer->SetHeader(header_string.Get_C_String());
+    
+    
+    
     
     mxString file_string;
     file_string.Assign(file_name);
@@ -604,14 +670,14 @@ int vmxImageDataT<T>::SetDimensions(unsigned int time, unsigned int slices, unsi
 
 
 template<class T>
-void vmxImageDataT<T>::SetDimensionsAs(mxBasicImage *image)
+void vmxImageDataT<T>::SetDimensionsAs(mxImageT<T> *image)
 {
     this->vmxImageDataT<T>::SetDimensions(image->GetDimension_T(),image->GetDimension_S(),image->GetDimension_R(),image->GetDimension_C());
 }
 
 
 template<class T>
-void vmxImageDataT<T>::SetDimensionsAndPropertiesAs(mxBasicImage *image)
+void vmxImageDataT<T>::SetDimensionsAndPropertiesAs(mxImageT<T> *image)
 {
     this->vmxImageDataT<T>::SetDimensionsAs(image);
     this->vmxImageDataT<T>::SetPropertiesAs(image);
@@ -619,7 +685,7 @@ void vmxImageDataT<T>::SetDimensionsAndPropertiesAs(mxBasicImage *image)
 
 
 template<class T>
-void vmxImageDataT<T>::SetPropertiesAs(mxBasicImage *img)
+void vmxImageDataT<T>::SetPropertiesAs(mxImageT<T> *img)
 {
     this->vmxImageDataT<T>::SetOrigin(img->GetOrigin_T(),img->GetOrigin_S(),img->GetOrigin_R(),img->GetOrigin_C());
     this->vmxImageDataT<T>::SetSpacing(img->GetSpacing_T(),img->GetSpacing_S(),img->GetSpacing_R(),img->GetSpacing_C());

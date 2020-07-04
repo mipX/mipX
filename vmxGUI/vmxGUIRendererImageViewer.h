@@ -46,6 +46,12 @@
 #include "mxString.h"
 #include "vmxGUIWidget.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
 #include <vtkImageMapper3D.h>
@@ -70,6 +76,12 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkCursor3D.h>
 #include <vtkCamera.h>
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 class vmxGUIRendererImageViewer;
@@ -376,6 +388,13 @@ public:
     static int Slot_Pick(vmxGUIConnection *connection);
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

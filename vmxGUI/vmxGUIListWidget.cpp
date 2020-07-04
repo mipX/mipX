@@ -257,7 +257,7 @@ int vmxGUIListWidget::CopySelectedItemsToClipBoard()
     if(!m_clip_board) return 0;
     
     m_clip_board->m_data_text.Clear();
-    for(unsigned int i=0; i<this->GetNumberOfItems(); i++)
+    for(int i=0; i<this->GetNumberOfItems(); i++)
     {
         if(m_item_pointers[i]->m_is_selected)
         {
@@ -325,7 +325,7 @@ int vmxGUIListWidget::GetPickedCheckBoxIndex(int picked_item_index, int pos1, in
     double a2 = ((double)actor_size[0])/((double)this->GetMaxNumberOfCheckBoxes());
     int checkbox_index = a1/a2;;
     
-    if(checkbox_index<0 || checkbox_index>=m_items[picked_item_index].m_number_of_check_boxes) return -1;
+    if(checkbox_index<0 || checkbox_index>=(int)m_items[picked_item_index].m_number_of_check_boxes) return -1;
     
     return checkbox_index;
 }
@@ -377,7 +377,7 @@ int vmxGUIListWidget::GetPickedItemIndex(int pos1, int pos2)
 void vmxGUIListWidget::GetSelectedItems(mxArray<vmxGUIListWidgetItem*> &array_of_selected_items)
 {
     int number_of_selected_items = 0;
-    for(int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_item_pointers.GetNumberOfElements(); i++)
     {
         if(m_item_pointers[i]->IsSelected())
         {
@@ -387,7 +387,7 @@ void vmxGUIListWidget::GetSelectedItems(mxArray<vmxGUIListWidgetItem*> &array_of
     
     array_of_selected_items.SetNumberOfElements(number_of_selected_items);
     int n=0;
-    for(int i=0; i<m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
+    for(int i=0; i<(int)m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
     {
         if(m_item_pointers[i]->IsSelected())
         {
@@ -401,7 +401,7 @@ void vmxGUIListWidget::GetSelectedItems(mxArray<vmxGUIListWidgetItem*> &array_of
 void vmxGUIListWidget::GetSelectedItemsNames(mxArray<mxString> &array_of_selected_items_names)
 {
     int number_of_selected_items = 0;
-    for(int i=0; i<m_item_pointers.GetNumberOfElements(); i++)
+    for(int i=0; i<(int)m_item_pointers.GetNumberOfElements(); i++)
     {
         if(m_item_pointers[i]->IsSelected())
         {
@@ -411,7 +411,7 @@ void vmxGUIListWidget::GetSelectedItemsNames(mxArray<mxString> &array_of_selecte
     
     array_of_selected_items_names.SetNumberOfElements(number_of_selected_items);
     int n=0;
-    for(int i=0; i<m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
+    for(int i=0; i<(int)m_item_pointers.GetNumberOfElements() && n<number_of_selected_items; i++)
     {
         if(m_item_pointers[i]->IsSelected())
         {
@@ -537,7 +537,7 @@ int vmxGUIListWidget::IsListWidgetPicked(int pos1, int pos2)
 int vmxGUIListWidget::IsMultipleItemsSelected()
 {
     int c = 0;
-    for(unsigned int i=0; i<this->GetNumberOfItems(); i++)
+    for(int i=0; i<this->GetNumberOfItems(); i++)
     {
         if(m_item_pointers[i]->m_is_selected)
         {

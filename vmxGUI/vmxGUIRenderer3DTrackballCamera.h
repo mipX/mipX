@@ -47,18 +47,33 @@
 #include "vmxGUIWidget.h"
 #include "vmxGUIEventDetector.h"
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkCellArray.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkInteractorStyle.h>
 #include <vtkCellPicker.h>
 #include <vtkSmartPointer.h>
 #include <vtkPoints.h>
-#include <vtkPolyData.h>
+//#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
-#include <vtkPolyDataMapper.h>
+//#include <vtkPolyDataMapper.h>
 #include <vtkSphereSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkCamera.h>
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 class vmxGUIRenderer3DTrackballCamera;
@@ -67,7 +82,8 @@ class vmxGUIRenderer3DTrackballCamera;
 
 /// Interactor style trackball camera in 3D space.
 
-class vmxGUIInteractorStyle3DTrackballCamera : public vtkInteractorStyleTrackballCamera
+class vmxGUIRenderer3DTrackballCamera_API vmxGUIInteractorStyle3DTrackballCamera : public vtkInteractorStyleTrackballCamera
+//class  vmxGUIInteractorStyle3DTrackballCamera : public vtkInteractorStyleTrackballCamera
 {
     
 public:
@@ -171,16 +187,16 @@ public:
     virtual void DisplayProperties();
     
     /// Get picked indexes.
-    int* GetPickedIndexes() { return m_picked_indexes; };
+	int* GetPickedIndexes();// { return m_picked_indexes; };
     
     /// Get VTK interactor style for this renderer (if none specified, leave to return value NULL).
-    virtual vtkInteractorStyle* GetVTKInteractorStyle() { return m_interactor_style;} ;
+	virtual vtkInteractorStyle* GetVTKInteractorStyle();// { return m_interactor_style; };
     
     /// Internal method to create the cross-hairs for marking the pick positions.
     void internal_CreateCrossHairs(int size=20);
     
     /// Check the visibility of position actors.
-    int IsPickedPositionsActorVisible() { return m_pp_actor->GetVisibility(); };
+	int IsPickedPositionsActorVisible();// { return m_pp_actor->GetVisibility(); };
     
     /// Executed on mouse move event.
     virtual void OnMouseMove() {};
@@ -197,6 +213,10 @@ public:
     /// Executed when left button is released. Re-implemented to detect double-click.
     virtual void OnLeftButtonDown() {};
     
+    /// Executed when left button is released.
+    //virtual void OnLeftButtonDrop() { this->GetConnectionManager()->Execute(LeftButtonDropEvent, this); };
+	virtual void OnLeftButtonDrop();
+
     /// Executed when key is pressed.
     virtual void OnKeyPress() {};
     
@@ -210,10 +230,10 @@ public:
 //    void SetIndexSlice(unsigned int slice_index);
     
     /// Set visibility of the pick marker.
-    void SetPickMarkerVisibility(int is_visible) { m_pick_marker_actor->SetVisibility(is_visible); };
+	void SetPickMarkerVisibility(int is_visible);// { m_pick_marker_actor->SetVisibility(is_visible); };
     
     /// Set visibility of picked positions.
-    void SetVisibilityOfPickedPositions(int is_visible) { m_pp_actor->SetVisibility(is_visible); }
+	void SetVisibilityOfPickedPositions(int is_visible);// { m_pp_actor->SetVisibility(is_visible); };
     
     /// GetPicked position in world coordinates.
     void GetPickedWorldPosition(double &x, double &y, double &z);
@@ -230,6 +250,13 @@ public:
     void UpdatePickedPositionsVisualization();
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

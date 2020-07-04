@@ -68,11 +68,13 @@ vmxImagePlanesT<T>::~vmxImagePlanesT()
 template<class T>
 void vmxImagePlanesT<T>::BuildLookupTable(double range0, double range1, double brightness0, double brightness1, double aplha0, double aplha1, double saturation0, double saturation1, double hue0, double hue1)
 {
+    //this->m_lookup_table->Initialize();
+    this->m_lookup_table->SetNumberOfTableValues(range1-range0+1);
     this->m_lookup_table->SetRange(range0,range1);
     this->m_lookup_table->SetValueRange(brightness0,brightness1);
     this->m_lookup_table->SetAlphaRange(aplha0,aplha1);
     this->m_lookup_table->SetSaturationRange(saturation0,saturation1);
-    this->m_lookup_table->SetHueRange(hue0,1);
+    this->m_lookup_table->SetHueRange(hue0,hue1);//1);
     this->m_lookup_table->SetRampToLinear();
     this->m_lookup_table->Build();
 }
@@ -306,7 +308,13 @@ void vmxImagePlanesT<T>::SetMappingToOpaqueGrayScale()
             this->m_image->GetVoxelMinAndMaxValues(min, max);
         }
     }
-    this->BuildLookupTable(min,max, 0,1, 1,1, 0,0, 0,0.66);
+    
+    std::cout<<std::endl<<"vmxImagePlanesT<T>::SetMappingToOpaqueGrayScale() [min,max] = ["<<min<<", "<<max<<"]"<<endl;
+    
+    this->BuildLookupTable(min,max, 0.0,1.0, 1.0,1.0, 0.0,0.0, 0,0.66);
+    //m_plane_S->SetLookupTable(this->m_lookup_table);
+    //m_plane_R->SetLookupTable(this->m_lookup_table);
+    //m_plane_C->SetLookupTable(this->m_lookup_table);
     if(this->m_interactor) this->m_interactor->Render();
 }
 
@@ -354,7 +362,10 @@ void vmxImagePlanesT<T>::SetVisibilityOf_S_Plane(int is_visible)
     {
         if(this->m_interactor)
         {
-            this->m_plane_S->EnabledOff();
+            this->m_plane_S->EnabledOff();// Failed here when closing the app with:
+            //ERROR: In /Users/danilobabin/VTK-7.1.1/Rendering/OpenGL2/vtkTextureObject.cxx, line 574
+            // vtkTextureObject (0x600000381a00): failed at glBindTexture(0) 1 OpenGL errors detected
+            // 0 : (1286) Invalid framebuffer operation
             m_visibility_of_plane_S = 0;
         }
     }

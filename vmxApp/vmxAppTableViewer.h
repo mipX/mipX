@@ -48,6 +48,11 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 /// Table viewer widget.
 
 class vmxAppTableViewer_API vmxAppTableViewer : public vmxAppViewer
@@ -88,6 +93,12 @@ public:
     static int Slot_UpdateViewer(vmxGUIConnection *connection);
 
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

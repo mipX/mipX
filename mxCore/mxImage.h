@@ -18,6 +18,8 @@
 
 
 
+
+
 #if defined(mxImage_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxImage_API
 #else
@@ -45,12 +47,19 @@
 
 #include <stdint.h>
 #include "mxArray.h"
-#include "mxBasicImage.h"
 #include "mxDataObject.h"
 #include "mxImageSliceTag.h"
 #include "mxRegularGrid.h"
 #include "mxString.h"
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+typedef uint16_t mxImageScalar;
 
 
 template class mxImage_API mxArray<int>;
@@ -60,7 +69,7 @@ template class mxImage_API mxArray<int>;
 /// Image template as a data object of a structured grid of elements.
 
 template<class T>
-class mxImage_API mxImageT : public mxBasicImage
+class mxImage_API mxImageT : public mxDataObject //mxBasicImage
 {
 
 protected:
@@ -195,13 +204,13 @@ public:
 	int IsEmpty();
     
     /// Check if the image size is equal to input image for 4D (t,s,r,c).
-    int IsEqualInDimensions_4D(mxBasicImage &image);
+    int IsEqualInDimensions_4D(mxImageT<T> &image);
     
     /// Check if the image size is equal to input image for 3D (s,r,c).
-    int IsEqualInDimensions_3D(mxBasicImage &image);
+    int IsEqualInDimensions_3D(mxImageT<T> &image);
     
     /// Check if the image size is equal to input image for 2D (r,c).
-    int IsEqualInDimensions_2D(mxBasicImage &image);
+    int IsEqualInDimensions_2D(mxImageT<T> &image);
     
     /// Indexing operator.
     T& operator()(unsigned int t, unsigned int s, unsigned int r, unsigned int c);
@@ -226,10 +235,10 @@ public:
     virtual int SetDimensions(unsigned int t, unsigned int s, unsigned int r, unsigned int c);
 	
 	/// Set size and element type to be equal to size of the input image (properties like spacing, origin, etc. are not modified).
-	virtual void SetDimensionsAs(mxBasicImage *image);
+	virtual void SetDimensionsAs(mxImageT<T> *image);
 	
 	/// Set size, element type and properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
-	virtual void SetDimensionsAndPropertiesAs(mxBasicImage *image);
+	virtual void SetDimensionsAndPropertiesAs(mxImageT<T> *image);
     
     /// Set orientation.
     virtual void SetOrientation(double Cx, double Cy, double Cz, double Rx, double Ry, double Rz);
@@ -239,7 +248,7 @@ public:
     
     /// Set visual properties (spacing, origin, orientation, etc.) to be equal to those of the input image.
     /// Note: size is not modified.
-	virtual void SetPropertiesAs(mxBasicImage *image);
+	virtual void SetPropertiesAs(mxImageT<T> *image);
     
     /// Set spacing.
     virtual void SetSpacing(double t, double s, double r, double c);
@@ -266,11 +275,15 @@ typedef mxImageT<uint32_t> mxImage32U;
 //typedef mxImageT<uint64_t> mxImage64U;
 
 
-/// Defualt image class will have 16U (16-bit unsigned) type of elements.
-//typedef mxImage16U mxImage;
+/// Defualt image class will have mxImageScalar type of elements.
 typedef mxImageT<mxImageScalar> mxImage;
 
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

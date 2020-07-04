@@ -48,9 +48,16 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 /// VTK level profile structure.
 
-class vmxProfile : public mxProfile
+class vmxProfile_API vmxProfile : public mxProfile
 {
     
 public:
@@ -80,6 +87,11 @@ public:
 typedef mxDataObjectFactoryT<vmxProfile> vmxProfileFactory;
 
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

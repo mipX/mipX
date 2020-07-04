@@ -45,6 +45,11 @@
 #include "mxString.h"
 #include "vmxGUIWidget.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 #include <vtkSmartPointer.h>
 #include <vtkDoubleArray.h>
 #include <vtkContextActor.h>
@@ -71,6 +76,13 @@
 #include <vtkBrush.h>
 #include <vtkPen.h>
 #include <vtkChartLegend.h>
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 /// Container for a single signal.
@@ -200,6 +212,13 @@ public:
     void ViewportPositionToPlotCoordinates(int viewport_pos_x, int viewport_pos_y, double &output_plot_coordinate_x, double &output_plot_coordinate_y);
     
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
+
 
 
 

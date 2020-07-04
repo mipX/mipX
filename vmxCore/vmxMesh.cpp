@@ -203,7 +203,7 @@ void vmxMesh::CreateActorByLookupTableScalarColoring(double scalar_min_value, do
 }
 
 
-void vmxMesh::CreatePolyData(mxBasicImage *image, int threshold)
+void vmxMesh::CreatePolyData(mxImage *image, int threshold)
 {
     this->vmxMesh::Reset();
     this->m_data.SetNumberOfElements(image->GetDimension_T());

@@ -109,7 +109,7 @@ void mxImageT<T>::FillInWith(mxImageScalar value)
 {
     for(unsigned int i=0; i<this->GetNumberOfDataElements(); i++)
     {
-        (*this)[i] = value;
+        (*this)[i] = (T)value;
     }
 }
 
@@ -123,7 +123,7 @@ void mxImageT<T>::FillIn_3D_ImageWith(unsigned int t, mxImageScalar value)
         {
             for(unsigned int c=0; c<this->GetDimension_C(); c++)
             {
-                (*this)(t,s,r,c) = value;
+                (*this)(t,s,r,c) = (T)value;
             }
         }
     }
@@ -137,7 +137,7 @@ void mxImageT<T>::FillInSliceWith(unsigned int t, unsigned int s, mxImageScalar 
     {
         for(unsigned int c=0; c<this->GetDimension_C(); c++)
         {
-            (*this)(t,s,r,c) = value;
+            (*this)(t,s,r,c) = (T)value;
         }
     }
 }
@@ -368,26 +368,26 @@ int mxImageT<T>::IsEmpty()
 
 
 template<class T>
-int mxImageT<T>::IsEqualInDimensions_4D(mxBasicImage &image)
+int mxImageT<T>::IsEqualInDimensions_4D(mxImageT<T> &image)
 {
-    mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
-    return this->m_grid.IsEqualDimensions_4D(img->m_grid);
+    //mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
+    return this->m_grid.IsEqualDimensions_4D(image.m_grid);// img->m_grid);
 }
 
 
 template<class T>
-int mxImageT<T>::IsEqualInDimensions_3D(mxBasicImage &image)
+int mxImageT<T>::IsEqualInDimensions_3D(mxImageT<T> &image)
 {
-    mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
-    return this->m_grid.IsEqualDimensions_3D(img->m_grid);
+    //mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
+    return this->m_grid.IsEqualDimensions_3D(image.m_grid);// img->m_grid);
 }
 
 
 template<class T>
-int mxImageT<T>::IsEqualInDimensions_2D(mxBasicImage &image)
+int mxImageT<T>::IsEqualInDimensions_2D(mxImageT<T> &image)
 {
-    mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
-    return this->m_grid.IsEqualDimensions_2D(img->m_grid);
+    //mxImageT<T> *img = static_cast< mxImageT<T>* >(&image);
+    return this->m_grid.IsEqualDimensions_2D(image.m_grid);// img->m_grid);
 }
 
 
@@ -438,28 +438,28 @@ void mxImageT<T>::Reset()
 template<class T>
 void mxImageT<T>::Set(unsigned int t, unsigned int s, unsigned int r, unsigned int c, mxImageScalar value)
 {
-    this->m_grid(t,s,r,c) = value;
+    this->m_grid(t,s,r,c) = (T)value;
 }
 
 
 template<class T>
 void mxImageT<T>::Set(unsigned int s, unsigned int r, unsigned int c, mxImageScalar value)
 {
-    this->m_grid(0,s,r,c) = value;
+    this->m_grid(0,s,r,c) = (T)value;
 }
 
 
 template<class T>
 void mxImageT<T>::Set(unsigned int r, unsigned int c, mxImageScalar value)
 {
-    this->m_grid(0,0,r,c) = value;
+    this->m_grid(0,0,r,c) = (T)value;
 }
 
 
 template<class T>
 void mxImageT<T>::Set(unsigned int i, mxImageScalar value)
 {
-    this->m_grid[i] = value;
+    this->m_grid[i] = (T)value;
 }
 
 
@@ -474,7 +474,7 @@ int mxImageT<T>::SetDimensions(unsigned int t, unsigned int s, unsigned int r, u
 
 
 template<class T>
-void mxImageT<T>::SetDimensionsAndPropertiesAs(mxBasicImage *image)
+void mxImageT<T>::SetDimensionsAndPropertiesAs(mxImageT<T> *image)
 {
     this->mxImageT<T>::SetDimensionsAs(image);
     this->mxImageT<T>::SetPropertiesAs(image);
@@ -482,7 +482,7 @@ void mxImageT<T>::SetDimensionsAndPropertiesAs(mxBasicImage *image)
 
 
 template<class T>
-void mxImageT<T>::SetDimensionsAs(mxBasicImage *image)
+void mxImageT<T>::SetDimensionsAs(mxImageT<T> *image)
 {
     this->m_grid.SetDimensions(image->GetDimension_T(),image->GetDimension_S(),image->GetDimension_R(),image->GetDimension_C());
     this->m_tags.SetDimensions(image->GetDimension_T(),image->GetDimension_S());
@@ -504,7 +504,7 @@ void mxImageT<T>::SetOrigin(double t, double s, double r, double c)
 
 
 template<class T>
-void mxImageT<T>::SetPropertiesAs(mxBasicImage *image)
+void mxImageT<T>::SetPropertiesAs(mxImageT<T> *image)
 {
     this->mxImageT<T>::SetSpacing(image->GetSpacing_T(),image->GetSpacing_S(),image->GetSpacing_R(),image->GetSpacing_C());
     this->mxImageT<T>::SetOrigin(image->GetOrigin_T(),image->GetOrigin_S(),image->GetOrigin_R(),image->GetOrigin_C());

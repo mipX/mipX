@@ -50,6 +50,11 @@
 #include "mxDataContainer.h"
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 
 //pre-declare class.
 class vmxAppMainWidget;
@@ -58,7 +63,7 @@ class vmxAppMainWidget;
 
 /// Contains the function abort indicator to communicate to the main app that the function was aborted.
 
-class vmxAppFunctionInterfaceAbortIndicator
+class vmxAppFunctionInterface_API vmxAppFunctionInterfaceAbortIndicator
 {
 public:
     
@@ -81,7 +86,7 @@ public:
 
 /// Interface for function connected to the main app.
 
-class vmxAppFunctionInterface
+class vmxAppFunctionInterface_API vmxAppFunctionInterface
 {
 public:
     
@@ -168,7 +173,7 @@ public:
 
 /// Interface of a function factory, i.e. this is function factory base class.
 
-class vmxAppFunctionFactoryInterface
+class vmxAppFunctionInterface_API vmxAppFunctionFactoryInterface
 {
 public:
     
@@ -210,7 +215,7 @@ public:
 
 /// List of function factories. Use this structure to load multiple function factories.
 
-class vmxAppFunctionFactoryList
+class vmxAppFunctionInterface_API vmxAppFunctionFactoryList
 {
 public:
     
@@ -224,6 +229,11 @@ public:
     ~vmxAppFunctionFactoryList() {};
 };
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 

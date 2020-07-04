@@ -69,11 +69,18 @@ public:
     /// Find the first slope X value of an impulse.
     int FirstSlope_X_Value_ForSingleImpuls(mxCurve &input, double &output_x_value);
     
+    /// Find most dominant peaks. First it finds local maximuma and then looks how far over x values is a given maximum larger than all the rest. The stored
+    /// measure is a measure over x values.
+    int PeaksByDominance(mxCurve &input, mxCurve &output);
+    
     /// Find the most prominent rising slopes by pronouncing their peaks.
     int RisingSlopePeaks(mxCurve &input, mxCurve &output);
     
     /// Find the most prominent rising slopes by pronouncing their peaks.
     int RisingSlopePeaksWeightedBySlopeHight(mxCurve &input, mxCurve &output);
+    
+    /// Perform smoothing of the curve by averaging in window of size 2*number_of_samples_in_half_window+1 (current sample and half window to left and right).
+    int SmoothByMeanFilter(mxCurve &input, int number_of_samples_in_half_window, mxCurve &output);
 
   
 };

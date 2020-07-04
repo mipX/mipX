@@ -441,7 +441,7 @@ int mxMatrix<T>::ConvertToDimensions(int t, int s, int r, int c)
 template<class T>
 void mxMatrix<T>::FillInWith(T value)
 {
-	for(int i=0; i<this->GetNumberOfDataElements(); i++){ m_data_address[i] = value; }
+	for(int i=0; i<(int)this->GetNumberOfDataElements(); i++){ m_data_address[i] = value; }
 }
 
 

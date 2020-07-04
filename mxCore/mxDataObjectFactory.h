@@ -18,23 +18,23 @@
 
 
 
-//#if defined(mxDataObjectFactory_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
-//    #define mxDataObjectFactory_API
-//#else
-//    #if defined(_MSC_VER)
-//        #ifdef mxDataObjectFactory_EXPORTS
-//            #define mxDataObjectFactory_API __declspec(dllexport)
-//        #else
-//            #define mxDataObjectFactory_API __declspec(dllimport)
-//        #endif
-//    #else
-//        #ifdef mxDataObjectFactory_EXPORTS
-//            #define mxDataObjectFactory_API __attribute__((visibility("default")))
-//        #else
-//            #define mxDataObjectFactory_API
-//        #endif
-//    #endif
-//#endif
+#if defined(mxDataObjectFactory_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
+    #define mxDataObjectFactory_API
+#else
+    #if defined(_MSC_VER)
+        #ifdef mxDataObjectFactory_EXPORTS
+            #define mxDataObjectFactory_API __declspec(dllexport)
+        #else
+            #define mxDataObjectFactory_API __declspec(dllimport)
+        #endif
+    #else
+        #ifdef mxDataObjectFactory_EXPORTS
+            #define mxDataObjectFactory_API __attribute__((visibility("default")))
+        #else
+            #define mxDataObjectFactory_API
+        #endif
+    #endif
+#endif
 
 
 #ifndef mxDataObjectFactory_H
@@ -48,6 +48,9 @@
 #include <iostream>
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -56,7 +59,7 @@ class mxDataObjectTree;
 
 /// Base class of data object factory.
 
-class mxDataObjectFactory
+class mxDataObjectFactory_API mxDataObjectFactory
 {
     
 protected:
@@ -124,7 +127,7 @@ public:
 
 
 template<class T>
-class mxDataObjectFactoryT : public mxDataObjectFactory
+class  mxDataObjectFactoryT : public mxDataObjectFactory
 {
     
 public:
@@ -211,6 +214,9 @@ void mxDataObjectFactoryT<T>::ReleaseAllDataObjects()
 }
 
 
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

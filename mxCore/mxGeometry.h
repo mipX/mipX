@@ -49,6 +49,13 @@
 
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
+
+
 template class mxGeometry_API mxArray<unsigned int>;
 
 
@@ -235,6 +242,11 @@ public:
 
 
 };
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif

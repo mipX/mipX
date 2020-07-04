@@ -63,6 +63,12 @@
 #include "vmxImageData.h"
 #include "vmxImagePlaneWidget.h"
 
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
+
 #include <vtkGenericDataObjectReader.h>
 #include <vtkImageData.h>
 #include <vtkImageCast.h>
@@ -89,6 +95,11 @@
 #include <vtkTypeUInt8Array.h>
 #include <vtkWeakPointer.h>
 
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -234,6 +245,10 @@ typedef vmxImagePlanesT<uint32_t> vmxImagePlanes32U;
 typedef vmxImagePlanes16U vmxImagePlanes;
 
 
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

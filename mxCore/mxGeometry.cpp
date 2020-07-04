@@ -236,7 +236,7 @@ int mxGeometry::Get_27_Neighborhood(mxIndex &output_indexes)
 
 int mxGeometry::GetCircle(unsigned int end_square_radius_included, int &r, int &c)
 {
-    while(m_current_array_index<m_indexes_circle.GetNumberOfElements() && this->m_current_array_index<=end_square_radius_included)
+    while(m_current_array_index<(int)m_indexes_circle.GetNumberOfElements() && this->m_current_array_index<=(int)end_square_radius_included)
     {
         if(!m_indexes_circle[this->m_current_array_index].IsEmpty())
         {
@@ -274,7 +274,7 @@ int mxGeometry::GetCircle(unsigned int end_square_radius_included, mxIndex &outp
 
 int mxGeometry::GetCube(unsigned int end_size_included, int &s, int &r, int &c)
 {
-    while(m_current_array_index<m_indexes_cube.GetNumberOfElements() && this->m_current_array_index<=end_size_included)
+    while(m_current_array_index<(int)m_indexes_cube.GetNumberOfElements() && this->m_current_array_index<=(int)end_size_included)
     {
         mxIndex *index = &(this->m_indexes_cube[this->m_current_array_index][this->m_current_local_index]);
         
@@ -306,9 +306,9 @@ int mxGeometry::GetCube(unsigned int end_size_included, mxIndex &output_indexes)
 
 int mxGeometry::GetLine(int &s, int &r, int &c)
 {
-    s = this->m_line_begin_indexes.S() + ((double)this->m_line_current_local_index) * this->m_line_delta_s;
-    r = this->m_line_begin_indexes.R() + ((double)this->m_line_current_local_index) * this->m_line_delta_r;
-    c = this->m_line_begin_indexes.C() + ((double)this->m_line_current_local_index) * this->m_line_delta_c;
+    s = (int)(this->m_line_begin_indexes.S() + ((double)this->m_line_current_local_index) * this->m_line_delta_s);
+    r = (int)(this->m_line_begin_indexes.R() + ((double)this->m_line_current_local_index) * this->m_line_delta_r);
+    c = (int)(this->m_line_begin_indexes.C() + ((double)this->m_line_current_local_index) * this->m_line_delta_c);
     
     this->m_line_current_local_index++;
     
@@ -368,7 +368,7 @@ int mxGeometry::GetMaxSquareSize()
 
 int mxGeometry::GetSphere(unsigned int end_square_radius_included, int &s, int &r, int &c)
 {
-    while(m_current_array_index<m_indexes_sphere.GetNumberOfElements() && this->m_current_array_index<=end_square_radius_included)
+    while(m_current_array_index<(int)m_indexes_sphere.GetNumberOfElements() && this->m_current_array_index<=(int)end_square_radius_included)
     {
         if(!m_indexes_sphere[this->m_current_array_index].IsEmpty())
         {
@@ -407,7 +407,7 @@ int mxGeometry::GetSphere(unsigned int end_square_radius_included, mxIndex &outp
 
 int mxGeometry::GetSquare(unsigned int end_size_included, int &r, int &c)
 {
-    while(m_current_array_index<m_indexes_square.GetNumberOfElements() && this->m_current_array_index<=end_size_included)
+    while(m_current_array_index<(int)m_indexes_square.GetNumberOfElements() && this->m_current_array_index<=(int)end_size_included)
     {
         mxIndex *index = &(this->m_indexes_square[this->m_current_array_index][this->m_current_local_index]);
         

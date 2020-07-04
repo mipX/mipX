@@ -168,7 +168,7 @@ void vmxGUIButtonGroup::GetCheckedItems(mxArray< vmxGUIButtonGroupItem* > &array
     array_of_checked_items.SetNumberOfElements(n);
     
     int i=0;
-    for(it.SetToBegin(m_items), i=0; it.IsValid() && i<array_of_checked_items.GetNumberOfElements(); it.MoveToNext())
+    for(it.SetToBegin(m_items), i=0; it.IsValid() && i<(int)array_of_checked_items.GetNumberOfElements(); it.MoveToNext())
     {
         if(it.GetElement().m_is_checked)
         {

@@ -38,6 +38,9 @@
 #include "vmxGraph.h"
 #include "vmxProfile.h"
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 #include <vtkMath.h>
@@ -45,6 +48,12 @@
 
 #ifndef vmxAppProcessImage_H
     #define vmxAppProcessImage_H
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
 
 
 
@@ -104,55 +113,37 @@ typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_CreateMesh> vmxAppPro
 
 
 
-class vmxAppProcessImage_Create_RC_Profile: public vmxAppFunctionInterface
+class vmxAppProcessImage_Subtract: public vmxAppFunctionInterface
 {
 public:
     
-    vmxAppProcessImage_Create_RC_Profile();
-    virtual ~vmxAppProcessImage_Create_RC_Profile(){};
-    void Execute();
-    void StartInMainThread();
-};
-
-typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_Create_RC_Profile> vmxAppProcessImage_Create_RC_ProfileFactory;
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------
-
-
-
-class vmxAppProcessImage_Create_RS_Profile: public vmxAppFunctionInterface
-{
-public:
-    
-    vmxAppProcessImage_Create_RS_Profile();
-    virtual ~vmxAppProcessImage_Create_RS_Profile(){};
-    void Execute();
-    void StartInMainThread();
-};
-
-typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_Create_RS_Profile> vmxAppProcessImage_Create_RS_ProfileFactory;
-
-
-
-//-------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-class vmxAppProcessImage_ProfileMeasure: public vmxAppFunctionInterface
-{
-public:
-    
-    vmxAppProcessImage_ProfileMeasure();
-    virtual ~vmxAppProcessImage_ProfileMeasure(){};
+    vmxAppProcessImage_Subtract();
+    virtual ~vmxAppProcessImage_Subtract(){};
     void Step_0();
     void Execute();
     void StartInMainThread();
 };
 
-typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_ProfileMeasure> vmxAppProcessImage_ProfileMeasureFactory;
+typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_Subtract> vmxAppProcessImage_SubtractFactory;
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+class vmxAppProcessImage_Mask: public vmxAppFunctionInterface
+{
+public:
+    
+    vmxAppProcessImage_Mask();
+    virtual ~vmxAppProcessImage_Mask(){};
+    void Step_0();
+    void Execute();
+    void StartInMainThread();
+};
+
+typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_Mask> vmxAppProcessImage_MaskFactory;
 
 
 
@@ -252,6 +243,25 @@ typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_GraphReportXTK> vmxAp
 
 
 
+class vmxAppProcessImage_SkeletonReportXTK: public vmxAppFunctionInterface
+{
+public:
+    
+    vmxAppProcessImage_SkeletonReportXTK();
+    virtual ~vmxAppProcessImage_SkeletonReportXTK(){};
+    void Execute();
+    void StartInMainThread();
+};
+
+typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_SkeletonReportXTK> vmxAppProcessImage_SkeletonReportXTKFactory;
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 class vmxAppProcessImage_OrderedSkeletonization: public vmxAppFunctionInterface
 {
 public:
@@ -307,9 +317,6 @@ typedef vmxAppFunctionFactoryInterfaceT<vmxAppProcessImage_FilterNodeMultiPahts>
 
 
 
-
-
-
 class vmxAppProcessImageFunctionList : public vmxAppFunctionFactoryList
 {
 public:
@@ -317,36 +324,30 @@ public:
     {
         
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_FilterNodeMultiPahtsFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_CreateGraphFromImageFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_OrderedSkeletonizationFactory();
-     
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_ProcessPhaseContrastFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_Filter_4_NeighborsFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_ExtractLargestCCFactory();
-        
+        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_SubtractFactory();
+        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_MaskFactory();
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_ExtractCenterlinesFactory();
-        
-        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_ProfileMeasureFactory();
-        
-        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_Create_RC_ProfileFactory();
-        
-        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_Create_RS_ProfileFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_CompactValuesFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_ThresholdingFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_CreateMeshFactory();
-        
         *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_GraphReportXTKFactory();
+        *(this->m_list_of_function_factories.AddNewToEnd()) = new vmxAppProcessImage_SkeletonReportXTKFactory();
         
     };
     ~vmxAppProcessImageFunctionList() {};
 };
+
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 

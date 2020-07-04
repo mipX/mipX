@@ -45,7 +45,7 @@ void vmxAppProcessGraph_CreateGraphFromImage::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxImage img;
         if(selected_data_objects[i]->GetClassName()==img.GetClassName())
@@ -103,7 +103,7 @@ void vmxAppProcessGraph_CreateGraphFromPointList::Execute()
     mxArray<mxDataObject *> selected_data_objects;
     this->GetAppMainWidget()->GetDataListWidget()->GetSelectedDataObjects(selected_data_objects);
     
-    for(int i=0; i<selected_data_objects.GetNumberOfElements(); i++)
+    for(int i=0; i< (int)selected_data_objects.GetNumberOfElements(); i++)
     {
         vmxPointList poli;
         if(selected_data_objects[i]->GetClassName()==poli.GetClassName())

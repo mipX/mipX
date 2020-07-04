@@ -18,6 +18,7 @@
 
 
 
+
 #if defined(mxTable_USE_SOURCE_CODE) || defined(mxCore_USE_SOURCE_CODE)
     #define mxTable_API
 #else
@@ -51,6 +52,12 @@
 //#include <strstream>
 #include <fstream>
 //#include <iomanip>
+
+
+#if defined(_MSC_VER)
+#pragma warning (disable : 4251)
+#endif
+
 
 
 
@@ -251,6 +258,12 @@ public:
     /// Set value wiht indexes (r,c) from a double, for the sheet with the given index (default 0).
     int SetValue(int r, int c, double value, unsigned int sheet_index=0);
 };
+
+
+
+#if defined(_MSC_VER)
+#pragma warning (default : 4251)
+#endif
 
 
 #endif
