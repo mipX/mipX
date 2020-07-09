@@ -44,11 +44,8 @@
 
 #include "mxMatrix.h"
 #include "mxList.h"
-//#include "mxString.h"
 #include "mxString.h"
 #include "vmxGUIWidget.h"
-//#include "vmxGUIRenderer.h"
-//#include "vmxGUIInteractorStyleImageViewer.h"
 
 
 #if defined(_MSC_VER)
@@ -59,8 +56,6 @@
 #include <vtkImageActor.h>
 #include <vtkImageData.h>
 #include <vtkImageMapper3D.h>
-//#include <vtkImagePlaneWidget.h>
-//#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkInteractorStyle.h>
 #include <vtkInteractorStyleImage.h>
 #include <vtkSmartPointer.h>
@@ -75,8 +70,6 @@
 #include <vtkLookupTable.h>
 #include <vtkImageMapToColors.h>
 #include <vtkMatrix4x4.h>
-//#include <vtkImageActor.h>
-//#include <vtkImageMapper3D.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
@@ -94,8 +87,6 @@
 #include <vtkContextScene.h>
 #include <vtkPen.h>
 #include <vtkBrush.h>
-#include <vtkTextProperty.h>
-#include <vtkOpenGLContextDevice2D.h>
 
 
 
