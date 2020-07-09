@@ -118,7 +118,7 @@ docker run --rm --entrypoint /bin/bash \
 # Configure and compile
 cd /work/build/mipx
 
-cmake   -G Ninja  
+cmake   -G Ninja  \
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}  \
   -DBUILD_SHARED_LIBS:BOOL=OFF  \
   -DCMAKE_BUILD_TYPE:STRING=Release  \
@@ -126,7 +126,7 @@ cmake   -G Ninja
   -DMIPX_BUILD_LOADER_NIFTI:BOOL=OFF  \
   -DMIPX_BUILD_LOADER_MATLAB:BOOL=OFF  \
   -DMIPX_BUILD_LOADER_DICOM:BOOL=OFF  \
-  -DVTK_DIR=/work/build-vtk-wasm  \
+  -DVTK_DIR=/work/build/vtk-wasm  \
   -DVTK_OPENGL_USE_GLES:BOOL=ON  \
   -DVTK_USE_SDL2:BOOL=ON   \
   /work/src/mipx 
@@ -134,6 +134,14 @@ cmake   -G Ninja
 cmake --build .
 ```
 
+
+## Run the examples 
+
+On your host computer (not in the container) run:
+```
+cd $HOME/mipx-wasm/build/mipx/examples_wasm
+python3 -m http.server 8000
+```
 
 
 
