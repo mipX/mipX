@@ -17,18 +17,18 @@ set( MIPX_HEADER_DIRS
     ${MIPX_SOURCE_DIR}/mxCore
     ${MIPX_SOURCE_DIR}/mxStandard
     ${MIPX_SOURCE_DIR}/mxProcessing
-    ${MIPX_SOURCE_DIR}/vmxApp
+    #${MIPX_SOURCE_DIR}/vmxApp
     ${MIPX_SOURCE_DIR}/vmxCore
-    ${MIPX_SOURCE_DIR}/vmxGUI
+    #${MIPX_SOURCE_DIR}/vmxGUI
 )
 
 set( MIPX_LIBS
     mxCore
     mxStandard
     mxProcessing
-    vmxApp
+    #vmxApp
     vmxCore
-    vmxGUI
+    #vmxGUI
 )
 
 
@@ -190,9 +190,9 @@ add_subdirectory( mxStandard )
 add_subdirectory( mxCore )
 add_subdirectory( mxProcessing )
 
-add_subdirectory( vmxApp )
+#add_subdirectory( vmxApp )
 add_subdirectory( vmxCore )
-add_subdirectory( vmxGUI )
+#add_subdirectory( vmxGUI )
 
 if(MIPX_BUILD_LOADER_DICOM)
     add_subdirectory( xmxLoaderDicom )
@@ -206,10 +206,11 @@ if(MIPX_BUILD_LOADER_MATLAB)
     add_subdirectory( xmxLoaderMatlab )
 endif()
 
-add_subdirectory( examples_App )
-add_subdirectory( examples_GUI )
+#add_subdirectory( examples_App )
+#add_subdirectory( examples_GUI )
+add_subdirectory( examples_wasm )
 
-add_subdirectory( Apps )
+#add_subdirectory( Apps )
 
 #add_subdirectory( aaApps )
 #add_subdirectory( aaTests )
