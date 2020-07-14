@@ -77,7 +77,7 @@ if(MIPX_USE_VTK_WITH_QT)
     add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} ${UISrcs} ${QT_WRAP})
     qt5_use_modules(${TARGET_NAME} Core Gui)
 else()
-    add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
+  add_library( ${TARGET_NAME} STATIC ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
 endif()
 
 

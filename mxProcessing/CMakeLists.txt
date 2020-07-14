@@ -45,7 +45,7 @@ add_definitions( -DmxBIP_EXPORTS
     -DmxVectorProcessing_EXPORTS
 )
 
-add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
+add_library( ${TARGET_NAME} STATIC ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
 
 target_link_libraries( ${TARGET_NAME} ${${TARGET_NAME}_LIBS})
 
