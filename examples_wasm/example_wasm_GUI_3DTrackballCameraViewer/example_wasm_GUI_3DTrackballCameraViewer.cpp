@@ -1,110 +1,158 @@
 /*=========================================================================
- 
- Program:   mipx
- Module:    example_GUI_3DTrackballCameraViewer.cpp
- 
- Authors: Danilo Babin, Hrvoje Leventic.
- Copyright (c) Danilo Babin, Hrvoje Leventic.
- All rights reserved.
- See Copyright.txt
- 
- Licensed under the BSD License 2.0.
- 
- This software is distributed WITHOUT ANY WARRANTY; without even
- the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- PURPOSE. See the above copyright notice for more information.
- 
- =========================================================================*/
 
+  Program:   Visualization Toolkit
 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
-/*
- 
- This example is the most basic use case: 3D scene with an actor.
- 
- */
+=========================================================================*/
+#include "vtkActor.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkConeSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderer.h"
+#include "vtkSDL2OpenGLRenderWindow.h"
+#include "vtkSDL2RenderWindowInteractor.h"
+#include "vtkSphereSource.h"
 
+#include <emscripten/bind.h>
 
+#define vtkAddDestructor(cname)                                                                    \
+  template <>                                                                                      \
+  void raw_destructor<cname>(cname * ptr)                                                          \
+  {                                                                                                \
+    ptr->Delete();                                                                                 \
+  }
 
-
-#include "vmxGUIMenu.h"
-#include "vmxGUIMenuBar.h"
-#include "vmxGUIFilesDialog.h"
-#include "vmxGUILabel.h"
-#include "vmxGUIListWidget.h"
-#include "vmxGUIInputWidget.h"
-#include "vmxGUIButtonGroup.h"
-#include "vmxGUIInteractorStyle.h"
-#include "vmxGUIRenderer3DTrackballCamera.h"
-
-
-#include <vtkSphereSource.h>
-
-
-
-
-
-class MainApp : public vmxGUIMainWidget
+// Since VTK destructors are private have to override all
+// wrapped classes here
+namespace emscripten
 {
-    
-public:
-    
-    vmxGUIRenderer3DTrackballCamera *m_3D_renderer;
-    
- 
-    MainApp()
-    {
-        // Initialization.
-        {
-            vmxGUIConnection::internal_SetMainWidget(this);
-        }
-        
-        
-        m_3D_renderer = new vmxGUIRenderer3DTrackballCamera(this);
-        this->AddRenderer(m_3D_renderer);
-
-
-        //vtkSmartPointer<vtkSphereSource> sphere_source = vtkSmartPointer<vtkSphereSource>::New();
-        //sphere_source->SetCenter(0.0, 0.0, 0.0);
-        //sphere_source->SetRadius(50.0);
-        
-        //vtkSmartPointer<vtkPolyDataMapper> sphere_mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-        //sphere_mapper->SetInputConnection(sphere_source->GetOutputPort());
-        
-        //vtkSmartPointer<vtkActor> sphere_actor = vtkSmartPointer<vtkActor>::New();
-        //sphere_actor->SetMapper(sphere_mapper);
-
-
-        //m_3D_renderer->GetVTKRenderer()->AddActor(sphere_actor);
-        
-        //m_3D_renderer->SetPickMarkerVisibility(1);
-
-    };
-    
-    
-    
-    
-    
-    ~MainApp(){};
-    
-    
-    
-};
-
-
-
-
-
-
-int main()
+namespace internal
 {
-    // Create the main app.
-    MainApp main_app;
-    
-    // Start the interaction. This will call the Render() method of the render window and Start() method of the interactor.
-    main_app.StartInteraction();
-    
-    return 1;
-};
+vtkAddDestructor(vtkActor);
+vtkAddDestructor(vtkAlgorithm);
+vtkAddDestructor(vtkAlgorithmOutput);
+vtkAddDestructor(vtkConeSource);
+vtkAddDestructor(vtkGlyph3D);
+vtkAddDestructor(vtkMapper);
+vtkAddDestructor(vtkPolyDataMapper);
+vtkAddDestructor(vtkProp);
+vtkAddDestructor(vtkRenderer);
+vtkAddDestructor(vtkRenderWindow);
+vtkAddDestructor(vtkRenderWindowInteractor);
+vtkAddDestructor(vtkSDL2OpenGLRenderWindow);
+vtkAddDestructor(vtkSDL2RenderWindowInteractor);
+vtkAddDestructor(vtkSphereSource);
+vtkAddDestructor(vtkViewport);
+}
+}
+
+EMSCRIPTEN_BINDINGS(webtest)
+{
+  // vtkActor ---------------------------------------------------------
+  emscripten::class_<vtkActor, emscripten::base<vtkProp>>("vtkActor")
+    .constructor(&vtkActor::New, emscripten::allow_raw_pointers())
+    .function("SetMapper", &vtkActor::SetMapper, emscripten::allow_raw_pointers());
+
+  // vtkAlgorithm -----------------------------------------------------
+  emscripten::class_<vtkAlgorithm>("vtkAlgorithm")
+    .function("GetOutputPort",
+      emscripten::select_overload<vtkAlgorithmOutput*(vtkAlgorithm&)>(
+        [](vtkAlgorithm& self) { return self.vtkAlgorithm::GetOutputPort(); }),
+      emscripten::allow_raw_pointers())
+    .function("SetInputConnection",
+      emscripten::select_overload<void(vtkAlgorithm&, vtkAlgorithmOutput*)>(
+        [](vtkAlgorithm& self, vtkAlgorithmOutput* ptr) {
+          self.vtkAlgorithm::SetInputConnection(ptr);
+        }),
+      emscripten::allow_raw_pointers());
+
+  // vtkAlgorithmOutput -----------------------------------------------
+  emscripten::class_<vtkAlgorithmOutput>("vtkAlgorithmOutput");
+
+  // vtkConeSource ----------------------------------------------------
+  emscripten::class_<vtkConeSource, emscripten::base<vtkAlgorithm>>("vtkConeSource")
+    .constructor(&vtkConeSource::New, emscripten::allow_raw_pointers())
+    .function("SetResolution", &vtkConeSource::SetResolution);
+
+  // vtkGlyph3D -------------------------------------------------------
+  emscripten::class_<vtkGlyph3D, emscripten::base<vtkAlgorithm>>("vtkGlyph3D")
+    .constructor(&vtkGlyph3D::New, emscripten::allow_raw_pointers())
+    .function("SetVectorModeToUseNormal", &vtkGlyph3D::SetVectorModeToUseNormal)
+    .function("SetScaleModeToScaleByVector", &vtkGlyph3D::SetScaleModeToScaleByVector)
+    .function("SetScaleFactor", &vtkGlyph3D::SetScaleFactor)
+    .function("SetSourceConnection",
+      emscripten::select_overload<void(vtkGlyph3D&, vtkAlgorithmOutput*)>(
+        [](vtkGlyph3D& self, vtkAlgorithmOutput* ptr) {
+          self.vtkGlyph3D::SetSourceConnection(ptr);
+        }),
+      emscripten::allow_raw_pointers());
+
+  // vtkMapper --------------------------------------------------------
+  emscripten::class_<vtkMapper, emscripten::base<vtkAlgorithm>>("vtkMapper");
+
+  // vtkPolyDataMapper ------------------------------------------------
+  emscripten::class_<vtkPolyDataMapper, emscripten::base<vtkMapper>>("vtkPolyDataMapper")
+    .constructor(&vtkPolyDataMapper::New, emscripten::allow_raw_pointers());
+
+  // vtkProp ----------------------------------------------------------
+  emscripten::class_<vtkProp>("vtkProp");
+
+  // vtkRenderer ------------------------------------------------------
+  emscripten::class_<vtkRenderer, emscripten::base<vtkViewport>>("vtkRenderer")
+    .constructor(&vtkRenderer::New, emscripten::allow_raw_pointers())
+    .function("AddActor", &vtkRenderer::AddActor, emscripten::allow_raw_pointers());
+
+  // vtkRenderWindow --------------------------------------------------
+  emscripten::class_<vtkRenderWindow>("vtkRenderWindow")
+    .constructor(&vtkRenderWindow::New, emscripten::allow_raw_pointers())
+    .function("SetMultiSamples", &vtkRenderWindow::SetMultiSamples)
+    .function("Render", &vtkRenderWindow::Render)
+    .function("AddRenderer", &vtkRenderWindow::AddRenderer, emscripten::allow_raw_pointers());
+
+  // vtkRenderWindowInteractor ----------------------------------------
+  emscripten::class_<vtkRenderWindowInteractor>("vtkRenderWindowInteractor")
+    .function("Start", &vtkRenderWindowInteractor::Start)
+    .function("SetRenderWindow", &vtkRenderWindowInteractor::SetRenderWindow,
+      emscripten::allow_raw_pointers());
+
+  // vtkSDL2OpenGLRenderWindow ----------------------------------------
+  emscripten::class_<vtkSDL2OpenGLRenderWindow, emscripten::base<vtkRenderWindow>>(
+    "vtkSDL2OpenGLRenderWindow")
+    .constructor(&vtkSDL2OpenGLRenderWindow::New, emscripten::allow_raw_pointers())
+    .function("Frame", &vtkSDL2OpenGLRenderWindow::Frame)
+    .function("SetSize",
+      emscripten::select_overload<void(vtkSDL2OpenGLRenderWindow&, int, int)>(
+        [](vtkSDL2OpenGLRenderWindow& self, int w, int h) {
+          self.vtkSDL2OpenGLRenderWindow::SetSize(w, h);
+        }));
+
+  // vtkSDL2RenderWindowInteractor ------------------------------------
+  emscripten::class_<vtkSDL2RenderWindowInteractor, emscripten::base<vtkRenderWindowInteractor>>(
+    "vtkSDL2RenderWindowInteractor")
+    .constructor(&vtkSDL2RenderWindowInteractor::New, emscripten::allow_raw_pointers())
+    .function("AddEventHandler", &vtkSDL2RenderWindowInteractor::AddEventHandler);
+
+  // vtkSphereSource -------------------------------------------------
+  emscripten::class_<vtkSphereSource, emscripten::base<vtkAlgorithm>>("vtkSphereSource")
+    .constructor(&vtkSphereSource::New, emscripten::allow_raw_pointers())
+    .function("SetThetaResolution", &vtkSphereSource::SetThetaResolution)
+    .function("SetPhiResolution", &vtkSphereSource::SetPhiResolution);
+
+  // vtkViewport ------------------------------------------------------
+  emscripten::class_<vtkViewport>("vtkViewport")
+    .function("SetBackground",
+      emscripten::select_overload<void(vtkViewport&, double, double, double)>(
+        [](vtkViewport& self, double r, double g, double b) {
+          self.vtkViewport::SetBackground(r, g, b);
+        }));
+}
 
