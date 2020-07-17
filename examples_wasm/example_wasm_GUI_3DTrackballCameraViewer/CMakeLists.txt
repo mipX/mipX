@@ -27,7 +27,14 @@ endif ()
     #RenderingOpenGL2    # For Rendering
     #RenderingUI         # For SDL2 Window
 #)
-find_package(VTK)
+#find_package(VTK)
+find_package(VTK
+  COMPONENTS
+    FiltersSources      # VTK pipeline
+    InteractionStyle    # Mouse handling
+    RenderingOpenGL2    # For Rendering
+    RenderingUI         # For SDL2 Window
+)
 include(${VTK_USE_FILE})
 
 if (NOT VTK_FOUND)
@@ -43,18 +50,21 @@ set(emscripten_options)
 list(APPEND emscripten_options
   "--bind"
   "-g3"
+  "-O3"
   "SHELL:-s EXPORT_NAME=vtkApp"
-  "SHELL:-s ALLOW_MEMORY_GROWTH=0"
-  "SHELL:-s MAXIMUM_MEMORY=16GB"
+  "SHELL:-s ALLOW_MEMORY_GROWTH=1"
   "SHELL:-s DEMANGLE_SUPPORT=1"
   "SHELL:-s EMULATE_FUNCTION_POINTER_CASTS=0"
   "SHELL:-s ERROR_ON_UNDEFINED_SYMBOLS=0"
   "SHELL:-s MODULARIZE=1"
   "SHELL:-s USE_PTHREADS=0"
   "SHELL:-s WASM=1"
-  "SHELL:-s ASSERTIONS=1"
-  "SHELL:-s SAFE_HEAP=1"
+  "SHELL:-s ENVIRONMENT=web"
+  "SHELL:-s EXPORTED_FUNCTIONS=\"[]\""
 )
+  #"SHELL:-s ASSERTIONS=1"
+  #"SHELL:-s SAFE_HEAP=1"
+  #"SHELL:-s MAXIMUM_MEMORY=16GB"
 
 
 # -----------------------------------------------------------------------------
@@ -130,7 +140,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/../../mxCore
     ${PROJECT_SOURCE_DIR}/../../mxStandard
     #${PROJECT_SOURCE_DIR}/../../vmxCore
-    ${PROJECT_SOURCE_DIR}/../../vmxGUI
+    #${PROJECT_SOURCE_DIR}/../../vmxGUI
 )
 
 set( ${TARGET_NAME}_SOURCES
@@ -143,7 +153,7 @@ set( ${TARGET_NAME}_HEADERS
 set( ${TARGET_NAME}_LIBS
     mxCore
     mxStandard
-    vmxGUI
+    #vmxGUI
 )
 
 add_executable(${TARGET_NAME} MACOSX_BUNDLE
