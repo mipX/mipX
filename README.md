@@ -118,7 +118,7 @@ docker run --rm --entrypoint /bin/bash \
 # Configure and compile
 cd /work/build/mipx
 
-cmake   -G Ninja  
+cmake   -G Ninja  \
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}  \
   -DBUILD_SHARED_LIBS:BOOL=OFF  \
   -DCMAKE_BUILD_TYPE:STRING=Release  \
