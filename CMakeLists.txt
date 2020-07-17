@@ -19,7 +19,7 @@ set( MIPX_HEADER_DIRS
     ${MIPX_SOURCE_DIR}/mxProcessing
     #${MIPX_SOURCE_DIR}/vmxApp
     #${MIPX_SOURCE_DIR}/vmxCore
-    #${MIPX_SOURCE_DIR}/vmxGUI
+    ${MIPX_SOURCE_DIR}/vmxGUI
 )
 
 set( MIPX_LIBS
@@ -28,7 +28,7 @@ set( MIPX_LIBS
     mxProcessing
     #vmxApp
     #vmxCore
-    #vmxGUI
+    vmxGUI
 )
 
 
@@ -192,7 +192,7 @@ add_subdirectory( mxProcessing )
 
 #add_subdirectory( vmxApp )
 #add_subdirectory( vmxCore )
-#add_subdirectory( vmxGUI )
+add_subdirectory( vmxGUI )
 
 if(MIPX_BUILD_LOADER_DICOM)
     add_subdirectory( xmxLoaderDicom )

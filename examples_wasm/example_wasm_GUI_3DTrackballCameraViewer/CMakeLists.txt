@@ -60,11 +60,11 @@ list(APPEND emscripten_options
   "SHELL:-s USE_PTHREADS=0"
   "SHELL:-s WASM=1"
   "SHELL:-s ENVIRONMENT=web"
-  "SHELL:-s EXPORTED_FUNCTIONS=\"[]\""
 )
   #"SHELL:-s ASSERTIONS=1"
   #"SHELL:-s SAFE_HEAP=1"
   #"SHELL:-s MAXIMUM_MEMORY=16GB"
+  #"SHELL:-s EXPORTED_FUNCTIONS=\"[]\""
 
 
 # -----------------------------------------------------------------------------
@@ -139,8 +139,7 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/../../mxCore
     ${PROJECT_SOURCE_DIR}/../../mxStandard
-    #${PROJECT_SOURCE_DIR}/../../vmxCore
-    #${PROJECT_SOURCE_DIR}/../../vmxGUI
+    ${PROJECT_SOURCE_DIR}/../../vmxGUI
 )
 
 set( ${TARGET_NAME}_SOURCES
@@ -153,54 +152,22 @@ set( ${TARGET_NAME}_HEADERS
 set( ${TARGET_NAME}_LIBS
     mxCore
     mxStandard
-    #vmxGUI
+    vmxGUI
 )
 
-add_executable(${TARGET_NAME} MACOSX_BUNDLE
+add_executable(${TARGET_NAME} 
     ${${TARGET_NAME}_SOURCES}
     ${${TARGET_NAME}_HEADERS}
-    #${MOC_SOURCE_FILES}
-    #${UI_SOURCE_FILES}
-    #${RESOURCE_SOURCE_FILES}
-    #${HEADER_FILES}
-    ${MACOSX_RESOURCE_FILES}
 )
 
-#add_executable(tiny 
-  #tiny.cpp 
-  #mxImage.h
-  #mxImage.cpp 
-  #mxArray.h
-  #mxMatrix.h
-  #mxRegularGrid.h
-  ##mxBasicImage.cpp 
-  #mxObject.h
-  #mxObject.cpp
-  #mxDataObject.cpp 
-  #mxDataObject.h 
-  #mxImageSliceTag.cpp 
-  #mxImageSliceTag.h
-  ##mxRegularGrid.h
-  #mxString.cpp
-  #mxList.h
-  #mxPosition.h
-  #mxPosition.cpp
-  #mxPoint.h
-  #mxPoint.cpp
-  #)
-
 target_link_libraries(${TARGET_NAME}
+    VTK::FiltersSources
+    VTK::InteractionStyle
+    VTK::RenderingOpenGL2
+    VTK::RenderingUI
     ${VTK_LIBRARIES}
     ${${TARGET_NAME}_LIBS}
 )
-
-#target_link_libraries(tiny
-  #PRIVATE
-    #VTK::FiltersSources
-    #VTK::InteractionStyle
-    #VTK::RenderingOpenGL2
-    #VTK::RenderingUI
-#)
 
 target_compile_options(${TARGET_NAME}
   PUBLIC
