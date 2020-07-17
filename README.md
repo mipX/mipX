@@ -126,7 +126,7 @@ cmake   -G Ninja  \
   -DMIPX_BUILD_LOADER_NIFTI:BOOL=OFF  \
   -DMIPX_BUILD_LOADER_MATLAB:BOOL=OFF  \
   -DMIPX_BUILD_LOADER_DICOM:BOOL=OFF  \
-  -DVTK_DIR=/work/build-vtk-wasm  \
+  -DVTK_DIR=/work/build/vtk-wasm  \
   -DVTK_OPENGL_USE_GLES:BOOL=ON  \
   -DVTK_USE_SDL2:BOOL=ON   \
   /work/src/mipx 
