@@ -1470,8 +1470,8 @@ vmxGUIMainWidget::vmxGUIMainWidget()
     
     m_renderer_GUI = vtkSmartPointer<vtkRenderer>::New();
     
-    m_render_window_internal = vtkSmartPointer<vtkRenderWindow>::New();
-    m_interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    m_render_window_internal = vtkSmartPointer<vtkSDL2OpenGLRenderWindow>::New();
+    m_interactor = vtkSmartPointer<vtkSDL2RenderWindowInteractor>::New();
     
 
     m_interactor_style = vtkSmartPointer<vmxGUIInteractorStyle>::New();
@@ -1841,7 +1841,7 @@ vtkRenderer* vmxGUIMainWidget::GetRenderer_GUI()
 }
 
 
-vtkRenderWindow* vmxGUIMainWidget::GetRenderWindow()
+vtkSDL2OpenGLRenderWindow* vmxGUIMainWidget::GetRenderWindow()
 {
     return m_render_window;
 }
@@ -2555,7 +2555,7 @@ void vmxGUIMainWidget::Reset()
 }
 
 
-void vmxGUIMainWidget::SetRenderWindow(vtkRenderWindow *render_window)
+void vmxGUIMainWidget::SetRenderWindow(vtkSDL2OpenGLRenderWindow *render_window)
 {
     //if(m_render_window == render_window) return;
     

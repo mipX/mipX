@@ -27,7 +27,13 @@ endif ()
     #RenderingOpenGL2    # For Rendering
     #RenderingUI         # For SDL2 Window
 #)
-find_package(VTK)
+find_package(VTK
+  COMPONENTS
+    FiltersSources      # VTK pipeline
+    InteractionStyle    # Mouse handling
+    RenderingOpenGL2    # For Rendering
+    RenderingUI         # For SDL2 Window
+)
 include(${VTK_USE_FILE})
 
 if (NOT VTK_FOUND)
@@ -43,6 +49,7 @@ set(emscripten_options)
 list(APPEND emscripten_options
   "--bind"
   "-g3"
+  "-O0"
   "SHELL:-s EXPORT_NAME=vtkApp"
   "SHELL:-s ALLOW_MEMORY_GROWTH=1"
   "SHELL:-s DEMANGLE_SUPPORT=1"
@@ -51,6 +58,8 @@ list(APPEND emscripten_options
   "SHELL:-s MODULARIZE=1"
   "SHELL:-s USE_PTHREADS=0"
   "SHELL:-s WASM=1"
+  "SHELL:-s ENVIRONMENT=web"
+  "SHELL:-s ASSERTIONS=1"
 )
 
 
@@ -143,40 +152,17 @@ set( ${TARGET_NAME}_LIBS
     vmxGUI
 )
 
-add_executable(${TARGET_NAME} MACOSX_BUNDLE
+add_executable(${TARGET_NAME} 
     ${${TARGET_NAME}_SOURCES}
     ${${TARGET_NAME}_HEADERS}
-    #${MOC_SOURCE_FILES}
-    #${UI_SOURCE_FILES}
-    #${RESOURCE_SOURCE_FILES}
-    #${HEADER_FILES}
-    ${MACOSX_RESOURCE_FILES}
 )
 
-#add_executable(tiny 
-  #tiny.cpp 
-  #mxImage.h
-  #mxImage.cpp 
-  #mxArray.h
-  #mxMatrix.h
-  #mxRegularGrid.h
-  ##mxBasicImage.cpp 
-  #mxObject.h
-  #mxObject.cpp
-  #mxDataObject.cpp 
-  #mxDataObject.h 
-  #mxImageSliceTag.cpp 
-  #mxImageSliceTag.h
-  ##mxRegularGrid.h
-  #mxString.cpp
-  #mxList.h
-  #mxPosition.h
-  #mxPosition.cpp
-  #mxPoint.h
-  #mxPoint.cpp
-  #)
 
 target_link_libraries(${TARGET_NAME}
+    VTK::FiltersSources
+    VTK::InteractionStyle
+    VTK::RenderingOpenGL2
+    VTK::RenderingUI
     ${VTK_LIBRARIES}
     ${${TARGET_NAME}_LIBS}
 )
@@ -218,7 +204,7 @@ add_custom_command(
   COMMAND
     ${CMAKE_COMMAND} -E copy_if_different
       "${CMAKE_CURRENT_SOURCE_DIR}/index.html"
-      $<TARGET_FILE_DIR:example_wasm_GUI_ParallelImageViewer>
+      $<TARGET_FILE_DIR:${TARGET_NAME}>
 )
 
 #################   STARI CMAKE

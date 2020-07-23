@@ -38,6 +38,7 @@
 #include "vmxGUIInteractorStyle.h"
 
 #include "vmxGUIRendererImageViewer.h"
+#include "mxImage.h"
 
 
 
@@ -68,14 +69,31 @@ public:
         {
             vmxGUIConnection::internal_SetMainWidget(this);
         }
+
+        std::cout << "It werks" << std::endl;
+        mxImage img;
+        img.SetDimensions(1,10,10,10);
+        img.FillInWith(1);
+
+        int sum=0;
+        for (unsigned int s = 0; s < img.GetDimension_S(); ++s) {
+          for (unsigned int r = 0; r < img.GetDimension_R(); ++r) {
+            for (unsigned int c = 0; c < img.GetDimension_C(); ++c) {
+              sum += img(s,r,c);
+            }
+          }
+        }
+
+        std::cout << "Sum of the image is: " << sum << std::endl;
+
         
 
         
         vtkSmartPointer< vtkImageData > image1 = vtkSmartPointer< vtkImageData >::New();
         vtkSmartPointer< vtkImageData > image2 = vtkSmartPointer< vtkImageData >::New();
         
-        CreateTestImage01(image1, 40, 50, 50);
-        CreateTestImage02(image2, 40, 50, 50);
+        CreateTestImage01(image1, 20, 30, 30);
+        CreateTestImage02(image2, 20, 30, 30);
         
 
         m_array_of_image_renderers.SetNumberOfElements(2);
@@ -87,25 +105,34 @@ public:
         m_array_of_image_renderers[0]->SetImageData(image1);
         m_array_of_image_renderers[1]->SetImageData(image2);
         
-        m_array_of_image_renderers[0]->SetDirectionToTransversal();
-        m_array_of_image_renderers[1]->SetDirectionToTransversal();
+        //m_array_of_image_renderers[0]->SetDirectionToTransversal();
+        //m_array_of_image_renderers[1]->SetDirectionToTransversal();
         
-        m_array_of_image_renderers[0]->SetMappingToColor();
-        m_array_of_image_renderers[1]->SetMappingToColor();
+        //m_array_of_image_renderers[0]->SetMappingToColor();
+        //m_array_of_image_renderers[1]->SetMappingToColor();
+        //
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
+        std::cout << "Created test images!!!!!!!!!!!!!!!" << std::endl;
         
         
         
         
         
-        // Connect the 2 viewers
-        {
-            vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[0], ImageSliceChangeEvent, m_array_of_image_renderers[1], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-            c->SetPassedDataInt((int*)(&(m_array_of_image_renderers[0]->m_index_slice)));
-        }
-        {
-            vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[1], ImageSliceChangeEvent, m_array_of_image_renderers[0], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_SetIndexSlice);
-            c->SetPassedDataInt((int*)(&(m_array_of_image_renderers[1]->m_index_slice)));
-        }
+        //// Connect the 2 viewers
+        //{
+            //vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[0], ImageSliceChangeEvent, m_array_of_image_renderers[1], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_SetIndexSlice);
+            //c->SetPassedDataInt((int*)(&(m_array_of_image_renderers[0]->m_index_slice)));
+        //}
+        //{
+            //vmxGUIConnection *c = vmxGUIConnection::New(m_array_of_image_renderers[1], ImageSliceChangeEvent, m_array_of_image_renderers[0], m_array_of_image_renderers[1], vmxGUIRendererImageViewer::Slot_SetIndexSlice);
+            //c->SetPassedDataInt((int*)(&(m_array_of_image_renderers[1]->m_index_slice)));
+        //}
     };
     
     

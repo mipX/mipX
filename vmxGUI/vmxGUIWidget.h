@@ -52,7 +52,8 @@
 #include <iostream>
 
 #include <vtkActor2D.h>
-#include <vtkRenderWindow.h>
+#include <vtkSDL2OpenGLRenderWindow.h>
+#include <vtkSDL2RenderWindowInteractor.h>
 #include <vtkCommand.h>
 #include <vtkSmartPointer.h>
 #include <vtkInteractorStyle.h>
@@ -1346,7 +1347,7 @@ public:
     mxString m_class_name;
     
     /// Pointer to the containing render window. We keep a separate pointer to allow a possibility of use of external render window.
-    vtkRenderWindow *m_render_window;
+    vtkSDL2OpenGLRenderWindow *m_render_window;
     
     /// Available extent of x values, sequentially [x_min,x_max] for the left side of the main widget.
     int m_left_x_extent[2];
@@ -1385,10 +1386,10 @@ public:
     mxList< vmxGUIRenderer* > m_renderers_list;
     
     /// Render window that contains all the renderers and the interactor.
-    vtkSmartPointer<vtkRenderWindow> m_render_window_internal; //Maybe the render window should not be included here, but externally. To be determined.
+    vtkSmartPointer<vtkSDL2OpenGLRenderWindow> m_render_window_internal; //Maybe the render window should not be included here, but externally. To be determined.
 
     /// Render window interactor associated with the render window.
-    vtkSmartPointer<vtkRenderWindowInteractor> m_interactor;
+    vtkSmartPointer<vtkSDL2RenderWindowInteractor> m_interactor;
     
     /// Style assigned to the interactor.
     vtkSmartPointer<vmxGUIInteractorStyle> m_interactor_style;
@@ -1478,7 +1479,7 @@ public:
 //    vtkRenderer* GetRenderer_3D();
 
     /// Get pointer to the render window.
-    vtkRenderWindow* GetRenderWindow();
+    vtkSDL2OpenGLRenderWindow* GetRenderWindow();
     
     /// Get the size of the render window. If no render window is attached return fail 0.
     int GetRenderWindowSize(int &x_size, int &y_size);
@@ -1500,7 +1501,7 @@ public:
     virtual void Reset();
     
     /// Set the render window.
-    void SetRenderWindow(vtkRenderWindow *render_window);
+    void SetRenderWindow(vtkSDL2OpenGLRenderWindow *render_window);
     
     /// Set size of the main window (it is the internal render window size).
     void SetSize(int size_x, int size_y);

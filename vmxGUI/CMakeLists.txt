@@ -7,6 +7,13 @@ set( TARGET_NAME vmxGUI )
 PROJECT(TARGET_NAME)
 
 find_package(VTK REQUIRED)
+#find_package(VTK
+  #COMPONENTS
+    #FiltersSources      # VTK pipeline
+    #InteractionStyle    # Mouse handling
+    #RenderingOpenGL2    # For Rendering
+    #RenderingUI         # For SDL2 Window
+#)
 include(${VTK_USE_FILE})
 
 
@@ -43,8 +50,8 @@ set( ${TARGET_NAME}_SOURCES
     #vmxGUIRenderer.cpp
     vmxGUIRenderer3DTrackballCamera.cpp
     vmxGUIRendererImageViewer.cpp
-    vmxGUIRendererSignalViewer.cpp
-    vmxGUIRendererTableViewer.cpp
+    #vmxGUIRendererSignalViewer.cpp
+    #vmxGUIRendererTableViewer.cpp
     vmxGUIWidget.cpp
 )
 
@@ -68,8 +75,8 @@ set( ${TARGET_NAME}_HEADERS
     #vmxGUIRenderer.h
     vmxGUIRenderer3DTrackballCamera.h
     vmxGUIRendererImageViewer.h
-    vmxGUIRendererSignalViewer.h
-    vmxGUIRendererTableViewer.h
+    #vmxGUIRendererSignalViewer.h
+    #vmxGUIRendererTableViewer.h
     vmxGUIWidget.h
 )
 
@@ -94,8 +101,8 @@ add_definitions( -DvmxGUIButtonGroup_EXPORTS
     #-DvmxGUIRenderer_EXPORTS
     -DvmxGUIRenderer3DTrackballCamera_EXPORTS
     -DvmxGUIRendererImageViewer_EXPORTS
-    -DvmxGUIRendererSignalViewer_EXPORTS
-    -DvmxGUIRendererTableViewer_EXPORTS
+    #-DvmxGUIRendererSignalViewer_EXPORTS
+    #-DvmxGUIRendererTableViewer_EXPORTS
     -DvmxGUIWidget_EXPORTS
 )
 
@@ -108,6 +115,15 @@ else()
     add_library( ${TARGET_NAME} SHARED ${${TARGET_NAME}_SOURCES} ${${TARGET_NAME}_HEADERS} )
 endif()
 
+
+# -----------------------------------------------------------------------------
+# VTK modules initialization
+# -----------------------------------------------------------------------------
+
+vtk_module_autoinit(
+  TARGETS  ${TARGET_NAME}
+  MODULES  ${VTK_LIBRARIES}
+)
 
 target_link_libraries(${TARGET_NAME}
     ${VTK_LIBRARIES}

@@ -1,109 +1,110 @@
 /*=========================================================================
-  Program:   Visualization Toolkit
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-=========================================================================*/
+ 
+ Program:   mipx
+ Module:    example_GUI_3DTrackballCameraViewer.cpp
+ 
+ Authors: Danilo Babin, Hrvoje Leventic.
+ Copyright (c) Danilo Babin, Hrvoje Leventic.
+ All rights reserved.
+ See Copyright.txt
+ 
+ Licensed under the BSD License 2.0.
+ 
+ This software is distributed WITHOUT ANY WARRANTY; without even
+ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE. See the above copyright notice for more information.
+ 
+ =========================================================================*/
 
-#include "vtkActor.h"
-#include "vtkConeSource.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkNew.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkSDL2OpenGLRenderWindow.h"
-#include "vtkSDL2RenderWindowInteractor.h"
 
-#include <iostream>
-//#include "mxImage.h"
-#include "mxString.h"
-#include "mxPoint.h"
-#include "mxDataObject.h"
-#include "mxObject.h"
-//#include "mxBasicImage.h"
-#include "mxImage.h"
 
-//------------------------------------------------------------------------------
-// Main
-//------------------------------------------------------------------------------
 
-int main(int argc, char* argv[])
+/*
+ 
+ This example is the most basic use case: 3D scene with an actor.
+ 
+ */
+
+
+
+
+#include "vmxGUIMenu.h"
+#include "vmxGUIMenuBar.h"
+#include "vmxGUIFilesDialog.h"
+#include "vmxGUILabel.h"
+#include "vmxGUIListWidget.h"
+#include "vmxGUIInputWidget.h"
+#include "vmxGUIButtonGroup.h"
+#include "vmxGUIInteractorStyle.h"
+#include "vmxGUIRenderer3DTrackballCamera.h"
+
+
+#include <vtkSphereSource.h>
+
+
+
+
+
+class MainApp : public vmxGUIMainWidget
 {
-  std::cout << "It werks" << std::endl;
-  mxImage img;
-  img.SetDimensions(1,10,10,10);
-  img.FillInWith(1);
-  //for (unsigned int s = 0; s < img.GetDimension_S(); ++s) {
-    //for (unsigned int r = 0; r < img.GetDimension_R(); ++r) {
-      //for (unsigned int c = 0; c < img.GetDimension_C(); ++c) {
-        //img(s,r,c) = 1;
-      //}
-    //}
-  //}
-
-  int sum=0;
-  for (unsigned int s = 0; s < img.GetDimension_S(); ++s) {
-    for (unsigned int r = 0; r < img.GetDimension_R(); ++r) {
-      for (unsigned int c = 0; c < img.GetDimension_C(); ++c) {
-        sum += img(s,r,c);
-      }
-    }
-  }
-
-  std::cout << "Sum of the image is: " << sum << std::endl;
-  
-  mxString test;
-  test.Assign("Test mxStringa");
-  std::cout << test << std::endl;
-
-  mxPoint p;
-  p.S() = 100;
-  p.R() = 90;
-  p.C() = 80;
-
-  std::cout << "Point: " << p.S() << " " << p.R() << " " << p.C() << std::endl;
     
-  mxDataObject obj;
-  obj.GetObjectName().Assign("Neki object");
+public:
+    
+    vmxGUIRenderer3DTrackballCamera *m_3D_renderer;
+    
+ 
+    MainApp()
+    {
+        // Initialization.
+        {
+            vmxGUIConnection::internal_SetMainWidget(this);
+        }
+        
+        
+        m_3D_renderer = new vmxGUIRenderer3DTrackballCamera(this);
+        this->AddRenderer(m_3D_renderer);
 
-  std::cout << "mxDO: " << obj.GetObjectName() << std::endl;
-  //
-  // Create a renderer, render window, and interactor
-  vtkNew<vtkRenderer> renderer;
-  vtkNew<vtkSDL2OpenGLRenderWindow> renderWindow;
-  renderWindow->SetMultiSamples(0);
-  renderWindow->AddRenderer(renderer);
-  vtkNew<vtkSDL2RenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  vtkNew<vtkInteractorStyleTrackballCamera> style;
-  renderWindowInteractor->SetInteractorStyle(style);
-  style->SetDefaultRenderer(renderer);
+        vtkSmartPointer<vtkSphereSource> sphere_source = vtkSmartPointer<vtkSphereSource>::New();
+        sphere_source->SetCenter(0.0, 0.0, 0.0);
+        sphere_source->SetRadius(50.0);
+        
+        vtkSmartPointer<vtkPolyDataMapper> sphere_mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        sphere_mapper->SetInputConnection(sphere_source->GetOutputPort());
+        
+        vtkSmartPointer<vtkActor> sphere_actor = vtkSmartPointer<vtkActor>::New();
+        sphere_actor->SetMapper(sphere_mapper);
 
-  // Create pipeline
-  vtkNew<vtkConeSource> coneSource;
-  coneSource->Update();
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(coneSource->GetOutputPort());
+        m_3D_renderer->GetVTKRenderer()->AddActor(sphere_actor);
+        
+        m_3D_renderer->SetPickMarkerVisibility(1);
 
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
+    };
+    
+    
+    
+    
+    
+    ~MainApp(){};
+    
+    
+    
+};
 
-  // Add the actors to the scene
-  renderer->AddActor(actor);
 
-  // Start rendering app
-  renderer->SetBackground(0.2, 0.3, 0.4);
-  renderWindow->SetSize(300, 300);
-  renderWindow->Render();
 
-  // Start event loop
-  renderWindowInteractor->Start();
 
-  return 0;
-}
+
+
+int main()
+{
+    // Create the main app.
+    MainApp main_app;
+    
+    // Start the interaction. This will call the Render() method of the render window and Start() method of the interactor.
+    main_app.StartInteraction();
+    
+    return 1;
+};
+

@@ -59,9 +59,9 @@
 #include <vtkPicker.h>
 #include <vtkProperty.h>
 #include <vtkPropPicker.h>
-#include <vtkRenderWindow.h>
+#include <vtkSDL2OpenGLRenderWindow.h>
 #include <vtkRendererCollection.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkSDL2RenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 
 
